@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía Interactiva de Composer y Laravel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+        .active-nav {
+            color: #f59e0b; 
+            font-weight: 700;
+        }
+        .tab-active {
+            border-color: #f59e0b;
+            background-color: #fffbeb;
+            color: #b45309;
+        }
+        .explanation-highlight {
+            background-color: #fef3c7;
+            border-left-color: #f59e0b;
+        }
+        .code-highlight {
+            background-color: #fef9c3;
+            color: #92400e;
+            font-weight: bold;
+            border-radius: 4px;
+            padding: 0 4px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <h1 class="text-xl font-bold text-amber-700">Composer y Laravel</h1>
+            <ul class="hidden md:flex space-x-8 text-sm font-medium text-gray-600">
+                <li><a href="#que-es" class="hover:text-amber-600 transition-colors">¿Qué es?</a></li>
+                <li><a href="#archivos-clave" class="hover:text-amber-600 transition-colors">Archivos Clave</a></li>
+                <li><a href="#en-laravel" class="hover:text-amber-600 transition-colors">Uso en Laravel</a></li>
+                <li><a href="#ejemplo-json" class="hover:text-amber-600 transition-colors">Ejemplo `composer.json`</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-6 py-12">
+        
+        <section id="que-es" class="mb-20">
+            <h2 class="text-3xl font-bold text-center mb-4 text-amber-800">¿Qué es Composer?</h2>
+            <p class="max-w-3xl mx-auto text-center text-gray-600 mb-12">
+                Esta sección introduce el concepto fundamental de Composer como una herramienta esencial en el desarrollo moderno de PHP, utilizando una analogía para simplificar su propósito principal.
+            </p>
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div class="space-y-4">
+                    <p>Composer es una herramienta de gestión de dependencias para PHP. Imagina que estás construyendo una casa (tu proyecto de software) para la cual necesitas muchas herramientas y materiales prefabricados (bibliotecas o paquetes de código). En lugar de buscar y descargar cada uno de ellos manualmente, Composer lo hace por ti de manera automática.</p>
+                    <p class="font-medium text-amber-900 bg-amber-50 p-4 rounded-lg">Su función principal es declarar las bibliotecas de las que tu proyecto depende y él se encarga de instalar, actualizar y gestionar esas dependencias. Esto asegura que tu proyecto tenga las versiones correctas de todas las bibliotecas que necesita para funcionar, evitando conflictos y simplificando enormemente el desarrollo.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-lg border border-gray-200">
+                    <h3 class="font-bold text-center mb-4">Analogía Visual del Proceso</h3>
+                    <div class="flex flex-col items-center space-y-4">
+                        <div class="text-center">
+                            <div class="w-24 h-24 bg-sky-100 rounded-full flex items-center justify-center text-4xl">📦</div>
+                            <p class="font-semibold mt-2">Tu Proyecto PHP</p>
+                        </div>
+                        <div class="text-5xl text-gray-400">↓</div>
+                        <div class="text-center">
+                            <div class="w-24 h-24 bg-amber-100 rounded-full flex items-center justify-center text-4xl">🎼</div>
+                            <p class="font-semibold mt-2">Composer</p>
+                            <p class="text-xs text-gray-500">(El Director de Orquesta)</p>
+                        </div>
+                        <div class="text-5xl text-gray-400">↓</div>
+                        <div class="flex space-x-4">
+                             <div class="text-center">
+                                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center text-2xl">🧩</div>
+                                <p class="text-sm font-semibold mt-1">Paquete A</p>
+                            </div>
+                             <div class="text-center">
+                                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center text-2xl">🧩</div>
+                                <p class="text-sm font-semibold mt-1">Paquete B</p>
+                            </div>
+                             <div class="text-center">
+                                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center text-2xl">🧩</div>
+                                <p class="text-sm font-semibold mt-1">Paquete C</p>
+                            </div>
+                        </div>
+                         <p class="font-semibold mt-2">Dependencias Gestionadas</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="archivos-clave" class="mb-20">
+            <h2 class="text-3xl font-bold text-center mb-4 text-amber-800">El Corazón de Composer</h2>
+             <p class="max-w-3xl mx-auto text-center text-gray-600 mb-12">
+                Aquí se comparan los dos archivos más importantes de Composer. Entender su diferencia es crucial para gestionar las dependencias de tu proyecto de forma eficaz y predecible.
+            </p>
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="bg-white p-8 rounded-lg shadow-lg border-2 border-blue-200">
+                    <h3 class="text-2xl font-bold mb-3 text-blue-800">composer.json</h3>
+                    <p class="font-mono text-sm bg-blue-50 text-blue-700 inline-block px-2 py-1 rounded mb-4">El Manifiesto</p>
+                    <p>Este archivo es la declaración de intenciones de tu proyecto. En él, declaras las dependencias que necesitas y sus restricciones de versión (por ejemplo, "versión ^11.0"). También puedes definir el autoloading, scripts personalizados y otra metainformación del proyecto.</p>
+                </div>
+                 <div class="bg-white p-8 rounded-lg shadow-lg border-2 border-green-200">
+                    <h3 class="text-2xl font-bold mb-3 text-green-800">composer.lock</h3>
+                     <p class="font-mono text-sm bg-green-50 text-green-700 inline-block px-2 py-1 rounded mb-4">El Contrato</p>
+                    <p>Este archivo es un registro exacto de las versiones de cada paquete que se instaló. Se genera a partir del `composer.json`. Garantiza que cada desarrollador del equipo use exactamente las mismas versiones de las dependencias, asegurando la reproducibilidad del entorno.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="en-laravel" class="mb-20">
+            <h2 class="text-3xl font-bold text-center mb-4 text-amber-800">Composer en el Ecosistema de Laravel</h2>
+            <p class="max-w-3xl mx-auto text-center text-gray-600 mb-12">
+                Laravel y Composer están completamente ligados. Explora las tres formas principales en que Composer potencia el framework Laravel, desde la creación del proyecto hasta su funcionamiento diario.
+            </p>
+            <div class="max-w-4xl mx-auto">
+                <div class="mb-4 flex border-b border-gray-200">
+                    <button class="tab-button tab-active flex-1 py-3 px-4 text-sm md:text-base font-semibold text-gray-600 border-b-2 border-transparent hover:bg-amber-50 focus:outline-none" data-target="tab-instalacion">1. Instalación</button>
+                    <button class="tab-button flex-1 py-3 px-4 text-sm md:text-base font-semibold text-gray-600 border-b-2 border-transparent hover:bg-amber-50 focus:outline-none" data-target="tab-gestion">2. Gestión de Paquetes</button>
+                    <button class="tab-button flex-1 py-3 px-4 text-sm md:text-base font-semibold text-gray-600 border-b-2 border-transparent hover:bg-amber-50 focus:outline-none" data-target="tab-autoloading">3. Autoloading</button>
+                </div>
+                <div class="bg-white p-8 rounded-lg shadow-lg">
+                    <div id="tab-instalacion" class="tab-content">
+                        <h3 class="text-xl font-bold mb-3 text-amber-900">Instalación de Laravel</h3>
+                        <p>Cuando instalas un nuevo proyecto de Laravel, lo haces a través de Composer. El comando <code class="bg-gray-200 text-sm p-1 rounded font-mono">composer create-project laravel/laravel nombre-del-proyecto</code> utiliza Composer para descargar el esqueleto del framework, junto con todas las dependencias exactas que necesita para funcionar desde el primer momento.</p>
+                    </div>
+                    <div id="tab-gestion" class="tab-content hidden">
+                        <h3 class="text-xl font-bold mb-3 text-amber-900">Gestión de Paquetes</h3>
+                        <p>Laravel utiliza muchos paquetes de terceros para su funcionamiento (como Monolog, Symfony, etc.). Todas estas dependencias están listadas en `composer.json`. Cuando necesitas añadir una nueva funcionalidad, como una biblioteca para procesar pagos o para trabajar con imágenes, simplemente la instalas con <code class="bg-gray-200 text-sm p-1 rounded font-mono">composer require nombre-del-paquete</code>.</p>
+                    </div>
+                    <div id="tab-autoloading" class="tab-content hidden">
+                        <h3 class="text-xl font-bold mb-3 text-amber-900">Autoloading de Clases</h3>
+                        <p>Composer genera un archivo <code class="bg-gray-200 text-sm p-1 rounded font-mono">vendor/autoload.php</code> que se encarga de cargar automáticamente todas las clases, tanto las de las bibliotecas instaladas como las de tu propio proyecto (definidas en la sección `autoload` del `composer.json`). En Laravel, este archivo se incluye en el punto de entrada de la aplicación, permitiéndote usar cualquier clase sin preocuparte de incluirla manualmente.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="ejemplo-json">
+             <h2 class="text-3xl font-bold text-center mb-4 text-amber-800">Ejemplo Interactivo de `composer.json`</h2>
+             <p class="max-w-3xl mx-auto text-center text-gray-600 mb-12">
+                Pasa el ratón sobre las claves del código de la izquierda para resaltar y ver la explicación de cada sección a la derecha. Este es un ejemplo típico de un proyecto Laravel.
+            </p>
+            <div class="grid md:grid-cols-2 gap-8 items-start">
+                <div class="bg-gray-800 text-white p-6 rounded-lg shadow-lg font-mono text-sm overflow-x-auto">
+                    <pre><code class="language-json">{
+    <span class="code-key text-cyan-400" data-key="name">"name"</span>: <span class="text-green-400">"laravel/laravel"</span>,
+    <span class="code-key text-cyan-400" data-key="description">"description"</span>: <span class="text-green-400">"The Laravel Framework."</span>,
+    <span class="code-key text-cyan-400" data-key="require">"require"</span>: {
+        <span class="text-cyan-400">"php"</span>: <span class="text-green-400">"^8.2"</span>,
+        <span class="text-cyan-400">"laravel/framework"</span>: <span class="text-green-400">"^11.0"</span>
+    },
+    <span class="code-key text-cyan-400" data-key="require-dev">"require-dev"</span>: {
+        <span class="text-cyan-400">"fakerphp/faker"</span>: <span class="text-green-400">"^1.9.1"</span>,
+        <span class="text-cyan-400">"nunomaduro/collision"</span>: <span class="text-green-400">"^8.1"</span>
+    },
+    <span class="code-key text-cyan-400" data-key="autoload">"autoload"</span>: {
+        <span class="text-cyan-400">"psr-4"</span>: {
+            <span class="text-cyan-400">"App\\"</span>: <span class="text-green-400">"app/"</span>,
+            <span class="text-cyan-400">"Database\\Factories\\"</span>: <span class="text-green-400">"database/factories/"</span>
+        }
+    },
+    <span class="code-key text-cyan-400" data-key="config">"config"</span>: {
+        <span class="text-cyan-400">"optimize-autoloader"</span>: <span class="text-orange-400">true</span>
+    }
+}</code></pre>
+                </div>
+                <div class="space-y-4">
+                    <div id="explanation-default" class="explanation-item p-4 border-l-4 border-gray-300">
+                         <h4 class="font-bold">Explicaciones</h4>
+                         <p class="text-sm text-gray-600">Pasa el ratón sobre una clave en el código para ver su descripción aquí.</p>
+                    </div>
+                    <div id="explanation-name" class="explanation-item p-4 border-l-4 border-gray-300 hidden">
+                        <h4 class="font-bold">name</h4>
+                        <p class="text-sm text-gray-600">El nombre del paquete, en formato `vendedor/proyecto`.</p>
+                    </div>
+                    <div id="explanation-description" class="explanation-item p-4 border-l-4 border-gray-300 hidden">
+                        <h4 class="font-bold">description</h4>
+                        <p class="text-sm text-gray-600">Una breve descripción de lo que hace el paquete o proyecto.</p>
+                    </div>
+                    <div id="explanation-require" class="explanation-item p-4 border-l-4 border-gray-300 hidden">
+                        <h4 class="font-bold">require</h4>
+                        <p class="text-sm text-gray-600">Lista los paquetes que son estrictamente necesarios para que la aplicación funcione en producción.</p>
+                    </div>
+                     <div id="explanation-require-dev" class="explanation-item p-4 border-l-4 border-gray-300 hidden">
+                        <h4 class="font-bold">require-dev</h4>
+                        <p class="text-sm text-gray-600">Define dependencias que solo son necesarias para el desarrollo, como librerías de testing o depuración. No se instalan en producción.</p>
+                    </div>
+                     <div id="explanation-autoload" class="explanation-item p-4 border-l-4 border-gray-300 hidden">
+                        <h4 class="font-bold">autoload</h4>
+                        <p class="text-sm text-gray-600">Configura cómo Composer debe encontrar y cargar automáticamente las clases de tu proyecto, siguiendo el estándar PSR-4.</p>
+                    </div>
+                     <div id="explanation-config" class="explanation-item p-4 border-l-4 border-gray-300 hidden">
+                        <h4 class="font-bold">config</h4>
+                        <p class="text-sm text-gray-600">Permite configurar varios aspectos del comportamiento de Composer, como optimizaciones o la versión de PHP preferida.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            
+            const tabs = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(item => item.classList.remove('tab-active'));
+                    tab.classList.add('tab-active');
+
+                    const target = document.getElementById(tab.dataset.target);
+
+                    tabContents.forEach(content => {
+                        content.classList.add('hidden');
+                    });
+
+                    if (target) {
+                        target.classList.remove('hidden');
+                    }
+                });
+            });
+
+            const codeKeys = document.querySelectorAll('.code-key');
+            const explanationItems = document.querySelectorAll('.explanation-item');
+            const defaultExplanation = document.getElementById('explanation-default');
+
+            codeKeys.forEach(key => {
+                const keyName = key.dataset.key;
+                const targetExplanation = document.getElementById(`explanation-${keyName}`);
+
+                key.addEventListener('mouseover', () => {
+                    explanationItems.forEach(item => item.classList.add('hidden'));
+                    
+                    if (targetExplanation) {
+                        targetExplanation.classList.remove('hidden');
+                        targetExplanation.classList.add('explanation-highlight');
+                    } else {
+                         defaultExplanation.classList.remove('hidden');
+                    }
+
+                    key.classList.add('code-highlight');
+                });
+
+                key.addEventListener('mouseout', () => {
+                    if (targetExplanation) {
+                        targetExplanation.classList.remove('explanation-highlight');
+                    }
+                     key.classList.remove('code-highlight');
+                     
+                     explanationItems.forEach(item => item.classList.add('hidden'));
+                     defaultExplanation.classList.remove('hidden');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

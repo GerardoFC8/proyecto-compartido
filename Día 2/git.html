@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía Interactiva de Git y GitHub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chosen Palette: Slate & Amber -->
+    <!-- Application Structure Plan: Se utiliza un diseño de dos columnas con una barra de navegación lateral fija a la izquierda para un acceso rápido y un área de contenido principal a la derecha. Esta estructura se eligió porque es un patrón de diseño familiar y muy efectivo para la documentación técnica, permitiendo a los usuarios navegar entre secciones sin perder el contexto. Las interacciones clave incluyen botones para copiar comandos y diagramas de flujo visuales para simplificar conceptos complejos, transformando la guía de un documento estático a una herramienta de aprendizaje y referencia activa. -->
+    <!-- Visualization & Content Choices: 
+        - Conceptos Fundamentales: Se presentan como texto claro. Se añade un diagrama de flujo simple (HTML/Tailwind) para los estados de los archivos (Untracked > Staged > Committed) para hacer el concepto más tangible. Goal: Informar.
+        - Comandos de Git: Se muestran en bloques de código con un botón de "Copiar" (JS). Esto mejora la usabilidad al permitir a los desarrolladores copiar comandos sin errores. Goal: Habilitar.
+        - Flujo de Trabajo en Equipo: Se representa con un diagrama de flujo visual (HTML/Tailwind) que muestra el ciclo de vida de una rama de funcionalidad. Esto aclara un proceso de varios pasos que puede ser confuso. Goal: Organizar/Explicar.
+        - Resolución de Conflictos: Se muestra un ejemplo visual de cómo se ven los marcadores de conflicto en un archivo, usando HTML/Tailwind para simular la vista del editor. Goal: Clarificar.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        .code-block {
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background-color: #4a5568;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.2s ease-in-out;
+        }
+        .code-block:hover .copy-btn {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <div class="flex flex-col md:flex-row">
+        <!-- Sidebar -->
+        <aside class="w-full md:w-64 bg-white md:h-screen md:fixed md:top-0 md:left-0 p-6 border-r border-slate-200 z-10">
+            <h1 class="text-xl font-bold text-slate-900 mb-6">Guía de Git y GitHub</h1>
+            <nav>
+                <ul class="space-y-2">
+                    <li><a href="#conceptos" class="block font-medium text-slate-600 hover:text-amber-600 transition">1. Conceptos Fundamentales</a></li>
+                    <li><a href="#configuracion" class="block font-medium text-slate-600 hover:text-amber-600 transition">2. Configuración Inicial</a></li>
+                    <li><a href="#flujo-basico" class="block font-medium text-slate-600 hover:text-amber-600 transition">3. Flujo de Trabajo Básico</a></li>
+                    <li><a href="#colaboracion" class="block font-medium text-slate-600 hover:text-amber-600 transition">4. Colaboración con GitHub</a></li>
+                    <li><a href="#flujo-equipo" class="block font-medium text-slate-600 hover:text-amber-600 transition">5. Flujo de Trabajo en Equipo</a></li>
+                    <li><a href="#comandos-avanzados" class="block font-medium text-slate-600 hover:text-amber-600 transition">6. Comandos Avanzados</a></li>
+                    <li><a href="#consejos" class="block font-medium text-slate-600 hover:text-amber-600 transition">7. Consejos Clave</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="w-full md:ml-64 p-6 md:p-10">
+            
+            <section id="conceptos" class="mb-12 scroll-mt-20">
+                <h2 class="text-3xl font-bold text-slate-900 border-b-2 border-amber-500 pb-2 mb-6">1. Conceptos Fundamentales</h2>
+                <p class="mb-4">Git es un sistema de control de versiones distribuido, lo que significa que cada desarrollador tiene una copia completa del historial del proyecto. GitHub es una plataforma en la nube que utiliza Git para proporcionar un lugar centralizado para almacenar repositorios y colaborar.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-center">
+                    <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-200">
+                        <h3 class="font-bold text-lg">Repositorio (Repo)</h3>
+                        <p class="text-sm text-slate-600">Una carpeta que Git rastrea, conteniendo todos los archivos del proyecto y su historial.</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-200">
+                        <h3 class="font-bold text-lg">Commit</h3>
+                        <p class="text-sm text-slate-600">Una "instantánea" del repositorio en un momento dado, con un mensaje descriptivo.</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-200">
+                        <h3 class="font-bold text-lg">Rama (Branch)</h3>
+                        <p class="text-sm text-slate-600">Un puntero a un commit que permite trabajar en funcionalidades de forma aislada.</p>
+                    </div>
+                     <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-200">
+                        <h3 class="font-bold text-lg">HEAD</h3>
+                        <p class="text-sm text-slate-600">Un puntero que indica la rama en la que te encuentras trabajando actualmente.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="configuracion" class="mb-12 scroll-mt-20">
+                <h2 class="text-3xl font-bold text-slate-900 border-b-2 border-amber-500 pb-2 mb-6">2. Configuración Inicial de Git</h2>
+                <p class="mb-4">Antes de empezar, es crucial configurar tu identidad en Git. Estos datos se adjuntarán a cada uno de tus commits.</p>
+                <div class="code-block bg-slate-800 rounded-lg text-white p-4 font-mono text-sm">
+                    <button class="copy-btn">Copiar</button>
+                    <pre><code>git config --global user.name "Tu Nombre"
+git config --global user.email "tu.email@ejemplo.com"</code></pre>
+                </div>
+            </section>
+
+            <section id="flujo-basico" class="mb-12 scroll-mt-20">
+                <h2 class="text-3xl font-bold text-slate-900 border-b-2 border-amber-500 pb-2 mb-6">3. Flujo de Trabajo Básico (Local)</h2>
+                
+                <h3 class="text-2xl font-semibold mb-3">3.1. Creación de un Repositorio</h3>
+                <p class="mb-4">Para iniciar un nuevo repositorio en tu máquina local:</p>
+                <div class="code-block bg-slate-800 rounded-lg text-white p-4 font-mono text-sm mb-8">
+                    <button class="copy-btn">Copiar</button>
+                    <pre><code># Navega a la carpeta de tu proyecto
+cd /ruta/a/mi/proyecto
+
+# Inicializa Git en la carpeta
+git init</code></pre>
+                </div>
+                
+                <h3 class="text-2xl font-semibold mb-3">3.2. Realización de Commits</h3>
+                <p class="mb-4">Un commit es el paso fundamental para guardar tus cambios. Sigue este flujo:</p>
+                
+                <div class="flex items-center justify-center space-x-2 md:space-x-4 my-6 text-center">
+                    <div class="p-4 bg-white border border-slate-200 rounded-lg shadow-sm">
+                        <p class="font-bold">Working Directory</p>
+                        <p class="text-xs text-slate-500">Modificas archivos</p>
+                    </div>
+                    <div class="text-2xl text-amber-500 font-sans">&rarr;</div>
+                    <div class="p-4 bg-white border border-slate-200 rounded-lg shadow-sm">
+                        <p class="font-bold">Staging Area</p>
+                         <p class="text-xs text-slate-500">`git add`</p>
+                    </div>
+                    <div class="text-2xl text-amber-500 font-sans">&rarr;</div>
+                    <div class="p-4 bg-white border border-slate-200 rounded-lg shadow-sm">
+                        <p class="font-bold">Local Repo</p>
+                        <p class="text-xs text-slate-500">`git commit`</p>
+                    </div>
+                </div>
+
+                <p class="mb-4 mt-8">Prepara los cambios (staging) y luego haz el commit.</p>
+                <div class="code-block bg-slate-800 rounded-lg text-white p-4 font-mono text-sm mb-4">
+                    <button class="copy-btn">Copiar</button>
+                    <pre><code># Añade todos los archivos modificados
+git add .</code></pre>
+                </div>
+                <div class="code-block bg-slate-800 rounded-lg text-white p-4 font-mono text-sm">
+                    <button class="copy-btn">Copiar</button>
+                    <pre><code># Guarda los cambios con un mensaje
+git commit -m "Descripción concisa de los cambios"</code></pre>
+                </div>
+            </section>
+
+            <section id="colaboracion" class="mb-12 scroll-mt-20">
+                <h2 class="text-3xl font-bold text-slate-900 border-b-2 border-amber-500 pb-2 mb-6">4. Colaboración con GitHub</h2>
+                
+                <h3 class="text-2xl font-semibold mb-3">4.1. Conexión y Subida de Cambios (Push)</h3>
+                <p class="mb-4">Después de crear un repositorio en GitHub, conéctalo a tu repositorio local y sube tus commits.</p>
+                <div class="code-block bg-slate-800 rounded-lg text-white p-4 font-mono text-sm mb-4">
+                    <button class="copy-btn">Copiar</button>
+                    <pre><code># Enlaza tu repo local con el remoto de GitHub
+git remote add origin https://github.com/tu-usuario/nombre-del-repo.git
+
+# Renombra la rama principal a 'main' si es necesario
+git branch -M main</code></pre>
+                </div>
+                <div class="code-block bg-slate-800 rounded-lg text-white p-4 font-mono text-sm">
+                    <button class="copy-btn">Copiar</button>
+                    <pre><code># Sube la rama 'main' al remoto 'origin'
+git push -u origin main</code></pre>
+                </div>
+                
+                <h3 class="text-2xl font-semibold mt-8 mb-3">4.2. Descarga de Cambios (Pull)</h3>
+                <p class="mb-4">Para obtener los cambios más recientes del repositorio remoto y fusionarlos con tu trabajo local.</p>
+                <div class="code-block bg-slate-800 rounded-lg text-white p-4 font-mono text-sm">
+                    <button class="copy-btn">Copiar</button>
+                    <pre><code># Descarga y fusiona los cambios de la rama remota 'main'
+git pull origin main</code></pre>
+                </div>
+            </section>
+            
+            <section id="flujo-equipo" class="mb-12 scroll-mt-20">
+                <h2 class="text-3xl font-bold text-slate-900 border-b-2 border-amber-500 pb-2 mb-6">5. Flujo de Trabajo en Equipo</h2>
+                <p class="mb-6">El uso de ramas es crucial para el trabajo en equipo. La rama `main` debe ser siempre estable y funcional. Este es el flujo de trabajo recomendado para desarrollar una nueva funcionalidad.</p>
+                
+                <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                    <div class="flex flex-col md:flex-row items-center text-center">
+                        <div class="flex-1 p-2">
+                            <span class="text-sm font-semibold text-amber-600">1. Crear Rama</span>
+                            <p class="text-xs">`git checkout -b feature/algo`</p>
+                        </div>
+                        <div class="text-xl text-slate-300">&rarr;</div>
+                        <div class="flex-1 p-2">
+                            <span class="text-sm font-semibold text-amber-600">2. Desarrollar</span>
+                            <p class="text-xs">`git add .` `git commit`</p>
+                        </div>
+                        <div class="text-xl text-slate-300">&rarr;</div>
+                        <div class="flex-1 p-2">
+                             <span class="text-sm font-semibold text-amber-600">3. Subir Rama</span>
+                            <p class="text-xs">`git push origin feature/algo`</p>
+                        </div>
+                         <div class="text-xl text-slate-300">&rarr;</div>
+                        <div class="flex-1 p-2">
+                             <span class="text-sm font-semibold text-amber-600">4. Abrir Pull Request</span>
+                            <p class="text-xs">En GitHub, para revisión</p>
+                        </div>
+                         <div class="text-xl text-slate-300">&rarr;</div>
+                        <div class="flex-1 p-2">
+                             <span class="text-sm font-semibold text-amber-600">5. Fusionar (Merge)</span>
+                            <p class="text-xs">Incorporar cambios a `main`</p>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 class="text-2xl font-semibold mt-8 mb-3">5.4. Resolución de Conflictos</h3>
+                <p class="mb-4">Los conflictos ocurren cuando dos desarrolladores modifican la misma línea. Git te pedirá que resuelvas el conflicto manualmente. Verás algo como esto en tu editor:</p>
+                <div class="bg-slate-800 rounded-lg text-white p-4 font-mono text-sm">
+                    <p>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</p>
+                    <p class="text-blue-300">const color = "blue"; // Tu cambio</p>
+                    <p>=======</p>
+                    <p class="text-green-300">const color = "green"; // Cambio del otro desarrollador</p>
+                    <p>&gt;&gt;&gt;&gt;&gt;&gt;&gt; some-other-branch-name</p>
+                </div>
+                 <p class="mt-4">Debes editar el archivo para quedarte con el código correcto, eliminar los marcadores de Git (`&lt;&lt;&lt;`, `===`, `&gt;&gt;&gt;`), y luego hacer un commit con la resolución.</p>
+                 <div class="code-block bg-slate-800 rounded-lg text-white p-4 font-mono text-sm mt-4">
+                    <button class="copy-btn">Copiar</button>
+                    <pre><code># Después de editar el archivo y resolver
+git add archivo_con_conflicto.js
+git commit -m "Resolución de conflicto de color"</code></pre>
+                </div>
+            </section>
+            
+            <section id="comandos-avanzados" class="mb-12 scroll-mt-20">
+                <h2 class="text-3xl font-bold text-slate-900 border-b-2 border-amber-500 pb-2 mb-6">6. Comandos Avanzados</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <h4 class="font-bold">Clonar un repositorio</h4>
+                        <div class="code-block bg-slate-800 rounded-lg text-white p-4 font-mono text-sm mt-2"><button class="copy-btn">Copiar</button><pre><code>git clone https://...</code></pre></div>
+                    </div>
+                     <div>
+                        <h4 class="font-bold">Ver el estado</h4>
+                        <div class="code-block bg-slate-800 rounded-lg text-white p-4 font-mono text-sm mt-2"><button class="copy-btn">Copiar</button><pre><code>git status</code></pre></div>
+                    </div>
+                     <div>
+                        <h4 class="font-bold">Ver historial de commits</h4>
+                        <div class="code-block bg-slate-800 rounded-lg text-white p-4 font-mono text-sm mt-2"><button class="copy-btn">Copiar</button><pre><code>git log --oneline</code></pre></div>
+                    </div>
+                     <div>
+                        <h4 class="font-bold">Revertir un commit (seguro)</h4>
+                        <div class="code-block bg-slate-800 rounded-lg text-white p-4 font-mono text-sm mt-2"><button class="copy-btn">Copiar</button><pre><code>git revert &lt;hash-commit&gt;</code></pre></div>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="consejos" class="mb-12 scroll-mt-20">
+                 <h2 class="text-3xl font-bold text-slate-900 border-b-2 border-amber-500 pb-2 mb-6">7. Consejos para un Flujo de Trabajo Sin Conflictos</h2>
+                 <ul class="list-disc list-inside space-y-3 bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                    <li><strong class="font-semibold">Trabaja en ramas separadas:</strong> Nunca trabajes directamente en `main`.</li>
+                    <li><strong class="font-semibold">Haz `pull` a menudo:</strong> Descarga los cambios de `main` antes de empezar a trabajar.</li>
+                    <li><strong class="font-semibold">Commits atómicos:</strong> Cada commit debe contener un solo cambio lógico.</li>
+                    <li><strong class="font-semibold">Mensajes de commit claros:</strong> Describe qué hiciste y por qué.</li>
+                    <li><strong class="font-semibold">Revisión de código:</strong> Fomenta la revisión por pares a través de Pull Requests.</li>
+                    <li><strong class="font-semibold">Utiliza `.gitignore`:</strong> Ignora archivos generados automáticamente (logs, `node_modules`, etc.).</li>
+                </ul>
+            </section>
+
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const copyButtons = document.querySelectorAll('.copy-btn');
+            copyButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const codeBlock = button.nextElementSibling;
+                    const code = codeBlock.innerText;
+                    
+                    navigator.clipboard.writeText(code).then(() => {
+                        button.textContent = 'Copiado!';
+                        setTimeout(() => {
+                            button.textContent = 'Copiar';
+                        }, 2000);
+                    }).catch(err => {
+                        console.error('Error al copiar texto: ', err);
+                    });
+                });
+            });
+
+            const navLinks = document.querySelectorAll('aside a');
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetId = link.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explorador Interactivo de Carpetas de Laravel 12</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .folder > ul {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s cubic-bezier(0.25, 0.1, 0.25, 1.0);
+        }
+        .folder.open > ul {
+            max-height: 1000px; /* A sufficiently large value */
+        }
+        .folder > div > span::before {
+            content: '📁';
+            margin-right: 0.5rem;
+            transition: transform 0.3s ease;
+            display: inline-block;
+        }
+        .folder.open > div > span::before {
+            transform: none; /* Resetting transform to use a different emoji for open state */
+            content: '📂';
+        }
+        .file::before {
+            content: '📄';
+            margin-right: 0.5rem;
+        }
+        .nav-item.active {
+            background-color: #eab308; /* yellow-500 */
+            color: #1e293b; /* slate-800 */
+            font-weight: bold;
+        }
+        .nav-item:not(.active):hover {
+            background-color: #f1f5f9; /* slate-100 */
+        }
+    </style>
+    <!-- Chosen Palette: Warm Neutrals -->
+    <!-- Application Structure Plan: The application is structured as a two-column layout. The left column presents an interactive, collapsible file tree, mimicking a standard IDE or file explorer, which is a highly intuitive interface for developers. The right column serves as a dynamic content panel. Clicking any item in the tree instantly updates the right panel with its corresponding description from the source report. This design was chosen to facilitate focused learning; users can explore the hierarchy at their own pace without being overwhelmed by a long, static document. It encourages active exploration over passive reading, improving information retention. -->
+    <!-- Visualization & Content Choices: The entire Laravel folder structure is organized into a hierarchical, interactive list (Goal: Organize). The interaction is a click-to-expand/collapse mechanism (Interaction), implemented with HTML/CSS/JS. Descriptions for each folder/file are displayed in a separate text panel that updates on click (Goal: Inform). This provides context without cluttering the main visual structure. Key folders are visually distinguished with icons to draw attention. This approach is superior to a static document for this specific content because it makes the complex, nested information tangible and easily navigable. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="bg-[#fdfbf7] text-[#4a4a4a]">
+
+    <div class="container mx-auto p-4 md:p-8">
+        <header class="text-center mb-10">
+            <h1 class="text-4xl md:text-5xl font-bold text-[#363636]">Explorador de Carpetas de Laravel 12</h1>
+            <p class="mt-4 text-lg text-[#6b6b6b] max-w-3xl mx-auto">Una guía interactiva para entender la estructura de directorios de un proyecto Laravel. Haz clic en cualquier carpeta para expandirla y ver su contenido y propósito.</p>
+        </header>
+
+        <main class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <aside class="lg:col-span-1 bg-white rounded-2xl p-6 shadow-sm border border-gray-200 h-max sticky top-8">
+                <h2 class="text-xl font-bold mb-4 text-[#363636]">Estructura del Proyecto</h2>
+                <nav id="fileTree" class="text-gray-700">
+                    <ul>
+                        <li class="folder nav-item-container open">
+                            <div class="nav-item p-2 rounded-lg cursor-pointer flex justify-between items-center" data-content-id="root">
+                                <span class="font-bold">project-root</span>
+                            </div>
+                            <ul class="pl-4">
+                                <li class="folder nav-item-container">
+                                    <div class="nav-item p-2 rounded-lg cursor-pointer ml-4 flex justify-between items-center" data-content-id="app"><span>app</span></div>
+                                    <ul class="border-l-2 border-slate-200 ml-6">
+                                        <li class="folder nav-item-container"><div class="nav-item p-2 rounded-lg cursor-pointer ml-4" data-content-id="app_console"><span>Console</span></div>
+                                            <ul class="border-l-2 border-slate-200 ml-6"><li class="nav-item-container"><div class="nav-item p-2 rounded-lg cursor-pointer ml-4 file" data-content-id="app_console_kernel"><span>Kernel.php</span></div></li></ul>
+                                        </li>
+                                        <li class="nav-item-container"><div class="nav-item p-2 rounded-lg cursor-pointer ml-4" data-content-id="app_exceptions"><span>Exceptions</span></div></li>
+                                        <li class="folder nav-item-container"><div class="nav-item p-2 rounded-lg cursor-pointer ml-4" data-content-id="app_http"><span>Http</span></div>
+                                            <ul class="border-l-2 border-slate-200 ml-6">
+                                                <li class="nav-item-container"><div class="nav-item p-2 rounded-lg cursor-pointer ml-4" data-content-id="app_http_controllers"><span>Controllers</span></div></li>
+                                                <li class="nav-item-container"><div class="nav-item p-2 rounded-lg cursor-pointer ml-4" data-content-id="app_http_middleware"><span>Middleware</span></div></li>
+                                                <li class="nav-item-container"><div class="nav-item p-2 rounded-lg cursor-pointer ml-4" data-content-id="app_http_requests"><span>Requests</span></div></li>
+                                            </ul>
+                                        </li>
+                                        <li class="nav-item-container"><div class="nav-item p-2 rounded-lg cursor-pointer ml-4" data-content-id="app_models"><span>Models</span></div></li>
+                                        <li class="nav-item-container"><div class="nav-item p-2 rounded-lg cursor-pointer ml-4" data-content-id="app_policies"><span>Policies</span></div></li>
+                                        <li class="nav-item-container"><div class="nav-item p-2 rounded-lg cursor-pointer ml-4" data-content-id="app_providers"><span>Providers</span></div></li>
+                                        <li class="nav-item-container"><div class="nav-item p-2 rounded-lg cursor-pointer ml-4" data-content-id="app_rules"><span>Rules</span></div></li>
+                                    </ul>
+                                </li>
+                                <li class="nav-item-container"><div class="nav-item p-2 rounded-lg cursor-pointer ml-4" data-content-id="bootstrap"><span>bootstrap</span></div></li>
+                                <li class="nav-item-container"><div class="nav-item p-2 rounded-lg cursor-pointer ml-4" data-content-id="config"><span>config</span></div></li>
+                                <li class="folder nav-item-container">
+                                    <div class="nav-item p-2 rounded-lg cursor-pointer ml-4" data-content-id="database"><span>database</span></div>
+                                    <ul class="border-l-2 border-slate-200 ml-6">
+                                        <li class="nav-item-container"><div class="nav-item p-2 rounded-lg cursor-pointer ml-4" data-content-id="db_factories"><span>factories</span></div></li>
+                                        <li class="nav-item-container"><div class="nav-item p-2 rounded-lg cursor-pointer ml-4" data-content-id="db_migrations"><span>migrations</span></div></li>
+                                        <li class="nav-item-container"><div class="nav-item p-2 rounded-lg cursor-pointer ml-4" data-content-id="db_seeders"><span>seeders</span></div></li>
+                                    </ul>
+                                </li>
+                                <li class="nav-item-container"><div class="nav-item p-2 rounded-lg cursor-pointer ml-4" data-content-id="lang"><span>lang</span></div></li>
+                                <li class="nav-item-container"><div class="nav-item p-2 rounded-lg cursor-pointer ml-4" data-content-id="public"><span>public</span></div></li>
+                                <li class="folder nav-item-container">
+                                    <div class="nav-item p-2 rounded-lg cursor-pointer ml-4" data-content-id="resources"><span>resources</span></div>
+                                    <ul class="border-l-2 border-slate-200 ml-6">
+                                        <li class="nav-item-container"><div class="nav-item p-2 rounded-lg cursor-pointer ml-4" data-content-id="res_css"><span>css</span></div></li>
+                                        <li class="nav-item-container"><div class="nav-item p-2 rounded-lg cursor-pointer ml-4" data-content-id="res_js"><span>js</span></div></li>
+                                        <li class="nav-item-container"><div class="nav-item p-2 rounded-lg cursor-pointer ml-4" data-content-id="res_views"><span>views</span></div></li>
+                                    </ul>
+                                </li>
+                                <li class="folder nav-item-container">
+                                    <div class="nav-item p-2 rounded-lg cursor-pointer ml-4" data-content-id="routes"><span>routes</span></div>
+                                    <ul class="border-l-2 border-slate-200 ml-6">
+                                        <li class="nav-item-container"><div class="nav-item p-2 rounded-lg cursor-pointer ml-4 file" data-content-id="routes_api"><span>api.php</span></div></li>
+                                        <li class="nav-item-container"><div class="nav-item p-2 rounded-lg cursor-pointer ml-4 file" data-content-id="routes_channels"><span>channels.php</span></div></li>
+                                        <li class="nav-item-container"><div class="nav-item p-2 rounded-lg cursor-pointer ml-4 file" data-content-id="routes_console"><span>console.php</span></div></li>
+                                        <li class="nav-item-container"><div class="nav-item p-2 rounded-lg cursor-pointer ml-4 file" data-content-id="routes_web"><span>web.php</span></div></li>
+                                    </ul>
+                                </li>
+                                <li class="nav-item-container"><div class="nav-item p-2 rounded-lg cursor-pointer ml-4" data-content-id="storage"><span>storage</span></div></li>
+                                <li class="nav-item-container"><div class="nav-item p-2 rounded-lg cursor-pointer ml-4" data-content-id="tests"><span>tests</span></div></li>
+                                <li class="nav-item-container"><div class="nav-item p-2 rounded-lg cursor-pointer ml-4" data-content-id="vendor"><span>vendor</span></div></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </nav>
+            </aside>
+            
+            <section id="contentPanel" class="lg:col-span-2 bg-white rounded-2xl p-8 shadow-sm border border-gray-200 min-h-[50vh]">
+                <h2 id="contentTitle" class="text-3xl font-bold text-[#363636] mb-4"></h2>
+                <div id="contentBody" class="prose max-w-none text-gray-800 text-lg leading-relaxed"></div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        const contentData = {
+            root: {
+                title: 'Directorio Raíz',
+                body: `<p>El directorio raíz contiene todas las carpetas y archivos principales de tu proyecto Laravel. Cada carpeta tiene una responsabilidad clara, lo que hace que el desarrollo sea organizado y mantenible.</p>`
+            },
+            app: {
+                title: 'Carpeta app/',
+                body: `<p>Es el corazón de tu aplicación. Contiene el código fuente principal, incluyendo modelos, controladores, providers y la lógica de negocio. La mayor parte de tu trabajo se centrará aquí.</p>`
+            },
+            app_console: {
+                title: 'Carpeta app/Console/',
+                body: `<p>Aquí se definen los comandos de consola personalizados para Artisan. Cada comando es una clase propia. El archivo Kernel.php en este directorio es donde registras tus comandos para que Artisan los reconozca.</p>`
+            },
+             app_console_kernel: {
+                title: 'Archivo app/Console/Kernel.php',
+                body: `<p>Este archivo es responsable de registrar los comandos de Artisan personalizados y de programar las tareas (cron jobs) de tu aplicación.</p>`
+            },
+            app_exceptions: {
+                title: 'Carpeta app/Exceptions/',
+                body: `<p>Contiene el manejador de excepciones de la aplicación (Handler.php). En esta clase puedes personalizar cómo se registran y se muestran los errores y excepciones que ocurren en tu aplicación.</p>`
+            },
+            app_http: {
+                title: 'Carpeta app/Http/',
+                body: `<p>Contiene los controladores, middleware y las peticiones de formulario (requests). Es la capa que maneja todo el tráfico HTTP que entra a tu aplicación.</p>`
+            },
+            app_http_controllers: {
+                title: 'Carpeta app/Http/Controllers/',
+                body: `<p>Los controladores contienen la lógica para manejar las peticiones del usuario. Reciben la petición, interactúan con los modelos para obtener datos y devuelven una vista o una respuesta JSON.</p>`
+            },
+            app_http_middleware: {
+                title: 'Carpeta app/Http/Middleware/',
+                body: `<p>El middleware proporciona un mecanismo para filtrar las peticiones HTTP. Por ejemplo, Laravel incluye middleware para verificar si un usuario está autenticado, para habilitar CORS o para proteger contra ataques CSRF.</p>`
+            },
+            app_http_requests: {
+                title: 'Carpeta app/Http/Requests/',
+                body: `<p>Son clases de petición de formulario que contienen lógica de validación y autorización. Ayudan a mantener los controladores limpios al extraer la lógica de validación de las peticiones entrantes.</p>`
+            },
+            app_models: {
+                title: 'Carpeta app/Models/',
+                body: `<p>Contiene todas las clases de tus modelos de Eloquent ORM. Cada modelo generalmente corresponde a una tabla en tu base de datos y te permite interactuar con esa tabla de forma sencilla y expresiva.</p>`
+            },
+            app_policies: {
+                title: 'Carpeta app/Policies/',
+                body: `<p>Las políticas de autorización son clases que organizan la lógica de autorización en torno a un modelo o recurso particular. Por ejemplo, una política 'PostPolicy' determinaría quién puede crear o actualizar publicaciones.</p>`
+            },
+            app_providers: {
+                title: 'Carpeta app/Providers/',
+                body: `<p>Los Service Providers son el lugar central para arrancar la aplicación. Aquí se registran los contenedores de servicios, se configuran eventos, se registran middlewares y mucho más. Son una pieza fundamental de Laravel.</p>`
+            },
+            app_rules: {
+                title: 'Carpeta app/Rules/',
+                body: `<p>Esta carpeta contiene tus objetos de reglas de validación personalizadas. Es útil cuando tienes una lógica de validación compleja que quieres reutilizar en varias partes de tu aplicación.</p>`
+            },
+            bootstrap: {
+                title: 'Carpeta bootstrap/',
+                body: `<p>Contiene los archivos que "arrancan" el framework. Incluye el archivo 'app.php' que carga la aplicación y una carpeta 'cache/' para los archivos de caché generados por el framework para mejorar el rendimiento.</p>`
+            },
+            config: {
+                title: 'Carpeta config/',
+                body: `<p>Aquí se encuentran todos los archivos de configuración de tu aplicación. Puedes configurar la base de datos, el correo, las colas, el cache y otros servicios. Los valores se acceden fácilmente con la función 'config()'.</p>`
+            },
+            database: {
+                title: 'Carpeta database/',
+                body: `<p>Este directorio contiene todo lo relacionado con tu base de datos: migraciones para definir el esquema, factories para generar datos de prueba y seeders para poblar la base de datos.</p>`
+            },
+            db_factories: {
+                title: 'Carpeta database/factories/',
+                body: `<p>Las fábricas de modelos (factories) te permiten definir "plantillas" para tus modelos de Eloquent, facilitando la creación de instancias de modelos con datos falsos para pruebas o para sembrar tu base de datos.</p>`
+            },
+            db_migrations: {
+                title: 'Carpeta database/migrations/',
+                body: `<p>Las migraciones son como un control de versiones para tu base de datos. Cada archivo de migración contiene una clase con métodos 'up()' y 'down()' para aplicar y revertir cambios en el esquema de tu base de datos.</p>`
+            },
+            db_seeders: {
+                title: 'Carpeta database/seeders/',
+                body: `<p>Los seeders (sembradores) son clases que se utilizan para poblar la base de datos con datos iniciales. Es muy útil para tener datos de prueba consistentes durante el desarrollo.</p>`
+            },
+            lang: {
+                title: 'Carpeta lang/',
+                body: `<p>Contiene los archivos de idioma para la localización de tu aplicación. Puedes tener subcarpetas para cada idioma soportado (ej. 'es', 'en') con archivos de traducción en formato de array asociativo.</p>`
+            },
+            public: {
+                title: 'Carpeta public/',
+                body: `<p>Es el único directorio que debería ser accesible públicamente desde el navegador. Contiene el archivo de entrada 'index.php', que es el punto de partida de todas las peticiones, así como tus assets compilados (CSS, JavaScript, imágenes).</p>`
+            },
+            resources: {
+                title: 'Carpeta resources/',
+                body: `<p>Contiene las vistas (plantillas Blade), los assets sin compilar (como archivos SASS, LESS o JavaScript) y, en versiones más recientes, los archivos de idioma. Es la fuente de tu frontend.</p>`
+            },
+            res_css: {
+                title: 'Carpeta resources/css/',
+                body: `<p>Contiene los archivos de hojas de estilo sin compilar, como CSS plano, SASS o LESS. Estos archivos son procesados por herramientas como Vite para generar el CSS final en la carpeta 'public'.</p>`
+            },
+            res_js: {
+                title: 'Carpeta resources/js/',
+                body: `<p>Contiene los archivos JavaScript sin compilar. Aquí puedes escribir tu código JavaScript moderno (ES6+), que luego será transpilado y empaquetado por Vite en un archivo para el navegador.</p>`
+            },
+            res_views: {
+                title: 'Carpeta resources/views/',
+                body: `<p>Contiene todas las plantillas de tu aplicación que usan el motor de plantillas Blade. Es común organizar las vistas en subcarpetas para mantener el orden (ej. 'layouts', 'components', 'pages').</p>`
+            },
+            routes: {
+                title: 'Carpeta routes/',
+                body: `<p>Aquí se definen todas las rutas (URLs) de tu aplicación. Laravel divide las rutas en diferentes archivos para mantener la organización, como 'web.php' para rutas web y 'api.php' para la API.</p>`
+            },
+            routes_api: {
+                title: 'Archivo routes/api.php',
+                body: `<p>Define las rutas para tu API. Estas rutas son 'stateless' (sin estado) y se les aplica automáticamente el prefijo '/api'. Utilizan el middleware 'api' que incluye rate limiting (limitación de peticiones).</p>`
+            },
+            routes_channels: {
+                title: 'Archivo routes/channels.php',
+                body: `<p>Aquí puedes registrar todos los canales de difusión de eventos (event broadcasting) que soporta tu aplicación. Te permite autorizar si un usuario puede escuchar en un canal privado.</p>`
+            },
+            routes_console: {
+                title: 'Archivo routes/console.php',
+                body: `<p>Este archivo es donde puedes definir comandos de Artisan basados en clausuras. Es una forma sencilla de crear comandos simples sin necesidad de generar una clase completa para ellos.</p>`
+            },
+            routes_web: {
+                title: 'Archivo routes/web.php',
+                body: `<p>Define las rutas para tu interfaz web. Estas rutas utilizan estado de sesión, protección contra CSRF y cookies. Son las rutas que un usuario visitaría en su navegador.</p>`
+            },
+            storage: {
+                title: 'Carpeta storage/',
+                body: `<p>Almacena los archivos generados por la aplicación. Se divide en 'app' (archivos subidos por usuarios), 'framework' (sesiones, caché) y 'logs' (archivos de registro de errores). La carpeta 'storage/app/public' es la única que suele ser accesible públicamente a través de un enlace simbólico.</p>`
+            },
+            tests: {
+                title: 'Carpeta tests/',
+                body: `<p>Contiene tus pruebas automatizadas. Se divide en 'Feature' (pruebas de funcionales, que prueban una porción más grande de tu aplicación, como una petición HTTP completa) y 'Unit' (pruebas unitarias, que prueban una parte muy pequeña y aislada de tu código).</p>`
+            },
+            vendor: {
+                title: 'Carpeta vendor/',
+                body: `<p>Es el directorio donde Composer, el gestor de dependencias de PHP, instala todas las librerías de terceros que tu proyecto necesita, incluido el propio framework de Laravel. Nunca debes modificar los archivos de esta carpeta directamente.</p>`
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const fileTree = document.getElementById('fileTree');
+            const contentTitle = document.getElementById('contentTitle');
+            const contentBody = document.getElementById('contentBody');
+            let activeItem = null;
+
+            function updateContent(id) {
+                const content = contentData[id];
+                if (content) {
+                    contentTitle.textContent = content.title;
+                    contentBody.innerHTML = content.body;
+                }
+            }
+
+            fileTree.addEventListener('click', (event) => {
+                const target = event.target.closest('.nav-item');
+                if (!target) {
+                    return;
+                }
+
+                const container = target.closest('.nav-item-container');
+                
+                if (activeItem) {
+                    activeItem.classList.remove('active');
+                }
+                target.classList.add('active');
+                activeItem = target;
+
+                if (container && container.classList.contains('folder')) {
+                    container.classList.toggle('open');
+                }
+
+                const contentId = target.dataset.contentId;
+                if (contentId) {
+                    updateContent(contentId);
+                }
+            });
+
+            const initialItem = document.querySelector('.nav-item[data-content-id="root"]');
+            if(initialItem) {
+                initialItem.classList.add('active');
+                activeItem = initialItem;
+                updateContent('root');
+            }
+        });
+    </script>
+</body>
+</html>
+
