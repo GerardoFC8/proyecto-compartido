@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explorador de Comandos Artisan de Laravel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fdfbf8;
+            color: #4a4a4a;
+        }
+        .tab-btn {
+            transition: all 0.3s ease;
+        }
+        .tab-btn.active {
+            border-color: #f59e0b;
+            color: #f59e0b;
+            background-color: #fffbeb;
+        }
+        .content-panel {
+            display: none;
+        }
+        .content-panel.active {
+            display: block;
+        }
+        .command-card {
+            background-color: #ffffff;
+            border: 1px solid #f3f4f6;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .command-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.07), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+        }
+        .code-block {
+            background-color: #2d3748;
+            color: #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            background-color: #4a5568;
+            color: #e2e8f0;
+            border: none;
+            border-radius: 0.375rem;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .copy-btn:hover {
+            background-color: #718096;
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-800 tracking-tight">Explorador de Comandos Artisan</h1>
+            <p class="mt-4 text-lg text-gray-600 max-w-3xl mx-auto">Una guía interactiva de los comandos de Artisan más comunes en Laravel. Navega por las categorías para encontrar rápidamente el comando que necesitas.</p>
+        </header>
+
+        <main>
+            <div class="mb-8 border-b border-gray-200">
+                <nav id="tab-nav" class="flex flex-wrap -mb-px justify-center" aria-label="Tabs">
+                    <button class="tab-btn active text-gray-600 hover:text-gray-800 hover:border-gray-300 whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm" data-target="panel-generation">
+                        Generación de Archivos
+                    </button>
+                    <button class="tab-btn text-gray-600 hover:text-gray-800 hover:border-gray-300 whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm" data-target="panel-database">
+                        Base de Datos
+                    </button>
+                    <button class="tab-btn text-gray-600 hover:text-gray-800 hover:border-gray-300 whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm" data-target="panel-server">
+                        Servidor y Caché
+                    </button>
+                    <button class="tab-btn text-gray-600 hover:text-gray-800 hover:border-gray-300 whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm" data-target="panel-others">
+                        Pruebas y Otros
+                    </button>
+                    <button class="tab-btn text-gray-600 hover:text-gray-800 hover:border-gray-300 whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm" data-target="panel-examples">
+                        Ejemplos Prácticos
+                    </button>
+                </nav>
+            </div>
+
+            <div id="tab-content">
+                <section id="panel-generation" class="content-panel active">
+                    <p class="text-center mb-8 text-gray-600">Estos comandos te ayudan a generar rápidamente la estructura de tu aplicación, como controladores, modelos y migraciones.</p>
+                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <!-- Generation Commands -->
+                        <div class="command-card p-6">
+                            <h3 class="text-lg font-semibold text-gray-800">make:controller</h3>
+                            <p class="mt-2 text-gray-600">Crea un nuevo controlador.</p>
+                            <div class="mt-4 pt-4 border-t border-gray-100">
+                                <h4 class="font-medium text-gray-700">Opciones comunes:</h4>
+                                <ul class="mt-2 list-disc list-inside text-gray-600 text-sm space-y-1">
+                                    <li><code class="bg-amber-100 text-amber-800 rounded px-1 py-0.5">-m</code>: Crea un modelo.</li>
+                                    <li><code class="bg-amber-100 text-amber-800 rounded px-1 py-0.5">-r</code>: Crea un controlador de recursos.</li>
+                                    <li><code class="bg-amber-100 text-amber-800 rounded px-1 py-0.5">--api</code>: Crea un controlador de API.</li>
+                                </ul>
+                            </div>
+                        </div>
+                         <div class="command-card p-6">
+                            <h3 class="text-lg font-semibold text-gray-800">make:model</h3>
+                            <p class="mt-2 text-gray-600">Genera una nueva clase de modelo Eloquent.</p>
+                            <div class="mt-4 pt-4 border-t border-gray-100">
+                                <h4 class="font-medium text-gray-700">Opciones comunes:</h4>
+                                <ul class="mt-2 list-disc list-inside text-gray-600 text-sm space-y-1">
+                                    <li><code class="bg-amber-100 text-amber-800 rounded px-1 py-0.5">-m</code>: Crea una migración.</li>
+                                    <li><code class="bg-amber-100 text-amber-800 rounded px-1 py-0.5">-c</code>: Crea un controlador.</li>
+                                    <li><code class="bg-amber-100 text-amber-800 rounded px-1 py-0.5">-s</code>: Crea un seeder.</li>
+                                    <li><code class="bg-amber-100 text-amber-800 rounded px-1 py-0.5">-a</code>: Crea todo lo anterior.</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="command-card p-6">
+                            <h3 class="text-lg font-semibold text-gray-800">make:migration</h3>
+                            <p class="mt-2 text-gray-600">Crea una nueva migración de base de datos.</p>
+                            <div class="mt-4 pt-4 border-t border-gray-100">
+                                <h4 class="font-medium text-gray-700">Opciones comunes:</h4>
+                                <ul class="mt-2 list-disc list-inside text-gray-600 text-sm space-y-1">
+                                    <li><code class="bg-amber-100 text-amber-800 rounded px-1 py-0.5">--create=users</code></li>
+                                    <li><code class="bg-amber-100 text-amber-800 rounded px-1 py-0.5">--table=posts</code></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="command-card p-6">
+                            <h3 class="text-lg font-semibold text-gray-800">make:seeder</h3>
+                            <p class="mt-2 text-gray-600">Crea una nueva clase seeder.</p>
+                        </div>
+                        <div class="command-card p-6">
+                            <h3 class="text-lg font-semibold text-gray-800">make:factory</h3>
+                            <p class="mt-2 text-gray-600">Genera una nueva clase factory.</p>
+                        </div>
+                        <div class="command-card p-6">
+                            <h3 class="text-lg font-semibold text-gray-800">make:request</h3>
+                            <p class="mt-2 text-gray-600">Crea una nueva clase de formulario de solicitud.</p>
+                        </div>
+                        <div class="command-card p-6">
+                            <h3 class="text-lg font-semibold text-gray-800">make:middleware</h3>
+                            <p class="mt-2 text-gray-600">Crea una nueva clase de middleware.</p>
+                        </div>
+                         <div class="command-card p-6">
+                            <h3 class="text-lg font-semibold text-gray-800">make:resource</h3>
+                            <p class="mt-2 text-gray-600">Crea una nueva clase de recurso de API.</p>
+                             <div class="mt-4 pt-4 border-t border-gray-100">
+                                <h4 class="font-medium text-gray-700">Opciones comunes:</h4>
+                                <ul class="mt-2 list-disc list-inside text-gray-600 text-sm space-y-1">
+                                    <li><code class="bg-amber-100 text-amber-800 rounded px-1 py-0.5">--collection</code>: Crea un recurso de colección.</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="command-card p-6">
+                            <h3 class="text-lg font-semibold text-gray-800">make:component</h3>
+                            <p class="mt-2 text-gray-600">Crea un nuevo componente Blade.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="panel-database" class="content-panel">
+                    <p class="text-center mb-8 text-gray-600">Administra el esquema de tu base de datos y puebla tus tablas con datos de prueba utilizando estos comandos.</p>
+                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <!-- Database Commands -->
+                        <div class="command-card p-6">
+                            <h3 class="text-lg font-semibold text-gray-800">migrate</h3>
+                            <p class="mt-2 text-gray-600">Ejecuta las migraciones pendientes.</p>
+                             <div class="mt-4 pt-4 border-t border-gray-100">
+                                <h4 class="font-medium text-gray-700">Opciones comunes:</h4>
+                                <ul class="mt-2 list-disc list-inside text-gray-600 text-sm space-y-1">
+                                    <li><code class="bg-amber-100 text-amber-800 rounded px-1 py-0.5">--seed</code>: Ejecuta los seeders.</li>
+                                    <li><code class="bg-amber-100 text-amber-800 rounded px-1 py-0.5">--force</code>: Permite ejecutar en producción.</li>
+                                </ul>
+                            </div>
+                        </div>
+                         <div class="command-card p-6">
+                            <h3 class="text-lg font-semibold text-gray-800">migrate:rollback</h3>
+                            <p class="mt-2 text-gray-600">Revierte la última tanda de migraciones.</p>
+                             <div class="mt-4 pt-4 border-t border-gray-100">
+                                <h4 class="font-medium text-gray-700">Opciones comunes:</h4>
+                                <ul class="mt-2 list-disc list-inside text-gray-600 text-sm space-y-1">
+                                    <li><code class="bg-amber-100 text-amber-800 rounded px-1 py-0.5">--step=5</code>: Revierte 5 migraciones.</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="command-card p-6">
+                            <h3 class="text-lg font-semibold text-gray-800">migrate:fresh</h3>
+                            <p class="mt-2 text-gray-600">Elimina todas las tablas y ejecuta las migraciones desde cero.</p>
+                             <div class="mt-4 pt-4 border-t border-gray-100">
+                                <h4 class="font-medium text-gray-700">Opciones comunes:</h4>
+                                <ul class="mt-2 list-disc list-inside text-gray-600 text-sm space-y-1">
+                                    <li><code class="bg-amber-100 text-amber-800 rounded px-1 py-0.5">--seed</code>: Ejecuta los seeders.</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="command-card p-6">
+                            <h3 class="text-lg font-semibold text-gray-800">db:seed</h3>
+                            <p class="mt-2 text-gray-600">Ejecuta los seeders para popular la base de datos.</p>
+                             <div class="mt-4 pt-4 border-t border-gray-100">
+                                <h4 class="font-medium text-gray-700">Opciones comunes:</h4>
+                                <ul class="mt-2 list-disc list-inside text-gray-600 text-sm space-y-1">
+                                    <li><code class="bg-amber-100 text-amber-800 rounded px-1 py-0.5">--class=UserSeeder</code></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="command-card p-6">
+                            <h3 class="text-lg font-semibold text-gray-800">migrate:status</h3>
+                            <p class="mt-2 text-gray-600">Muestra el estado de cada migración.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="panel-server" class="content-panel">
+                    <p class="text-center mb-8 text-gray-600">Gestiona el servidor de desarrollo local y la caché de tu aplicación para optimizar el rendimiento.</p>
+                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <!-- Server & Cache Commands -->
+                        <div class="command-card p-6">
+                            <h3 class="text-lg font-semibold text-gray-800">serve</h3>
+                            <p class="mt-2 text-gray-600">Inicia el servidor de desarrollo de Laravel.</p>
+                            <div class="mt-4 pt-4 border-t border-gray-100">
+                                <h4 class="font-medium text-gray-700">Opciones comunes:</h4>
+                                <ul class="mt-2 list-disc list-inside text-gray-600 text-sm space-y-1">
+                                    <li><code class="bg-amber-100 text-amber-800 rounded px-1 py-0.5">--host=0.0.0.0</code></li>
+                                    <li><code class="bg-amber-100 text-amber-800 rounded px-1 py-0.5">--port=8080</code></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="command-card p-6">
+                            <h3 class="text-lg font-semibold text-gray-800">cache:clear</h3>
+                            <p class="mt-2 text-gray-600">Borra la caché de la aplicación.</p>
+                        </div>
+                        <div class="command-card p-6">
+                            <h3 class="text-lg font-semibold text-gray-800">config:cache</h3>
+                            <p class="mt-2 text-gray-600">Crea un archivo de caché para la configuración.</p>
+                        </div>
+                        <div class="command-card p-6">
+                            <h3 class="text-lg font-semibold text-gray-800">route:cache</h3>
+                            <p class="mt-2 text-gray-600">Crea un archivo de caché para las rutas.</p>
+                        </div>
+                        <div class="command-card p-6">
+                            <h3 class="text-lg font-semibold text-gray-800">view:cache</h3>
+                            <p class="mt-2 text-gray-600">Crea un archivo de caché para las vistas.</p>
+                        </div>
+                    </div>
+                </section>
+                
+                <section id="panel-others" class="content-panel">
+                    <p class="text-center mb-8 text-gray-600">Comandos útiles para pruebas, modo de mantenimiento y la consola interactiva de Laravel.</p>
+                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <!-- Tests & Others Commands -->
+                        <div class="command-card p-6">
+                            <h3 class="text-lg font-semibold text-gray-800">test</h3>
+                            <p class="mt-2 text-gray-600">Ejecuta las pruebas de la aplicación.</p>
+                            <div class="mt-4 pt-4 border-t border-gray-100">
+                                <h4 class="font-medium text-gray-700">Opciones comunes:</h4>
+                                <ul class="mt-2 list-disc list-inside text-gray-600 text-sm space-y-1">
+                                    <li><code class="bg-amber-100 text-amber-800 rounded px-1 py-0.5">--filter=MyTest</code></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="command-card p-6">
+                            <h3 class="text-lg font-semibold text-gray-800">down</h3>
+                            <p class="mt-2 text-gray-600">Pone la aplicación en modo de mantenimiento.</p>
+                        </div>
+                        <div class="command-card p-6">
+                            <h3 class="text-lg font-semibold text-gray-800">up</h3>
+                            <p class="mt-2 text-gray-600">Saca la aplicación del modo de mantenimiento.</p>
+                        </div>
+                        <div class="command-card p-6">
+                            <h3 class="text-lg font-semibold text-gray-800">tinker</h3>
+                            <p class="mt-2 text-gray-600">Inicia la consola interactiva de Laravel (REPL).</p>
+                        </div>
+                        <div class="command-card p-6">
+                            <h3 class="text-lg font-semibold text-gray-800">list</h3>
+                            <p class="mt-2 text-gray-600">Muestra todos los comandos de Artisan disponibles.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="panel-examples" class="content-panel">
+                    <p class="text-center mb-8 text-gray-600">Aquí tienes ejemplos prácticos para combinar comandos y opciones, acelerando tu flujo de trabajo de desarrollo.</p>
+                    <div class="max-w-3xl mx-auto space-y-8">
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-800 mb-2">Generar un controlador de recursos</h3>
+                            <p class="mb-3 text-gray-600">Crea un controlador con métodos para operaciones CRUD básicas (index, create, store, show, edit, update, destroy).</p>
+                            <div class="code-block">
+                                <button class="copy-btn" data-clipboard-text="php artisan make:controller PostController -r">Copiar</button>
+                                <pre><code>php artisan make:controller PostController -r</code></pre>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-800 mb-2">Generar un "todo" para un modelo</h3>
+                            <p class="mb-3 text-gray-600">Crea un modelo, su migración, un controlador de recursos, factory y seeder con un solo comando.</p>
+                            <div class="code-block">
+                                <button class="copy-btn" data-clipboard-text="php artisan make:model Product -a">Copiar</button>
+                                <pre><code>php artisan make:model Product -a</code></pre>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-800 mb-2">Refrescar la base de datos y sembrarla</h3>
+                            <p class="mb-3 text-gray-600">Ideal para desarrollo, este comando borra todas las tablas, ejecuta las migraciones y luego puebla la base de datos con los seeders.</p>
+                            <div class="code-block">
+                                <button class="copy-btn" data-clipboard-text="php artisan migrate:fresh --seed">Copiar</button>
+                                <pre><code>php artisan migrate:fresh --seed</code></pre>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-800 mb-2">Iniciar el servidor en un puerto específico</h3>
+                             <p class="mb-3 text-gray-600">Útil cuando el puerto por defecto (8000) está ocupado.</p>
+                            <div class="code-block">
+                                <button class="copy-btn" data-clipboard-text="php artisan serve --port=8080">Copiar</button>
+                                <pre><code>php artisan serve --port=8080</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const tabNav = document.getElementById('tab-nav');
+            const tabButtons = tabNav.querySelectorAll('.tab-btn');
+            const contentPanels = document.getElementById('tab-content').querySelectorAll('.content-panel');
+
+            tabNav.addEventListener('click', (e) => {
+                if (e.target.matches('.tab-btn')) {
+                    const targetPanelId = e.target.getAttribute('data-target');
+                    
+                    tabButtons.forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    e.target.classList.add('active');
+
+                    contentPanels.forEach(panel => {
+                        if (panel.id === targetPanelId) {
+                            panel.classList.add('active');
+                        } else {
+                            panel.classList.remove('active');
+                        }
+                    });
+                }
+            });
+            
+            const copyButtons = document.querySelectorAll('.copy-btn');
+            copyButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const textToCopy = button.getAttribute('data-clipboard-text');
+                    
+                    const tempInput = document.createElement('input');
+                    tempInput.value = textToCopy;
+                    document.body.appendChild(tempInput);
+                    tempInput.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(tempInput);
+
+                    const originalText = button.textContent;
+                    button.textContent = '¡Copiado!';
+                    button.style.backgroundColor = '#48bb78'; // green-500
+                    setTimeout(() => {
+                        button.textContent = originalText;
+                        button.style.backgroundColor = '#4a5568'; // gray-700
+                    }, 2000);
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>
