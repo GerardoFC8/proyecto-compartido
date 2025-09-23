@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explorador Interactivo para Laravel AdminLTE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* cool-gray-50 */
+        }
+        .sidebar-link {
+            transition: all 0.2s ease-in-out;
+        }
+        .sidebar-link.active, .sidebar-link:hover {
+            background-color: #e0e7ff; /* indigo-200 */
+            color: #3730a3; /* indigo-800 */
+            transform: translateX(4px);
+        }
+        .code-block {
+            background-color: #1e293b; /* slate-800 */
+            color: #e2e8f0; /* slate-200 */
+            border-radius: 0.5rem;
+            padding: 1rem;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 40vh;
+            max-height: 400px;
+        }
+        .page-section {
+            display: none;
+        }
+        .page-section.active {
+            display: block;
+        }
+        .small-box {
+            border-radius: .25rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,.12), 0 1px 2px rgba(0,0,0,.24);
+            display: block;
+            margin-bottom: 20px;
+            position: relative;
+            color: white;
+        }
+        .small-box > .inner {
+            padding: 10px;
+        }
+        .small-box h3, .small-box p {
+            margin: 0;
+        }
+        .small-box h3 {
+            font-size: 2.2rem;
+            font-weight: 700;
+        }
+        .small-box p {
+            font-size: 1rem;
+        }
+        .small-box .icon {
+            color: rgba(0,0,0,.15);
+            z-index: 0;
+            font-size: 70px;
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            transition: transform .3s linear;
+        }
+        .small-box:hover .icon {
+            transform: scale(1.1);
+        }
+        .small-box > .small-box-footer {
+            background-color: rgba(0,0,0,.1);
+            color: rgba(255,255,255,.8);
+            display: block;
+            padding: 3px 0;
+            position: relative;
+            text-align: center;
+            text-decoration: none;
+            z-index: 10;
+        }
+        .small-box > .small-box-footer:hover {
+            background-color: rgba(0,0,0,.2);
+            color: #fff;
+        }
+        .bg-info { background-color: #17a2b8 !important; }
+        .bg-success { background-color: #28a745 !important; }
+        .bg-warning { background-color: #ffc107 !important; color: #1f2937 !important; }
+        .bg-warning .small-box-footer { color: #1f2937 !important; }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="w-64 bg-white shadow-lg flex-shrink-0 p-4">
+            <div class="flex items-center mb-6">
+                <div class="p-2 bg-indigo-600 rounded-lg text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2 1M4 7l2-1M4 7v2.5M12 21.5v-2.5M12 18.5l-2-1m2 1l2-1m-2-1v-2.5m2 6.5l2 1m-2-1l-2-1m2 1V14m-2 1l-2-1m2 1l2-1" /></svg>
+                </div>
+                <h1 class="text-xl font-bold ml-3">AdminLTE + Laravel</h1>
+            </div>
+            <nav id="main-nav">
+                <ul>
+                    <li><a href="#intro" class="sidebar-link active font-semibold text-gray-700 flex items-center py-2 px-3 rounded-lg"><i class="fas fa-home w-6 text-center mr-2"></i> Introducción</a></li>
+                    <li><a href="#configuracion" class="sidebar-link font-semibold text-gray-700 flex items-center py-2 px-3 rounded-lg"><i class="fas fa-cogs w-6 text-center mr-2"></i> Configuración</a></li>
+                    <li><a href="#menu" class="sidebar-link font-semibold text-gray-700 flex items-center py-2 px-3 rounded-lg"><i class="fas fa-bars w-6 text-center mr-2"></i> Constructor de Menú</a></li>
+                    <li><a href="#plugins" class="sidebar-link font-semibold text-gray-700 flex items-center py-2 px-3 rounded-lg"><i class="fas fa-plug w-6 text-center mr-2"></i> Plugins Populares</a></li>
+                    <li><a href="#componentes" class="sidebar-link font-semibold text-gray-700 flex items-center py-2 px-3 rounded-lg"><i class="fas fa-cubes w-6 text-center mr-2"></i> Componentes UI</a></li>
+                    <li><a href="#ecosistema" class="sidebar-link font-semibold text-gray-700 flex items-center py-2 px-3 rounded-lg"><i class="fas fa-project-diagram w-6 text-center mr-2"></i> Ecosistema Laravel</a></li>
+                    <li><a href="#dashboard" class="sidebar-link font-semibold text-gray-700 flex items-center py-2 px-3 rounded-lg"><i class="fas fa-tachometer-alt w-6 text-center mr-2"></i> Dashboard de Ejemplo</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto p-6 md:p-10">
+            <div id="intro" class="page-section active">
+                <h2 class="text-3xl font-bold mb-4 border-b pb-2">Potencial Completo de Laravel con AdminLTE</h2>
+                <p class="text-lg text-gray-600 mb-6">
+                    Bienvenido al explorador interactivo del paquete <code>jeroennoten/laravel-adminlte</code>. Esta aplicación transforma la documentación estática en una experiencia práctica. Navega por las secciones en el menú de la izquierda para descubrir cómo este paquete te proporciona un framework completo para construir paneles de administración robustos y funcionales, desde la configuración básica hasta la creación de dashboards complejos.
+                </p>
+                <div class="bg-indigo-100 border-l-4 border-indigo-500 text-indigo-700 p-4 rounded-md" role="alert">
+                    <p class="font-bold">Empieza a explorar</p>
+                    <p>Haz clic en cualquier sección del menú para ver demostraciones en vivo de las características y componentes.</p>
+                </div>
+            </div>
+
+            <div id="configuracion" class="page-section">
+                <h2 class="text-3xl font-bold mb-4">Configuración y Personalización</h2>
+                <p class="text-gray-600 mb-6">La personalización se realiza principalmente en <code>config/adminlte.php</code>. Puedes modificar desde el título y logo hasta el layout completo del panel.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="font-bold text-xl mb-2"><i class="fas fa-heading mr-2 text-indigo-500"></i>Título y Logo</h3>
+                        <p>Define la identidad visual de tu panel, incluyendo el texto y las imágenes que representan tu marca.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="font-bold text-xl mb-2"><i class="fas fa-palette mr-2 text-indigo-500"></i>Skins (Pieles)</h3>
+                        <p>Elige entre varios esquemas de color predefinidos (<code>skin-blue</code>, <code>skin-purple</code>, etc.) para adaptar la apariencia.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="font-bold text-xl mb-2"><i class="fas fa-layer-group mr-2 text-indigo-500"></i>Layout (Diseño)</h3>
+                        <p>Ajusta el comportamiento del layout: sidebar fijo, barra de navegación fija, diseño en caja ("boxed") y más.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="font-bold text-xl mb-2"><i class="fas fa-route mr-2 text-indigo-500"></i>URL y Rutas</h3>
+                        <p>Personaliza las URLs para las acciones de autenticación como inicio de sesión, registro y cierre de sesión.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="menu" class="page-section">
+                <h2 class="text-3xl font-bold mb-4">Constructor de Menú Dinámico</h2>
+                 <p class="text-gray-600 mb-6">Una de las características más potentes es el constructor de menú en <code>config/adminlte.php</code>, que permite añadir items, submenús, iconos y lógica de autorización con los Gates de Laravel.</p>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="font-bold text-xl mb-4">Ejemplo de Configuración</h3>
+                    <pre class="code-block"><code>
+'menu' => [
+    'MAIN NAVIGATION',
+    [
+        'text'    => 'Blog',
+        'url'     => 'admin/blog',
+        'can'     => 'manage-blog',
+        'icon'    => 'far fa-fw fa-file-alt',
+    ],
+    [
+        'text'    => 'Pages',
+        'icon'    => 'far fa-fw fa-file',
+        'submenu' => [
+            [
+                'text' => 'Page 1',
+                'url'  => '#',
+            ],
+        ],
+    ],
+],
+                    </code></pre>
+                </div>
+            </div>
+
+            <div id="plugins" class="page-section">
+                <h2 class="text-3xl font-bold mb-4">Integración de Plugins Populares</h2>
+                 <p class="text-gray-600 mb-6">Habilita plugins fácilmente de forma global o por página con <code>@section('plugins.NombrePlugin', true)</code> para añadir funcionalidades avanzadas.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="font-bold text-xl mb-2"><i class="fas fa-chart-bar mr-2 text-blue-500"></i>Chart.js</h3>
+                        <p class="mb-4">Crea gráficos y visualizaciones de datos. A continuación un ejemplo en vivo.</p>
+                        <div class="chart-container h-64">
+                            <canvas id="pluginChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="font-bold text-xl mb-2"><i class="fas fa-bell mr-2 text-green-500"></i>SweetAlert2</h3>
+                        <p class="mb-4">Reemplaza los `alert()` con modales elegantes y personalizables.</p>
+                        <button id="sweetalert-trigger" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">
+                            Mostrar Alerta
+                        </button>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="font-bold text-xl mb-2"><i class="fas fa-table mr-2 text-yellow-500"></i>DataTables</h3>
+                        <p>Añade controles avanzados a tus tablas HTML, como búsqueda, paginación y ordenamiento.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="font-bold text-xl mb-2"><i class="fas fa-check-double mr-2 text-purple-500"></i>Select2</h3>
+                        <p>Mejora los campos `select` de tus formularios con capacidades de búsqueda y etiquetado.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="componentes" class="page-section">
+                <h2 class="text-3xl font-bold mb-4">Componentes de UI</h2>
+                <p class="text-gray-600 mb-6">AdminLTE extiende Bootstrap con sus propios componentes. Aquí puedes verlos en acción y su código correspondiente.</p>
+                
+                <!-- Cards -->
+                <div class="mb-8">
+                    <h3 class="text-2xl font-semibold mb-3">Cards (Cajas)</h3>
+                    <div class="bg-white p-4 rounded-lg shadow-sm">
+                        <div class="border border-gray-200 rounded-lg p-4">
+                             <div class="w-full max-w-sm mx-auto bg-white rounded-lg shadow-md">
+                                <div class="bg-blue-600 text-white p-4 rounded-t-lg"><h3 class="font-bold">Título del Card</h3></div>
+                                <div class="p-4">Contenido principal.</div>
+                                <div class="p-4 bg-gray-50 border-t rounded-b-lg">Pie del card.</div>
+                            </div>
+                        </div>
+                        <button class="toggle-code mt-4 text-sm text-indigo-600 hover:underline">Ver Código</button>
+                        <div class="code-block mt-2" style="display: none;">&lt;div class="card card-primary"&gt;
+    &lt;div class="card-header"&gt;&lt;h3 class="card-title"&gt;Título del Card&lt;/h3&gt;&lt;/div&gt;
+    &lt;div class="card-body"&gt;Contenido principal.&lt;/div&gt;
+    &lt;div class="card-footer"&gt;Pie del card.&lt;/div&gt;
+&lt;/div&gt;</div>
+                    </div>
+                </div>
+
+                <!-- Small/Info Boxes -->
+                <div class="mb-8">
+                    <h3 class="text-2xl font-semibold mb-3">Small & Info Boxes</h3>
+                    <div class="bg-white p-4 rounded-lg shadow-sm">
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <div class="small-box bg-info w-full max-w-sm mx-auto">
+                                <div class="inner"><h3>150</h3><p>Nuevos Pedidos</p></div>
+                                <div class="icon"><i class="fas fa-shopping-cart"></i></div>
+                                <a href="#" class="small-box-footer">Más info <i class="fas fa-arrow-circle-right"></i></a>
+                            </div>
+                        </div>
+                        <button class="toggle-code mt-4 text-sm text-indigo-600 hover:underline">Ver Código</button>
+                        <div class="code-block mt-2" style="display: none;">&lt;div class="small-box bg-info"&gt;
+    &lt;div class="inner"&gt;&lt;h3&gt;150&lt;/h3&gt;&lt;p&gt;Nuevos Pedidos&lt;/p&gt;&lt;/div&gt;
+    &lt;div class="icon"&gt;&lt;i class="ion ion-bag"&gt;&lt;/i&gt;&lt;/div&gt;
+    &lt;a href="#" class="small-box-footer"&gt;Más info &lt;i class="fas fa-arrow-circle-right"&gt;&lt;/i&gt;&lt;/a&gt;
+&lt;/div&gt;</div>
+                    </div>
+                </div>
+
+                <!-- Alerts & Callouts -->
+                <div class="mb-8">
+                    <h3 class="text-2xl font-semibold mb-3">Alerts & Callouts</h3>
+                    <div class="bg-white p-4 rounded-lg shadow-sm">
+                        <div class="border border-gray-200 rounded-lg p-4 space-y-4">
+                           <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">¡Operación exitosa!</div>
+                           <div class="p-4 bg-blue-100 border-l-4 border-blue-500 text-blue-700">
+                                <h5 class="font-bold">¡Nota Importante!</h5>
+                                <p>Recordatorio sobre políticas.</p>
+                           </div>
+                        </div>
+                        <button class="toggle-code mt-4 text-sm text-indigo-600 hover:underline">Ver Código</button>
+                        <div class="code-block mt-2" style="display: none;">&lt;div class="alert alert-success" role="alert"&gt;¡Operación exitosa!&lt;/div&gt;
+&lt;div class="callout callout-info"&gt;&lt;h5&gt;¡Nota Importante!&lt;/h5&gt;&lt;p&gt;Recordatorio sobre políticas.&lt;/p&gt;&lt;/div&gt;</div>
+                    </div>
+                </div>
+                 <!-- Modal -->
+                <div class="mb-8">
+                    <h3 class="text-2xl font-semibold mb-3">Modals</h3>
+                    <div class="bg-white p-4 rounded-lg shadow-sm">
+                        <div class="border border-gray-200 rounded-lg p-4">
+                           <button id="modal-trigger" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">Lanzar Modal</button>
+                        </div>
+                        <button class="toggle-code mt-4 text-sm text-indigo-600 hover:underline">Ver Código</button>
+                        <div class="code-block mt-2" style="display: none;">&lt;button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal"&gt;Lanzar Modal&lt;/button&gt;
+&lt;div class="modal fade" id="exampleModal"&gt;
+    ...
+&lt;/div&gt;</div>
+                    </div>
+                </div>
+
+            </div>
+            
+            <div id="ecosistema" class="page-section">
+                <h2 class="text-3xl font-bold mb-4">Integración con el Ecosistema Laravel</h2>
+                <p class="text-gray-600 mb-6">AdminLTE funciona perfectamente con herramientas modernas del ecosistema de Laravel, permitiéndote crear aplicaciones complejas y dinámicas.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="font-bold text-xl mb-2"><i class="fas fa-bolt mr-2 text-yellow-500"></i>Livewire</h3>
+                        <p>Construye componentes dinámicos y reactivos que se integran a la perfección en tus vistas de AdminLTE, creando paneles en tiempo real sin recargar la página.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="font-bold text-xl mb-2"><i class="fab fa-vuejs mr-2 text-green-500"></i>Inertia.js</h3>
+                        <p>Utiliza AdminLTE como el layout principal para una Single-Page Application (SPA) moderna construida con Inertia, Vue o React.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="dashboard" class="page-section">
+                <h2 class="text-3xl font-bold mb-4">Dashboard de Ejemplo</h2>
+                <p class="text-gray-600 mb-6">Esta es una demostración en vivo de cómo todos los componentes pueden unirse para formar un dashboard funcional y visualmente atractivo.</p>
+                 <div class="row">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                        <div class="small-box bg-info">
+                            <div class="inner"><h3>150</h3><p>Nuevos Pedidos</p></div>
+                            <div class="icon"><i class="fas fa-shopping-cart"></i></div>
+                            <a href="#" class="small-box-footer">Más info <i class="fas fa-arrow-circle-right"></i></a>
+                        </div>
+                        <div class="small-box bg-success">
+                            <div class="inner"><h3>53<sup style="font-size: 20px">%</sup></h3><p>Tasa de Rebote</p></div>
+                            <div class="icon"><i class="fas fa-chart-bar"></i></div>
+                            <a href="#" class="small-box-footer">Más info <i class="fas fa-arrow-circle-right"></i></a>
+                        </div>
+                        <div class="small-box bg-warning">
+                            <div class="inner"><h3>44</h3><p>Usuarios Registrados</p></div>
+                            <div class="icon"><i class="fas fa-user-plus"></i></div>
+                            <a href="#" class="small-box-footer">Más info <i class="fas fa-arrow-circle-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2 bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="font-bold text-xl mb-4 text-gray-700">Ventas Mensuales</h3>
+                        <div class="chart-container">
+                            <canvas id="salesChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="font-bold text-xl mb-4 text-gray-700">Resumen</h3>
+                        <p>Aquí puedes poner un resumen del estado del sistema, notificaciones importantes o cualquier otra información relevante para el usuario.</p>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Modal Structure -->
+    <div id="component-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+      <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3 text-center">
+          <h3 class="text-lg leading-6 font-medium text-gray-900">Título del Modal</h3>
+          <div class="mt-2 px-7 py-3">
+            <p class="text-sm text-gray-500">
+              Este es el cuerpo del modal. Puedes poner aquí formularios, mensajes, etc.
+            </p>
+          </div>
+          <div class="items-center px-4 py-3">
+            <button id="close-modal" class="px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300">
+              Cerrar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const navLinks = document.querySelectorAll('#main-nav a');
+            const pageSections = document.querySelectorAll('.page-section');
+            const toggleCodeButtons = document.querySelectorAll('.toggle-code');
+
+            // --- Navigation Logic ---
+            function showPage(hash) {
+                const targetHash = hash || '#intro';
+                
+                navLinks.forEach(link => {
+                    link.classList.toggle('active', link.getAttribute('href') === targetHash);
+                });
+
+                pageSections.forEach(section => {
+                    section.classList.toggle('active', '#' + section.id === targetHash);
+                });
+            }
+            
+            navLinks.forEach(link => {
+                link.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    const targetHash = link.getAttribute('href');
+                    window.location.hash = targetHash;
+                });
+            });
+
+            window.addEventListener('hashchange', () => {
+                showPage(window.location.hash);
+            });
+            
+            showPage(window.location.hash);
+
+            // --- Toggle Code Logic ---
+            toggleCodeButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const codeBlock = button.nextElementSibling;
+                    if (codeBlock.style.display === 'none') {
+                        codeBlock.style.display = 'block';
+                        button.textContent = 'Ocultar Código';
+                    } else {
+                        codeBlock.style.display = 'none';
+                        button.textContent = 'Ver Código';
+                    }
+                });
+            });
+            
+            // --- Plugin: SweetAlert2 ---
+            document.getElementById('sweetalert-trigger').addEventListener('click', () => {
+                 Swal.fire({
+                    title: '¡Buen trabajo!',
+                    text: '¡Has activado una alerta con SweetAlert2!',
+                    icon: 'success',
+                    confirmButtonText: 'Genial'
+                });
+            });
+
+            // --- Plugin: Chart.js ---
+            const pluginChartCtx = document.getElementById('pluginChart').getContext('2d');
+            new Chart(pluginChartCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['DataTables', 'Select2', 'Chart.js', 'SweetAlert2'],
+                    datasets: [{
+                        label: 'Popularidad de Plugins',
+                        data: [40, 25, 25, 10],
+                        backgroundColor: ['#FBBF24', '#A78BFA', '#3B82F6', '#10B981'],
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            // --- Dashboard: Sales Chart ---
+            const salesChartCtx = document.getElementById('salesChart').getContext('2d');
+            new Chart(salesChartCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio'],
+                    datasets: [{
+                        label: 'Ventas',
+                        data: [28, 48, 40, 19, 86, 27, 90],
+                        backgroundColor: 'rgba(59, 130, 246, 0.5)',
+                        borderColor: 'rgba(59, 130, 246, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+
+            // --- Modal Logic ---
+            const modal = document.getElementById('component-modal');
+            const modalTrigger = document.getElementById('modal-trigger');
+            const closeModal = document.getElementById('close-modal');
+
+            modalTrigger.addEventListener('click', () => modal.style.display = 'block');
+            closeModal.addEventListener('click', () => modal.style.display = 'none');
+            window.addEventListener('click', (event) => {
+                if (event.target == modal) {
+                    modal.style.display = 'none';
+                }
+            });
+
+        });
+    </script>
+</body>
+</html>
