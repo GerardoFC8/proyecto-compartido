@@ -1,0 +1,107 @@
+https://ggfc.link/laragon-exe
+https://ggfc.link/php-83
+https://ggfc.link/composer-exe
+https://ggfc.link/node-msi
+https://ggfc.link/wireui
+https://ggfc.link/alpine
+https://ggfc.link/flux
+https://ggfc.link/lucide
+https://ggfc.link/git-exe
+
+https://ggfc.link/fontawesome
+https://ggfc.link/spatie
+
+
+
+
+Laravel blueprint
+composer require --dev laravel-shift/blueprint
+php artisan blueprint:build --skip=migrations
+
+
+
+
+INSTALACION DE SPATIE
+composer require spatie/laravel-permission
+php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider"
+php artisan migrate
+
+
+
+
+php artisan make:migration add_image_path_posts
+php artisan migrate
+php artisan storage:link
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+MAIL_MAILER=smtp
+MAIL_HOST=correo.ormaquin...
+MAIL_PORT=587
+MAIL_USERNAME=siste...@ormaa....
+MAIL_PASSWORD='*******'
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS=siste...@ormaa....
+MAIL_FROM_NAME="${APP_NAME}"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+composer global require laravel/installer
+
+
+
+npm install -D @tailwindcss/forms
+
+
+
+   <x-wireui:select
+        label="Buscar un Usuario"
+        placeholder="Selecciona un usuario"
+        :options=" [
+            ['id' => 1, 'name' => 'Juan Pérez'],
+            ['id' => 2, 'name' => 'María García'],
+            ['id' => 3, 'name' => 'Carlos Rodríguez'],
+            ['id' => 4, 'name' => 'Ana Martínez'],
+            ['id' => 5, 'name' => 'Luis Hernández'],
+        ]"
+        option-label="name"
+        option-value="id"
+        wire:model.live="selectedUserId"
+        hide-empty-message
+    />

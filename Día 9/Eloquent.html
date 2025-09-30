@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía Interactiva de Laravel Eloquent</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        pre, code {
+            font-family: 'Fira Code', monospace;
+        }
+        .code-block {
+            position: relative;
+        }
+        .copy-button {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            color: #d1d5db;
+            background-color: #374151;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.2s ease-in-out;
+        }
+        .code-block:hover .copy-button {
+            opacity: 1;
+        }
+        .nav-link.active {
+            color: #2563eb;
+            background-color: #e0e7ff;
+            font-weight: 500;
+        }
+        .tab-button.active {
+            border-color: #2563eb;
+            color: #2563eb;
+            background-color: white;
+        }
+    </style>
+</head>
+<body class="text-slate-700">
+
+    <div class="flex min-h-screen">
+        <aside class="w-64 bg-white border-r border-slate-200 p-6 fixed top-0 left-0 h-full overflow-y-auto hidden lg:block">
+            <h1 class="text-xl font-bold text-blue-600">Eloquent ORM</h1>
+            <p class="text-sm text-slate-500 mb-6">Guía Interactiva</p>
+            <nav id="desktop-nav" class="flex flex-col space-y-2">
+                <a href="#conceptos" class="nav-link text-slate-600 hover:text-blue-600 py-1.5 px-3 rounded-md transition-colors duration-200">Conceptos</a>
+                <a href="#modelos" class="nav-link text-slate-600 hover:text-blue-600 py-1.5 px-3 rounded-md transition-colors duration-200">Modelos</a>
+                <a href="#crud" class="nav-link text-slate-600 hover:text-blue-600 py-1.5 px-3 rounded-md transition-colors duration-200">CRUD Básico</a>
+                <a href="#relaciones" class="nav-link text-slate-600 hover:text-blue-600 py-1.5 px-3 rounded-md transition-colors duration-200">Relaciones</a>
+                <a href="#eager-loading" class="nav-link text-slate-600 hover:text-blue-600 py-1.5 px-3 rounded-md transition-colors duration-200">Eager Loading</a>
+                <a href="#consultas" class="nav-link text-slate-600 hover:text-blue-600 py-1.5 px-3 rounded-md transition-colors duration-200">Consultando Relaciones</a>
+                <a href="#extras" class="nav-link text-slate-600 hover:text-blue-600 py-1.5 px-3 rounded-md transition-colors duration-200">Accessors, Mutators & Scopes</a>
+            </nav>
+        </aside>
+
+        <main class="flex-1 lg:ml-64 p-6 md:p-10">
+            <header class="mb-10">
+                <h1 class="text-4xl font-bold text-slate-800">Laravel Eloquent ORM</h1>
+                <p class="mt-2 text-lg text-slate-500">Una referencia interactiva para dominar el ORM de Laravel, desde los fundamentos hasta las técnicas más avanzadas.</p>
+            </header>
+
+            <div class="prose prose-slate max-w-none bg-blue-50 border border-blue-200 text-blue-800 rounded-lg p-6 mb-12">
+                <h3 class="text-blue-900">¿Qué es Eloquent?</h3>
+                <p>Eloquent es un Mapeador Objeto-Relacional (ORM) que implementa el patrón <strong>ActiveRecord</strong>. Esto significa que cada modelo que creas es una clase poderosa que se corresponde directamente con una tabla en tu base de datos. No solo contiene los datos de una fila, sino que también te proporciona métodos para consultar, insertar, actualizar y eliminar registros de esa tabla, todo con una sintaxis expresiva y legible.</p>
+            </div>
+            
+            <section id="conceptos" class="mb-12 scroll-mt-20">
+                <h2 class="text-2xl font-bold text-slate-800 border-b pb-2 mb-4">1. Conceptos Fundamentales y Convenciones</h2>
+                <p class="mb-4">Eloquent es el ORM (Object-Relational Mapper) de Laravel. Se basa en el principio de "convención sobre configuración", lo que significa que asume ciertos valores por defecto para agilizar el desarrollo. Entender estas convenciones es clave para trabajar eficientemente.</p>
+                <div class="space-y-3 bg-white p-4 rounded-lg border">
+                    <p><strong>&#x2713; Nombre de la Tabla:</strong> Por defecto, es el plural del nombre del modelo en `snake_case`. (Ej: Modelo `BlogPost` → Tabla `blog_posts`).</p>
+                    <p><strong>&#x2713; Clave Primaria:</strong> Se asume que es una columna llamada `id`.</p>
+                    <p><strong>&#x2713; Timestamps:</strong> Espera las columnas `created_at` y `updated_at`, que gestiona automáticamente.</p>
+                </div>
+            </section>
+
+            <section id="modelos" class="mb-12 scroll-mt-20">
+                <h2 class="text-2xl font-bold text-slate-800 border-b pb-2 mb-4">2. Creación y Definición de Modelos</h2>
+                <p class="mb-4">Los modelos son el corazón de Eloquent, representando una tabla de tu base de datos. Se crean fácilmente con Artisan y pueden ser personalizados con diversas propiedades para anular las convenciones por defecto.</p>
+                <h3 class="text-lg font-semibold mb-2">Crear un Modelo</h3>
+                <div class="code-block bg-slate-800 text-white rounded-lg mb-6">
+                    <button class="copy-button">Copiar</button>
+                    <pre class="p-4 overflow-x-auto"><code>php artisan make:model Post -m</code></pre>
+                </div>
+                <h3 class="text-lg font-semibold mb-2">Propiedades Configurables</h3>
+                <ul class="list-disc list-inside bg-white p-4 rounded-lg border space-y-2">
+                    <li><code>$table</code>: Especifica un nombre de tabla personalizado.</li>
+                    <li><code>$primaryKey</code>: Define una clave primaria diferente a `id`.</li>
+                    <li><code>$timestamps</code>: Puesto a `false` deshabilita los timestamps automáticos.</li>
+                    <li><code>$fillable</code>: Define los campos permitidos en la asignación masiva. ¡Esencial para la seguridad!</li>
+                    <li><code>$casts</code>: Convierte atributos a tipos de datos comunes (ej: `boolean`, `array`, `datetime`).</li>
+                </ul>
+            </section>
+            
+            <section id="crud" class="mb-12 scroll-mt-20">
+                <h2 class="text-2xl font-bold text-slate-800 border-b pb-2 mb-4">3. Eloquent en Controladores: CRUD Básico</h2>
+                <p class="mb-4">La interacción principal con tus datos se realiza a través de los modelos dentro de tus controladores. Eloquent proporciona métodos intuitivos y potentes para realizar operaciones de Crear, Leer, Actualizar y Eliminar (CRUD).</p>
+                <h3 class="text-lg font-semibold mb-2">Leer Registros</h3>
+                <div class="code-block bg-slate-800 text-white rounded-lg mb-4">
+                    <button class="copy-button">Copiar</button>
+                    <pre class="p-4 overflow-x-auto"><code>// Obtener todos los posts
+$posts = Post::all();
+
+// Encontrar un post por su ID o fallar
+$post = Post::findOrFail($id);
+
+// Consulta con condiciones
+$published = Post::where('is_published', true)->paginate(15);</code></pre>
+                </div>
+                <h3 class="text-lg font-semibold mb-2">Crear y Actualizar</h3>
+                <div class="code-block bg-slate-800 text-white rounded-lg mb-4">
+                    <button class="copy-button">Copiar</button>
+                    <pre class="p-4 overflow-x-auto"><code>// Crear un nuevo registro (requiere $fillable)
+$post = Post::create($request->validated());
+
+// Actualizar un registro existente
+$post = Post::findOrFail($id);
+$post->update($request->validated());</code></pre>
+                </div>
+                <h3 class="text-lg font-semibold mb-2">Crear o Actualizar de forma masiva</h3>
+                <p class="mb-2">Eloquent también ofrece métodos convenientes para manejar la creación o actualización en una sola operación, lo que resulta muy útil en muchas situaciones.</p>
+                <div class="code-block bg-slate-800 text-white rounded-lg mb-4">
+                    <button class="copy-button">Copiar</button>
+                    <pre class="p-4 overflow-x-auto"><code>// Busca un post con el título dado, si no existe, lo crea
+$post = Post::firstOrCreate(
+    ['title' => 'Nuevo Post Increíble'],
+    ['content' => 'Contenido del post...']
+);
+
+// Busca un post por título, si existe lo actualiza, si no, lo crea
+$post = Post::updateOrCreate(
+    ['title' => 'Post a Actualizar'],
+    ['content' => 'Este es el nuevo contenido.']
+);</code></pre>
+                </div>
+                <h3 class="text-lg font-semibold mb-2">Eliminar Registros (Soft Deletes)</h3>
+                <p class="mb-2">El borrado lógico es una técnica poderosa para "archivar" registros sin eliminarlos de la base de datos. Se activa usando el trait `SoftDeletes` en el modelo y añadiendo `$table->softDeletes()` en la migración.</p>
+                <div class="code-block bg-slate-800 text-white rounded-lg">
+                    <button class="copy-button">Copiar</button>
+                    <pre class="p-4 overflow-x-auto"><code>$post = Post::findOrFail($id);
+$post->delete(); // Realiza un borrado lógico
+
+// Para restaurar
+Post::withTrashed()->find($id)->restore();
+
+// Para eliminar permanentemente
+$post->forceDelete();</code></pre>
+                </div>
+            </section>
+            
+            <section id="relaciones" class="mb-12 scroll-mt-20">
+                <h2 class="text-2xl font-bold text-slate-800 border-b pb-2 mb-4">4. Relaciones de Eloquent</h2>
+                <p class="mb-4">Las relaciones son la característica más potente de Eloquent, permitiéndote conectar tus modelos de forma lógica y consultar los datos relacionados de manera fluida. Aquí exploramos los tipos de relaciones más comunes.</p>
+                
+                <div class="mb-4 border-b border-slate-200">
+                    <nav id="relation-tabs" class="-mb-px flex space-x-6" aria-label="Tabs">
+                        <button data-target="one-to-one" class="tab-button active whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm">Uno a Uno</button>
+                        <button data-target="one-to-many" class="tab-button whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300">Uno a Muchos</button>
+                        <button data-target="many-to-many" class="tab-button whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300">Muchos a Muchos</button>
+                        <button data-target="polymorphic" class="tab-button whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300">Polimórficas</button>
+                    </nav>
+                </div>
+
+                <div id="relation-content" class="bg-white p-6 rounded-lg border">
+                    <div id="one-to-one" class="tab-content">
+                        <h3 class="text-lg font-semibold mb-2">Relación Uno a Uno (hasOne / belongsTo)</h3>
+                        <p class="mb-4">Define una relación donde un modelo posee un único modelo relacionado. Ejemplo: Un `User` tiene un solo `Phone`.</p>
+                        <div class="flex items-center justify-center space-x-4 p-4 my-4 bg-slate-50 rounded-lg">
+                            <div class="text-center p-3 border rounded-md bg-white shadow-sm"><strong>User</strong></div>
+                            <div class="text-slate-400 font-mono">&lt;-- hasOne --&gt;</div>
+                            <div class="text-center p-3 border rounded-md bg-white shadow-sm"><strong>Phone</strong></div>
+                        </div>
+                        <div class="code-block bg-slate-800 text-white rounded-lg">
+                            <button class="copy-button">Copiar</button>
+                            <pre class="p-4 overflow-x-auto"><code>// En el modelo User
+public function phone() {
+    return $this->hasOne(Phone::class);
+}
+
+// En el modelo Phone
+public function user() {
+    return $this->belongsTo(User::class);
+}</code></pre>
+                        </div>
+                    </div>
+                    <div id="one-to-many" class="tab-content hidden">
+                        <h3 class="text-lg font-semibold mb-2">Relación Uno a Muchos (hasMany / belongsTo)</h3>
+                        <p class="mb-4">Es la relación más común, donde un modelo puede tener múltiples modelos relacionados. Ejemplo: Un `Post` tiene muchos `Comment`.</p>
+                         <div class="flex items-center justify-center space-x-4 p-4 my-4 bg-slate-50 rounded-lg">
+                            <div class="text-center p-3 border rounded-md bg-white shadow-sm"><strong>Post</strong></div>
+                            <div class="text-slate-400 font-mono">&lt;-- hasMany --&gt;</div>
+                            <div class="text-center p-3 border rounded-md bg-white shadow-sm"><strong>Comment</strong> (muchos)</div>
+                        </div>
+                        <div class="code-block bg-slate-800 text-white rounded-lg">
+                            <button class="copy-button">Copiar</button>
+                            <pre class="p-4 overflow-x-auto"><code>// En el modelo Post
+public function comments() {
+    return $this->hasMany(Comment::class);
+}
+
+// En el modelo Comment
+public function post() {
+    return $this->belongsTo(Post::class);
+}</code></pre>
+                        </div>
+                    </div>
+                    <div id="many-to-many" class="tab-content hidden">
+                        <h3 class="text-lg font-semibold mb-2">Relación Muchos a Muchos (belongsToMany)</h3>
+                        <p class="mb-4">Esta relación requiere una tabla intermedia (pivot) para conectar los dos modelos. Ejemplo: Un `User` puede tener muchos `Role`, y viceversa.</p>
+                        <div class="code-block bg-slate-800 text-white rounded-lg">
+                            <button class="copy-button">Copiar</button>
+                            <pre class="p-4 overflow-x-auto"><code>// En el modelo User
+public function roles() {
+    return $this->belongsToMany(Role::class);
+}
+
+// Uso para vincular/desvincular
+$user->roles()->attach($roleId);
+$user->roles()->detach($roleId);
+$user->roles()->sync([1, 2]);</code></pre>
+                        </div>
+                    </div>
+                    <div id="polymorphic" class="tab-content hidden">
+                        <h3 class="text-lg font-semibold mb-2">Relaciones Polimórficas (morphTo / morphMany)</h3>
+                        <p class="mb-4">Permiten que un modelo pertenezca a más de un tipo de modelo usando una única asociación. Ejemplo: `Post` y `Video` pueden tener `Comment`.</p>
+                        <div class="code-block bg-slate-800 text-white rounded-lg">
+                            <button class="copy-button">Copiar</button>
+                            <pre class="p-4 overflow-x-auto"><code>// En el modelo Comment
+public function commentable() {
+    return $this->morphTo();
+}
+
+// En el modelo Post (y Video)
+public function comments() {
+    return $this->morphMany(Comment::class, 'commentable');
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="eager-loading" class="mb-12 scroll-mt-20">
+                <h2 class="text-2xl font-bold text-slate-800 border-b pb-2 mb-4">5. Carga Ansiosa (Eager Loading)</h2>
+                <p class="mb-4">Eager Loading es una técnica crucial para optimizar tus consultas y evitar el famoso "problema N+1". En lugar de cargar las relaciones perezosamente (una consulta por cada item), se cargan todas de antemano en un número mínimo de consultas.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-red-100 border border-red-200 p-4 rounded-lg">
+                        <h3 class="font-semibold text-red-800">❌ Problema N+1 (Malo)</h3>
+                        <p class="text-sm text-red-700 mb-2">1 consulta para posts + N consultas para el usuario de cada post.</p>
+                        <div class="code-block bg-slate-800 text-white rounded-lg">
+                            <button class="copy-button">Copiar</button>
+                            <pre class="p-4 overflow-x-auto"><code>$posts = Post::all();
+foreach ($posts as $post) {
+  echo $post->user->name;
+}</code></pre>
+                        </div>
+                    </div>
+                    <div class="bg-green-100 border border-green-200 p-4 rounded-lg">
+                        <h3 class="font-semibold text-green-800">✅ Solución con `with()` (Bueno)</h3>
+                        <p class="text-sm text-green-700 mb-2">Solo 2 consultas en total, sin importar el número de posts.</p>
+                        <div class="code-block bg-slate-800 text-white rounded-lg">
+                            <button class="copy-button">Copiar</button>
+                            <pre class="p-4 overflow-x-auto"><code>// Carga los posts y su usuario
+$posts = Post::with('user')->get();
+
+// Carga relaciones anidadas
+$posts = Post::with('comments.user')->get();</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="consultas" class="mb-12 scroll-mt-20">
+                <h2 class="text-2xl font-bold text-slate-800 border-b pb-2 mb-4">6. Consultando Relaciones</h2>
+                <p class="mb-4">Eloquent te permite filtrar los resultados de una consulta basándote en la existencia o el contenido de sus relaciones, dándote un control total sobre los datos que recuperas.</p>
+                <h3 class="text-lg font-semibold mb-2">Filtrar por existencia con `has()` y `whereHas()`</h3>
+                <div class="code-block bg-slate-800 text-white rounded-lg mb-4">
+                    <button class="copy-button">Copiar</button>
+                    <pre class="p-4 overflow-x-auto"><code>// Posts que tienen al menos un comentario
+$posts = Post::has('comments')->get();
+
+// Posts que tienen un comentario con la palabra "Laravel"
+$posts = Post::whereHas('comments', function ($query) {
+    $query->where('body', 'like', '%Laravel%');
+})->get();</code></pre>
+                </div>
+                <h3 class="text-lg font-semibold mb-2">Contar relaciones con `withCount()`</h3>
+                <p class="mb-2">Si solo necesitas el número de modelos relacionados, `withCount` es mucho más eficiente que cargar toda la relación. Añade un atributo `relation_count` a tu modelo.</p>
+                <div class="code-block bg-slate-800 text-white rounded-lg">
+                    <button class="copy-button">Copiar</button>
+                    <pre class="p-4 overflow-x-auto"><code>$posts = Post::withCount('comments')->get();
+
+foreach ($posts as $post) {
+    echo $post->comments_count;
+}</code></pre>
+                </div>
+            </section>
+
+            <section id="extras" class="mb-12 scroll-mt-20">
+                <h2 class="text-2xl font-bold text-slate-800 border-b pb-2 mb-4">7. Accessors, Mutators & Scopes</h2>
+                <p class="mb-6">Estas son características avanzadas para interactuar con los atributos de tu modelo y reutilizar la lógica de tus consultas. Dominarlas te permitirá escribir un código mucho más limpio, expresivo y mantenible.</p>
+                
+                <div class="bg-white p-6 rounded-lg border mb-8">
+                    <h3 class="text-xl font-bold text-slate-800 mb-2">Accessors & Mutators</h3>
+                    <p class="mb-4 text-slate-600">Te permiten transformar los atributos de Eloquent. Los <strong>Accessors</strong> formatean los valores cuando los recuperas de un modelo, mientras que los <strong>Mutators</strong> transforman los valores justo antes de guardarlos en la base de datos.</p>
+                    
+                    <h4 class="font-semibold mb-2">Sintaxis Moderna (Recomendada)</h4>
+                    <p class="mb-3 text-sm text-slate-500">Desde Laravel 9, la forma recomendada de definir ambos es a través de un único método que devuelve un objeto `Attribute`.</p>
+                    <div class="code-block bg-slate-800 text-white rounded-lg">
+                        <button class="copy-button">Copiar</button>
+                        <pre class="p-4 overflow-x-auto"><code>use Illuminate\Database\Eloquent\Casts\Attribute;
+
+// En tu modelo User.php
+protected function fullName(): Attribute
+{
+    return Attribute::make(
+        // ACCESSOR: Se ejecuta cuando pides $user->full_name
+        get: fn ($value, $attributes) => $attributes['first_name'] . ' ' . $attributes['last_name'],
+    );
+}
+
+protected function password(): Attribute
+{
+    return Attribute::make(
+        // MUTATOR: Se ejecuta cuando asignas un valor: $user->password = 'nuevo-pass'
+        set: fn ($value) => bcrypt($value),
+    );
+}</code></pre>
+                    </div>
+
+                    <h4 class="font-semibold mt-6 mb-2">Sintaxis Clásica (Legacy)</h4>
+                     <p class="mb-3 text-sm text-slate-500">Es importante reconocer la sintaxis "mágica" de versiones anteriores, ya que la encontrarás en muchos proyectos. Se basa en métodos con los prefijos `get` y `set`.</p>
+                     <div class="code-block bg-slate-800 text-white rounded-lg">
+                        <button class="copy-button">Copiar</button>
+                        <pre class="p-4 overflow-x-auto"><code>// ACCESSOR CLÁSICO:
+public function getFullNameAttribute()
+{
+    return "{$this->first_name} {$this->last_name}";
+}
+
+// MUTATOR CLÁSICO:
+public function setFirstNameAttribute($value)
+{
+    $this->attributes['first_name'] = strtolower($value);
+}</code></pre>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-lg border">
+                    <h3 class="text-xl font-bold text-slate-800 mb-2">Scopes de Consulta</h3>
+                    <p class="mb-4 text-slate-600">Los Scopes te permiten encapsular y reutilizar la lógica de las consultas. Son extremadamente útiles para mantener tus controladores limpios y aplicar el principio DRY (Don't Repeat Yourself).</p>
+
+                    <h4 class="font-semibold mb-2">Local Scopes</h4>
+                    <p class="mb-3 text-sm text-slate-500">Un Local Scope se define en el modelo con el prefijo `scope`. Puede ser estático o dinámico (aceptando parámetros).</p>
+                    <div class="code-block bg-slate-800 text-white rounded-lg mb-4">
+                        <button class="copy-button">Copiar</button>
+                        <pre class="p-4 overflow-x-auto"><code>// En el modelo Post.php
+
+// Scope estático
+public function scopePublished($query) {
+    return $query->where('is_published', true);
+}
+
+// Scope dinámico
+public function scopeOfType($query, $type) {
+    return $query->where('type', $type);
+}</code></pre>
+                    </div>
+                    <p class="mb-3 text-sm text-slate-500">Puedes encadenarlos en tus consultas para crear sentencias muy legibles:</p>
+                     <div class="code-block bg-slate-800 text-white rounded-lg">
+                        <button class="copy-button">Copiar</button>
+                        <pre class="p-4 overflow-x-auto"><code>// Uso en el controlador:
+$publishedNews = Post::published()->ofType('news')->get();</code></pre>
+                    </div>
+
+                    <h4 class="font-semibold mt-6 mb-2">Global Scopes</h4>
+                     <p class="mb-3 text-sm text-slate-500">Los Global Scopes aplican restricciones a <strong>todas</strong> las consultas de un modelo. Son perfectos para arquitecturas multi-tenant, donde siempre necesitas filtrar por un `tenant_id`, por ejemplo.</p>
+                     <div class="code-block bg-slate-800 text-white rounded-lg">
+                        <button class="copy-button">Copiar</button>
+                        <pre class="p-4 overflow-x-auto"><code>// 1. Crear el Scope: php artisan make:scope UserTenantScope
+
+// 2. Definir la lógica en app/Scopes/UserTenantScope.php
+public function apply(Builder $builder, Model $model) {
+    if (session()->has('tenant_id')) {
+        $builder->where('tenant_id', session('tenant_id'));
+    }
+}
+
+// 3. Aplicarlo en el modelo User.php
+protected static function booted() {
+    static::addGlobalScope(new UserTenantScope);
+}
+
+// Para ignorar un Global Scope en una consulta específica:
+$allUsers = User::withoutGlobalScope(UserTenantScope::class)->get();</code></pre>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const copyButtons = document.querySelectorAll('.copy-button');
+    copyButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const codeBlock = button.nextElementSibling;
+            const code = codeBlock.innerText;
+            
+            const tempTextArea = document.createElement('textarea');
+            tempTextArea.value = code;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            try {
+                document.execCommand('copy');
+                button.innerText = 'Copiado!';
+                setTimeout(() => {
+                    button.innerText = 'Copiar';
+                }, 2000);
+            } catch (err) {
+                console.error('Fallback: Oops, unable to copy', err);
+            }
+            document.body.removeChild(tempTextArea);
+        });
+    });
+
+    const relationTabs = document.querySelectorAll('.tab-button');
+    const relationContents = document.querySelectorAll('.tab-content');
+    relationTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            relationTabs.forEach(item => {
+                item.classList.remove('active');
+            });
+            tab.classList.add('active');
+            
+            const targetId = tab.dataset.target;
+            relationContents.forEach(content => {
+                if (content.id === targetId) {
+                    content.classList.remove('hidden');
+                } else {
+                    content.classList.add('hidden');
+                }
+            });
+        });
+    });
+    
+    const sections = document.querySelectorAll('section');
+    const navLinks = document.querySelectorAll('.nav-link');
+    
+    const observerOptions = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.3
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const id = entry.target.getAttribute('id');
+          navLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href') === `#${id}`) {
+              link.classList.add('active');
+            }
+          });
+        }
+      });
+    }, observerOptions);
+
+    sections.forEach(section => {
+      observer.observe(section);
+    });
+});
+</script>
+</body>
+</html>

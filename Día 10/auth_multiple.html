@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía de Implementación: Autenticación Múltiple en Laravel 12</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            color: #212529;
+            padding: 2rem;
+        }
+        .container {
+            background-color: #ffffff;
+            border-radius: 15px;
+            padding: 2.5rem;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        h1, h2, h3 {
+            color: #0d6efd;
+            border-bottom: 2px solid #dee2e6;
+            padding-bottom: 0.5rem;
+            margin-top: 2rem;
+        }
+        h1 {
+            font-size: 2.5rem;
+        }
+        code {
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.9em;
+            color: #d63384;
+        }
+        pre {
+            background-color: #282c34;
+            color: #abb2bf;
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+        .alert {
+            margin-top: 1.5rem;
+        }
+        .list-group-item {
+            border-left: 3px solid #0d6efd;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mb-4 text-center">Guía de Autenticación Múltiple en Laravel 12</h1>
+        <p class="lead">
+            Proceso para implementar un sistema de autenticación que permite a diferentes tipos de usuarios (Administradores, Profesores, Alumnos) iniciar sesión desde un único formulario, utilizando diferentes tablas en la base de datos.
+        </p>
+
+        <!-- Sección 1: auth.php -->
+        <section id="auth-config">
+            <h2>1. Configuración de Autenticación: `config/auth.php`</h2>
+            <p>
+                El primer paso es informar a Laravel sobre nuestros diferentes tipos de usuarios. Esto se logra definiendo <strong>Guards</strong> y <strong>Providers</strong>.
+            </p>
+            <ul class="list-group">
+                <li class="list-group-item"><strong>Guard (Guardia):</strong> Define <em>cómo</em> se autentica a un usuario. Es como el portero que decide si alguien puede pasar. Cada guard utiliza un "provider" para saber dónde buscar la información.</li>
+                <li class="list-group-item"><strong>Provider (Proveedor):</strong> Define <em>dónde</em> se almacenan los usuarios. Le dice al guard en qué tabla de la base de datos y con qué modelo de Eloquent debe buscar.</li>
+            </ul>
+            <p class="mt-3">Añadimos guards y providers para `professors` y `students`:</p>
+            <pre><code>'guards' => [
+    'web' => [
+        'driver' => 'session',
+        'provider' => 'users',
+    ],
+    // Nuevo Guard para Profesores
+    'professor' => [
+        'driver' => 'session',
+        'provider' => 'professors',
+    ],
+    // Nuevo Guard para Alumnos
+    'student' => [
+        'driver' => 'session',
+        'provider' => 'students',
+    ],
+],
+
+'providers' => [
+    'users' => [
+        'driver' => 'eloquent',
+        'model' => App\Models\User::class,
+    ],
+    // Nuevo Provider para Profesores
+    'professors' => [
+        'driver' => 'eloquent',
+        'model' => App\Models\Professor::class,
+    ],
+    // Nuevo Provider para Alumnos
+    'students' => [
+        'driver' => 'eloquent',
+        'model' => App\Models\Student::class,
+    ],
+],</code></pre>
+            <div class="alert alert-info">
+                <strong>Clave:</strong> El nombre del guard (ej. <code>'professor'</code>) es el que usaremos para decirle a Laravel qué sistema de autenticación utilizar en un momento dado.
+            </div>
+        </section>
+
+        <!-- Sección 2: AuthenticatedSessionController -->
+        <section id="auth-controller">
+            <h2>2. `AuthenticatedSessionController`</h2>
+            <p>
+                Este controlador, ubicado en <code>app/Http/Controllers/Auth/</code>, es el responsable de manejar las peticiones de inicio y cierre de sesión. Su método principal es <code>store()</code>, que procesa los datos del formulario de login.
+            </p>
+            <p>
+                Lo modificamos para que, en lugar de usar siempre el guard por defecto (<code>web</code>), utilice el guard que el usuario seleccionó en el formulario.
+            </p>
+            <pre><code>public function store(LoginRequest $request): RedirectResponse
+{
+    // Obtenemos el tipo de usuario (guard) del LoginRequest
+    $guard = $request->input('user_type', 'web');
+
+    // Le decimos al Request que intente autenticar usando el guard específico
+    $request->authenticate($guard);
+
+    $request->session()->regenerate();
+
+    // Redirigimos al dashboard
+    return redirect()->intended(route('dashboard', absolute: false));
+}</code></pre>
+            <p>El cambio clave es pasar la variable <code>$guard</code> al método <code>authenticate()</code> del <code>$request</code>. Esto hace que toda la lógica de autenticación se ejecute en el contexto correcto (<code>users</code>, <code>professors</code> o <code>students</code>).</p>
+        </section>
+
+        <!-- Sección 3: LoginRequest -->
+        <section id="login-request">
+            <h2>3. `LoginRequest`</h2>
+            <p>
+                Este archivo (<code>app/Http/Requests/Auth/LoginRequest.php</code>) valida los datos del formulario de login. Aquí es donde se realiza el intento real de autenticación.
+            </p>
+            <p>Añadimos una regla de validación para nuestro nuevo campo <code>user_type</code> y modificamos el método <code>authenticate()</code>.</p>
+            <pre><code>// Dentro del método rules()
+public function rules(): array
+{
+    return [
+        'email' => ['required', 'string', 'email'],
+        'password' => ['required', 'string'],
+        // Validamos que el valor sea uno de los guards que definimos
+        'user_type' => ['required', 'string', 'in:web,professor,student'], 
+    ];
+}
+
+// Modificación del método authenticate()
+public function authenticate(string $guard = 'web')
+{
+    // Nos aseguramos de que el Rate Limiter use el guard correcto
+    $this->ensureIsNotRateLimited($guard);
+
+    // Aquí está la magia: Auth::guard($guard)->attempt(...)
+    if (! Auth::guard($guard)->attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+        RateLimiter::hit($this->throttleKey($guard));
+
+        throw ValidationException::withMessages([
+            'email' => trans('auth.failed'),
+        ]);
+    }
+
+    RateLimiter::clear($this->throttleKey($guard));
+}
+</code></pre>
+            <div class="alert alert-primary">
+                <strong>Explicación:</strong> La línea <code>Auth::guard($guard)->attempt(...)</code> es la que finalmente le dice a Laravel: "Oye, intenta iniciar sesión con estas credenciales, pero hazlo usando el guard '<code>professor</code>' (o el que corresponda)". Esto hace que Laravel busque en la tabla `professors` en lugar de la tabla `users`.
+            </div>
+        </section>
+
+        <!-- Sección 3.1: Rate Limiter -->
+        <section id="rate-limiter">
+            <h3>3.1. Protección contra ataques: El Rate Limiter</h3>
+            <p>El "Rate Limiter" (Limitador de Tasa) es un mecanismo de seguridad crucial para prevenir <strong>ataques de fuerza bruta</strong>. Imagina que es un vigilante que cuenta cuántas veces alguien intenta abrir una puerta con la llave incorrecta. Si lo intenta demasiadas veces en poco tiempo, el vigilante le bloquea el acceso temporalmente para proteger la cerradura.</p>
+            <p>Así es como funciona en nuestro código:</p>
+            <ul class="list-group">
+                <li class="list-group-item">
+                    <strong><code>$this->ensureIsNotRateLimited($guard);</code> (Verificar antes de intentar)</strong>
+                    <p class="mb-0 mt-2">Antes de siquiera comprobar la contraseña en la base de datos, esta línea le pregunta al "vigilante": "¿Esta persona (identificada por su email, IP y <strong>tipo de usuario</strong>) ya ha fallado demasiadas veces?". Si la respuesta es sí, Laravel detiene todo y muestra el mensaje "Demasiados intentos de inicio de sesión", protegiendo los recursos del servidor.</p>
+                </li>
+                <li class="list-group-item">
+                    <strong><code>RateLimiter::hit($this->throttleKey($guard));</code> (Anotar un fallo)</strong>
+                    <p class="mb-0 mt-2">Esta línea solo se ejecuta si el inicio de sesión <strong>falla</strong>. Le dice al "vigilante": "Suma un intento fallido para esta persona". Por defecto, después de 5 intentos fallidos, se bloquea el acceso por un minuto.</p>
+                </li>
+                <li class="list-group-item">
+                    <strong><code>RateLimiter::clear($this->throttleKey($guard));</code> (Limpiar en caso de éxito)</strong>
+                    <p class="mb-0 mt-2">Si el inicio de sesión es <strong>exitoso</strong>, esta línea le dice al "vigilante": "Olvida todos los fallos anteriores de esta persona. Ha entrado correctamente". Esto resetea el contador de intentos fallidos a cero.</p>
+                </li>
+            </ul>
+             <div class="alert alert-success mt-3">
+                <strong>La importancia del <code>$guard</code>:</strong> Al pasar la variable <code>$guard</code> a estos métodos (a través de <code>$this->throttleKey($guard)</code>), nos aseguramos de que el conteo de intentos fallidos sea <strong>independiente para cada tipo de usuario</strong>. Esto significa que un atacante que intenta adivinar la contraseña de un <code>student</code> no bloqueará accidentalmente al mismo usuario si también tiene una cuenta de <code>professor</code>. Cada "puerta" (administrador, profesor, alumno) tiene su propio vigilante.
+            </div>
+        </section>
+
+        <!-- Sección 4: Seeders y Spatie -->
+        <section id="seeders">
+            <h2>4. Seeders, Spatie y la importancia de los Guards</h2>
+            <p>
+                El paquete <code>spatie/laravel-permission</code> es extremadamente potente, pero cuando se trabaja con múltiples sistemas de autenticación, es fundamental entender cómo maneja los <strong>guards</strong>.
+            </p>
+            <p>
+                Por diseño, <strong>un rol o un permiso pertenece exclusivamente a un guard</strong>. No se pueden mezclar. Si un permiso fue creado para el guard <code>web</code>, no se puede asignar a un rol del guard <code>professor</code>.
+            </p>
+            <p>Esta es la razón por la que en nuestro <code>RolesAndPermissionsSeeder</code> tuvimos que ser explícitos:</p>
+            <pre><code>// Creando un rol para el guard 'professor'
+$roleProfessor = Role::create(['name' => 'Profesor', 'guard_name' => 'professor']);
+
+// Creando un permiso específico para cada guard que lo necesite
+Permission::create(['name' => 'dashboard.view', 'guard_name' => 'web']);
+Permission::create(['name' => 'dashboard.view', 'guard_name' => 'professor']);
+Permission::create(['name' => 'dashboard.view', 'guard_name' => 'student']);
+
+// Asignando el permiso 'dashboard.view' que pertenece al guard 'professor'
+$roleProfessor->givePermissionTo(Permission::where('guard_name', 'professor')->get());
+</code></pre>
+            <div class="alert alert-warning">
+                <h4>¿Es posible crear roles o permisos "combinados" para todos los guards?</h4>
+                <p><strong>La respuesta corta es no.</strong> No se puede crear una única entrada en la tabla <code>permissions</code> y que esta sea válida para todos los guards. Spatie impone esta separación para mantener la seguridad y la claridad, evitando que un permiso de administrador (guard `web`) pueda ser asignado accidentalmente a un alumno (guard `student`).</p>
+                <p><strong>La forma correcta</strong>, como hicimos en el seeder, es crear el mismo permiso (con el mismo nombre) para cada guard que lo vaya a necesitar. Aunque parezca repetitivo, es la implementación correcta y segura que garantiza el aislamiento entre los diferentes contextos de autenticación.</p>
+            </div>
+        </section>
+
+    </div>
+</body>
+</html>

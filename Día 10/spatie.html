@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía Dinámica: Spatie Laravel-Permission</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .code-block {
+            position: relative;
+        }
+        .copy-button {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background-color: #4A5568;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            opacity: 0.75;
+            transition: opacity 0.2s;
+        }
+        .copy-button:hover {
+            opacity: 1;
+        }
+        .copy-button.copied {
+            background-color: #2F855A;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="flex min-h-screen">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-gray-800 text-white p-6 fixed h-full hidden lg:block">
+            <h2 class="text-xl font-bold mb-6">Navegación</h2>
+            <nav>
+                <ul class="space-y-3">
+                    <li><a href="#introduccion" class="hover:text-teal-400 transition-colors">Introducción</a></li>
+                    <li><a href="#instalacion" class="hover:text-teal-400 transition-colors">1. Instalación y Configuración</a></li>
+                    <li><a href="#modelo-user" class="hover:text-teal-400 transition-colors">2. Preparar Modelo `User`</a></li>
+                    <li><a href="#conceptos-clave" class="hover:text-teal-400 transition-colors">3. Conceptos Clave</a></li>
+                    <li><a href="#model-type" class="ml-4 hover:text-teal-400 transition-colors">↳ El rol de `model_type`</a></li>
+                    <li><a href="#uso-basico" class="hover:text-teal-400 transition-colors">4. Uso Básico</a></li>
+                    <li><a href="#verificacion" class="hover:text-teal-400 transition-colors">5. Verificación de Permisos</a></li>
+                    <li><a href="#avanzado" class="hover:text-teal-400 transition-colors">6. Temas Avanzados</a></li>
+                    <li><a href="#mejores-practicas" class="hover:text-teal-400 transition-colors">7. Mejores Prácticas</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 lg:ml-64 p-6 md:p-10">
+            <div class="max-w-4xl mx-auto">
+                <header class="mb-10 border-b pb-6">
+                    <h1 class="text-4xl font-bold text-gray-900">Guía Completa de Spatie Laravel-Permission</h1>
+                    <p class="mt-2 text-lg text-gray-600">Una guía interactiva para dominar la gestión de roles y permisos en Laravel.</p>
+                </header>
+
+                <section id="introduccion" class="mb-12 scroll-mt-20">
+                    <div class="bg-white p-8 rounded-xl shadow-md">
+                        <h2 class="text-2xl font-bold mb-4">Introducción</h2>
+                        <p>Este paquete es una de las herramientas más populares y robustas para gestionar roles y permisos en aplicaciones Laravel. Te permite implementar un control de acceso basado en roles (RBAC) de una manera muy sencilla y elegante.</p>
+                    </div>
+                </section>
+
+                <section id="instalacion" class="mb-12 scroll-mt-20">
+                    <div class="bg-white p-8 rounded-xl shadow-md">
+                        <h2 class="text-2xl font-bold mb-4">1. Instalación y Configuración</h2>
+                        <p class="mb-4">Primero, instala el paquete a través de Composer.</p>
+                        <div class="code-block bg-gray-900 text-white p-4 rounded-md">
+                            <pre><code class="language-bash">composer require spatie/laravel-permission</code></pre>
+                            <button class="copy-button">Copiar</button>
+                        </div>
+                        
+                        <p class="mt-6 mb-4">Luego, publica el archivo de configuración y las migraciones. Publicar la configuración es una buena práctica para futuras personalizaciones.</p>
+                        <div class="code-block bg-gray-900 text-white p-4 rounded-md">
+                            <pre><code class="language-bash">php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider"</code></pre>
+                            <button class="copy-button">Copiar</button>
+                        </div>
+
+                        <p class="mt-6 mb-4">Ahora, ejecuta las migraciones para crear las tablas necesarias: `roles`, `permissions`, `model_has_roles`, `model_has_permissions`, y `role_has_permissions`.</p>
+                        <div class="code-block bg-gray-900 text-white p-4 rounded-md">
+                            <pre><code class="language-bash">php artisan migrate</code></pre>
+                            <button class="copy-button">Copiar</button>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="modelo-user" class="mb-12 scroll-mt-20">
+                    <div class="bg-white p-8 rounded-xl shadow-md">
+                        <h2 class="text-2xl font-bold mb-4">2. Preparar tu Modelo `User`</h2>
+                        <p class="mb-4">Para que tu modelo `User` (o cualquier otro modelo) pueda tener roles y permisos, debes usar el trait `HasRoles`.</p>
+                        <div class="code-block bg-gray-900 text-white p-4 rounded-md">
+                            <pre><code class="language-php">// app/Models/User.php
+
+namespace App\Models;
+
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Spatie\Permission\Traits\HasRoles; // Importar el trait
+
+class User extends Authenticatable
+{
+    use HasRoles; // Usar el trait
+
+    // ... el resto de tu modelo
+}</code></pre>
+                            <button class="copy-button">Copiar</button>
+                        </div>
+                    </div>
+                </section>
+                
+                <section id="conceptos-clave" class="mb-12 scroll-mt-20">
+                    <div class="bg-white p-8 rounded-xl shadow-md">
+                        <h2 class="text-2xl font-bold mb-4">3. Conceptos Clave</h2>
+                        <ul class="list-disc list-inside space-y-3">
+                            <li><strong>Permissions (Permisos):</strong> Son acciones específicas que un usuario puede realizar. Por ejemplo: `crear articulos`, `editar usuarios`, `ver reportes`.</li>
+                            <li><strong>Roles:</strong> Son "etiquetas" que agrupan un conjunto de permisos. Por ejemplo, un rol `editor` podría tener los permisos `crear articulos` y `editar articulos`.</li>
+                            <li><strong>Guards (Guardias):</strong> Laravel permite tener múltiples sistemas de autenticación (ej. `web` para sesiones y `api` para tokens). Spatie asocia roles y permisos a un `guard` específico para mantenerlos separados. Por defecto, todo se asigna al guard `web`.</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <section id="model-type" class="mb-12 scroll-mt-20">
+                    <div class="bg-teal-50 border-l-4 border-teal-500 p-8 rounded-r-lg shadow-md">
+                        <h3 class="text-2xl font-bold mb-4 text-teal-800">El Rol de `model_type`: Relaciones Polimórficas</h3>
+                        <p class="mb-4">En las tablas `model_has_permissions` y `model_has_roles`, la columna `model_type` es una parte fundamental de lo que se conoce como una <strong>relación polimórfica</strong>.</p>
+                        <p class="mb-4">En términos sencillos, esta columna almacena el <strong>nombre completo de la clase del modelo</strong> al que se le está asignando un rol o un permiso. Por ejemplo, si le asignas un rol a un usuario, el valor será `App\Models\User`.</p>
+                        <p class="font-semibold mb-2">¿Por qué es tan importante?</p>
+                        <p class="mb-4">La principal ventaja es la <strong>flexibilidad</strong>. No estás limitado a asignar roles y permisos únicamente al modelo `User`. Puedes usarlo para cualquier modelo, como `Admin`, `ApiUser`, etc., todo dentro de las mismas tablas.</p>
+                        <p class="mb-4">Juntas, las columnas `model_type` y `model_id` forman una clave única que apunta a un registro específico en tu base de datos, permitiendo que el paquete sea increíblemente versátil.</p>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full bg-white border rounded-lg">
+                                <thead class="bg-gray-200">
+                                    <tr>
+                                        <th class="px-4 py-2 border">model_type</th>
+                                        <th class="px-4 py-2 border">model_id</th>
+                                        <th class="px-4 py-2 border">role_id</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="px-4 py-2 border font-mono text-sm">App\Models\User</td>
+                                        <td class="px-4 py-2 border text-center">1</td>
+                                        <td class="px-4 py-2 border text-center">5</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-4 py-2 border font-mono text-sm">App\Models\Admin</td>
+                                        <td class="px-4 py-2 border text-center">1</td>
+                                        <td class="px-4 py-2 border text-center">1</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-4 py-2 border font-mono text-sm">App\Models\User</td>
+                                        <td class="px-4 py-2 border text-center">2</td>
+                                        <td class="px-4 py-2 border text-center">6</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="uso-basico" class="mb-12 scroll-mt-20">
+                     <div class="bg-white p-8 rounded-xl shadow-md">
+                        <h2 class="text-2xl font-bold mb-4">4. Uso Básico: Creación y Asignación</h2>
+                        <p class="mb-6">Puedes crear roles y permisos mediante código, usualmente en *seeders* o migraciones.</p>
+
+                        <h4 class="text-xl font-semibold mb-3">Crear Permisos</h4>
+                        <div class="code-block bg-gray-900 text-white p-4 rounded-md mb-6">
+                            <pre><code class="language-php">use Spatie\Permission\Models\Permission;
+
+// Crear un solo permiso
+Permission::create(['name' => 'editar articulos']);</code></pre>
+                            <button class="copy-button">Copiar</button>
+                        </div>
+
+                        <h4 class="text-xl font-semibold mb-3">Crear Roles</h4>
+                        <div class="code-block bg-gray-900 text-white p-4 rounded-md mb-6">
+                            <pre><code class="language-php">use Spatie\Permission\Models\Role;
+
+// Crear un rol
+$role = Role::create(['name' => 'escritor']);</code></pre>
+                            <button class="copy-button">Copiar</button>
+                        </div>
+                        
+                        <h4 class="text-xl font-semibold mb-3">Asignar Permisos a un Rol</h4>
+                        <div class="code-block bg-gray-900 text-white p-4 rounded-md mb-6">
+                            <pre><code class="language-php">$role = Role::findByName('escritor');
+$permission = Permission::findByName('editar articulos');
+
+// Asignar el permiso al rol
+$role->givePermissionTo($permission);
+
+// También puedes asignar múltiples permisos
+$role->syncPermissions(['editar articulos', 'crear articulos']);</code></pre>
+                            <button class="copy-button">Copiar</button>
+                        </div>
+                        
+                        <h4 class="text-xl font-semibold mb-3">Asignar un Rol a un Usuario</h4>
+                        <div class="code-block bg-gray-900 text-white p-4 rounded-md mb-6">
+                            <pre><code class="language-php">$user = User::find(1);
+
+// Asignar el rol 'escritor'
+$user->assignRole('escritor');
+
+// Puedes asignar múltiples roles
+$user->assignRole('escritor', 'moderador');
+// o usando un array
+$user->assignRole(['escritor', 'moderador']);
+
+// Para sincronizar roles (elimina los que no estén en la lista)
+$user->syncRoles(['escritor']);</code></pre>
+                            <button class="copy-button">Copiar</button>
+                        </div>
+                        
+                        <h4 class="text-xl font-semibold mb-3">Asignar un Permiso Directo a un Usuario</h4>
+                        <div class="code-block bg-gray-900 text-white p-4 rounded-md">
+                            <pre><code class="language-php">$user = User::find(1);
+
+$user->givePermissionTo('editar articulos');
+
+// Sincronizar permisos directos
+$user->syncPermissions(['editar articulos']);</code></pre>
+                            <button class="copy-button">Copiar</button>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="verificacion" class="mb-12 scroll-mt-20">
+                    <div class="bg-white p-8 rounded-xl shadow-md">
+                        <h2 class="text-2xl font-bold mb-4">5. Verificación de Roles y Permisos</h2>
+                        <p class="mb-6">Esta es la parte más útil en el día a día.</p>
+                        
+                        <h4 class="text-xl font-semibold mb-3">En Controladores o Clases (PHP)</h4>
+                        <div class="code-block bg-gray-900 text-white p-4 rounded-md mb-6">
+                            <pre><code class="language-php">$user = auth()->user();
+
+// Verificar un rol
+if ($user->hasRole('escritor')) { /* ... */ }
+
+// Verificar múltiples roles (debe tener al menos uno)
+if ($user->hasAnyRole(['escritor', 'admin'])) { /* ... */ }
+
+// Verificar un permiso (la forma más recomendada)
+if ($user->can('editar articulos')) {
+    // El usuario puede editar artículos
+}</code></pre>
+                            <button class="copy-button">Copiar</button>
+                        </div>
+                        
+                        <h4 class="text-xl font-semibold mb-3">En Rutas (Middleware)</h4>
+                        <div class="code-block bg-gray-900 text-white p-4 rounded-md mb-6">
+                            <pre><code class="language-php">// routes/web.php
+
+// El usuario debe tener el rol 'escritor'
+Route::get('/dashboard', ...)->middleware('role:escritor');
+
+// El usuario debe tener el permiso 'editar articulos'
+Route::post('/articulos/{id}', ...)->middleware('permission:editar articulos');
+
+// Usando 'or' con una barra vertical
+Route::get('/panel', ...)->middleware('role:escritor|admin');</code></pre>
+                            <button class="copy-button">Copiar</button>
+                        </div>
+                        
+                        <h4 class="text-xl font-semibold mb-3">En Vistas Blade</h4>
+                        <div class="code-block bg-gray-900 text-white p-4 rounded-md">
+                            <pre><code class="language-blade">{{-- La forma más común y recomendada: verificar permisos --}}
+@can('editar articulos')
+    &lt;a href="/articulos/{{ $articulo->id }}/editar"&gt;Editar&lt;/a&gt;
+@endcan
+
+{{-- También se puede verificar por rol --}}
+@role('escritor')
+    &lt;a href="/articulos/crear"&gt;Crear Artículo&lt;/a&gt;
+@endrole
+
+{{-- Directivas con @else --}}
+@can('publicar articulos')
+    &lt;button&gt;Publicar&lt;/button&gt;
+@else
+    &lt;p&gt;No tienes permiso para publicar.&lt;/p&gt;
+@endcan</code></pre>
+                            <button class="copy-button">Copiar</button>
+                        </div>
+                    </div>
+                </section>
+                
+                <section id="avanzado" class="mb-12 scroll-mt-20">
+                    <div class="bg-white p-8 rounded-xl shadow-md">
+                        <h2 class="text-2xl font-bold mb-4">6. Temas Avanzados</h2>
+                        
+                        <h4 class="text-xl font-semibold mb-3">Permisos Wildcard</h4>
+                        <p class="mb-4">Puedes usar un comodín (`*`) para los permisos. Esto es útil para roles de tipo `admin`.</p>
+                        <div class="code-block bg-gray-900 text-white p-4 rounded-md mb-6">
+                            <pre><code class="language-php">// Este permiso concede acceso a cualquier acción dentro de 'articulos'
+Permission::create(['name' => 'articulos.*']);
+
+$user->can('articulos.crear'); // true
+$user->can('articulos.editar'); // true
+
+// Un super-admin podría tener el permiso '*' que le da acceso a todo
+Permission::create(['name' => '*']);</code></pre>
+                            <button class="copy-button">Copiar</button>
+                        </div>
+
+                        <h4 class="text-xl font-semibold mb-3">Múltiples Guards</h4>
+                        <p class="mb-4">Si tu aplicación tiene una sección `web` y una `api`, puedes especificar el `guard` al crear roles/permisos.</p>
+                        <div class="code-block bg-gray-900 text-white p-4 rounded-md mb-6">
+                            <pre><code class="language-php">// Crear un rol para el guard 'api'
+Role::create(['name' => 'api-user', 'guard_name' => 'api']);</code></pre>
+                            <button class="copy-button">Copiar</button>
+                        </div>
+
+                        <h4 class="text-xl font-semibold mb-3">Caché de Permisos</h4>
+                        <p class="mb-4">Para mejorar el rendimiento, el paquete cachea los roles y permisos. Si haces cambios directos en la base de datos, necesitarás limpiar la caché manualmente.</p>
+                        <div class="code-block bg-gray-900 text-white p-4 rounded-md">
+                            <pre><code class="language-bash">php artisan permission:cache-reset</code></pre>
+                            <button class="copy-button">Copiar</button>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="mejores-practicas" class="scroll-mt-20">
+                    <div class="bg-white p-8 rounded-xl shadow-md">
+                        <h2 class="text-2xl font-bold mb-4">7. Mejores Prácticas</h2>
+                        <ol class="list-decimal list-inside space-y-4">
+                            <li>
+                                <strong>Usa Seeders:</strong> Define todos tus roles y permisos en *seeders*. Esto hace que tu sistema sea consistente y fácil de instalar en nuevos entornos.
+                            </li>
+                            <li>
+                                <strong>Prefiere Permisos sobre Roles:</strong> En tu código (`@can`, `middleware`, `$user->can()`), verifica siempre los <strong>permisos</strong>, no los roles. Esto desacopla la lógica de tu aplicación de la estructura de roles. Si tu código verifica `can('eliminar articulos')`, no tendrás que cambiar nada si en el futuro solo el `admin` puede hacerlo y no el `editor`.
+                            </li>
+                            <li>
+                                <strong>Mantén los nombres claros:</strong> Usa un estilo consistente para nombrar permisos, como `verbo-recurso` (ej. `crear-usuarios`, `ver-reportes`).
+                            </li>
+                        </ol>
+                    </div>
+                </section>
+                
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const copyButtons = document.querySelectorAll('.copy-button');
+            copyButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const code = button.previousElementSibling.querySelector('code').innerText;
+                    navigator.clipboard.writeText(code).then(() => {
+                        button.textContent = '¡Copiado!';
+                        button.classList.add('copied');
+                        setTimeout(() => {
+                            button.textContent = 'Copiar';
+                            button.classList.remove('copied');
+                        }, 2000);
+                    });
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>
