@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía Interactiva de Laravel Blade</title>
+    <!-- Tailwind CSS (para la guía) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Bootstrap 5.3 CSS (para el nuevo ejemplo de modal) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" xintegrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Estilos de la guía con Tailwind */
+        .code-block {
+            background-color: #2d3748;
+            color: #e2e8f0;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9em;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+        }
+        .code-block .comment { color: #9a9a9a; }
+        .code-block .directive { color: #f59e0b; }
+        .code-block .string { color: #a5d6a7; }
+        .code-block .variable { color: #90caf9; }
+        .code-block .tag { color: #e57373; }
+        .code-block .attr { color: #c3e88d; }
+        .interactive-output {
+            border: 2px dashed #cbd5e0;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            min-height: 50px;
+        }
+        .nav-link {
+            transition: all 0.2s ease-in-out;
+        }
+        .nav-link.active {
+            color: #3b82f6;
+            border-left-color: #3b82f6;
+            font-weight: 600;
+        }
+        .nav-link:not(.active) {
+             border-left-color: transparent;
+        }
+        .prose h2 {
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 0.5rem;
+            margin-top: 2.5rem;
+        }
+        .prose h3 {
+            margin-top: 2rem;
+        }
+        /* Clases para anular conflicto entre Bootstrap y Tailwind */
+        .prose .btn {
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <div class="flex">
+        <!-- Barra de Navegación Lateral -->
+        <aside class="sticky top-0 h-screen w-64 bg-white shadow-md p-4 overflow-y-auto hidden lg:block">
+            <h1 class="text-xl font-bold text-blue-600 mb-6">Guía de Blade</h1>
+            <nav id="table-of-contents" class="flex flex-col space-y-2">
+                 <a href="#introduccion" class="nav-link text-gray-600 hover:text-blue-500 border-l-4 pl-2">Introducción</a>
+                 <a href="#sintaxis-basica" class="nav-link text-gray-600 hover:text-blue-500 border-l-4 pl-2">Sintaxis Básica</a>
+                 <a href="#layouts-componentes" class="nav-link text-gray-600 hover:text-blue-500 border-l-4 pl-2">Layouts como Componentes</a>
+                 <a href="#componentes-props" class="nav-link text-gray-600 hover:text-blue-500 border-l-4 pl-2">Componentes y Props</a>
+                 <a href="#slots" class="nav-link text-gray-600 hover:text-blue-500 border-l-4 pl-2">Slots a Profundidad</a>
+                 <a href="#modal-bootstrap" class="nav-link text-gray-600 hover:text-blue-500 border-l-4 pl-2">Ej: Modal Bootstrap</a>
+                 <a href="#modal-dinamico" class="nav-link text-gray-600 hover:text-blue-500 border-l-4 pl-2">Ej: Modal con Tabla Dinámica</a>
+                 <a href="#modal-transformado" class="nav-link text-gray-600 hover:text-blue-500 border-l-4 pl-2">Ej: Modal con Datos Transformados</a>
+                 <a href="#directivas" class="nav-link text-gray-600 hover:text-blue-500 border-l-4 pl-2">Directivas de Control</a>
+                 <a href="#bucles" class="nav-link text-gray-600 hover:text-blue-500 border-l-4 pl-2">Bucles</a>
+                 <a href="#formularios" class="nav-link text-gray-600 hover:text-blue-500 border-l-4 pl-2">Formularios</a>
+                 <a href="#otras" class="nav-link text-gray-600 hover:text-blue-500 border-l-4 pl-2">Otras Directivas</a>
+            </nav>
+        </aside>
+
+        <!-- Contenido Principal -->
+        <main class="w-full p-4 md:p-10 prose max-w-4xl mx-auto">
+            <header class="text-center mb-12">
+                <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900">Guía Interactiva de Laravel Blade</h1>
+                 <p class="mt-4 text-lg text-gray-600">El enfoque moderno con Componentes y Slots.</p>
+            </header>
+
+            <section id="introduccion">
+                <h2>1. ¿Qué es Blade?</h2>
+                <p>Blade es el motor de plantillas simple pero potente que se incluye con Laravel. A diferencia de otros motores de plantillas PHP, Blade no te restringe de usar código PHP plano en tus vistas. Todas las vistas de Blade se compilan en código PHP simple y se almacenan en caché hasta que se modifican, lo que significa que Blade agrega prácticamente cero sobrecarga a tu aplicación.</p>
+                <p>El enfoque moderno de Blade se centra en la **composición sobre la herencia**, utilizando componentes para construir desde los elementos más pequeños hasta la estructura completa de la página.</p>
+            </section>
+
+            <section id="sintaxis-basica">
+                <h2>2. Sintaxis Básica</h2>
+                <h3 class="mt-6 text-lg font-semibold">Mostrando Datos</h3>
+                <p>Para imprimir una variable, enciérrala en dobles llaves. Blade escapará automáticamente la salida para prevenir ataques XSS.</p>
+                <pre class="code-block"><span class="directive">{{</span> <span class="variable">$nombre_variable</span> <span class="directive">}}</span></pre>
+            </section>
+
+            <section id="layouts-componentes">
+                <h2>3. Layouts como Componentes</h2>
+                <p>En las versiones modernas de Laravel, los layouts ya no usan <code>@yield</code>. En su lugar, el layout principal es un **componente de Blade** que define la estructura de la página y usa <strong>slots</strong> para inyectar el contenido.</p>
+                <h3 class="mt-6 text-lg font-semibold">Paso 1: El Componente de Layout (<code>layouts/app.blade.php</code>)</h3>
+                <pre class="code-block"><span class="comment">&lt;!-- resources/views/layouts/app.blade.php --&gt;</span>
+<span class="tag">&lt;body&gt;</span>
+    <span class="comment">&lt;!-- ... navegación, etc ... --&gt;</span>
+    <span class="tag">&lt;main&gt;</span>
+        <span class="directive">{{</span> <span class="variable">$slot</span> <span class="directive">}}</span>
+    <span class="tag">&lt;/main&gt;</span>
+<span class="tag">&lt;/body&gt;</span></pre>
+                <h3 class="mt-6 text-lg font-semibold">Paso 2: Usar el Layout en una Página (<code>dashboard.blade.php</code>)</h3>
+                <pre class="code-block"><span class="comment">&lt;!-- resources/views/dashboard.blade.php --&gt;</span>
+<span class="tag">&lt;x-app-layout&gt;</span>
+    <span class="comment">&lt;!-- Contenido para el slot principal ($slot) --&gt;</span>
+    <span class="tag">&lt;div <span class="attr">class</span>="<span class="string">py-12</span>"&gt;</span>
+        Contenido principal de la página del dashboard.
+    <span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;/x-app-layout&gt;</span></pre>
+            </section>
+            
+            <section id="componentes-props">
+                <h2>4. Componentes y Props</h2>
+                <p>Los componentes son piezas de UI reutilizables. La información se les pasa a través de "props" (atributos), lo que los hace dinámicos.</p>
+                <h3 class="mt-6 text-lg font-semibold">Crear y Usar un Componente de Alerta</h3>
+                <pre class="code-block"><span class="comment">&lt;!-- resources/views/components/alert.blade.php --&gt;</span>
+<span class="directive">@props</span>(['type' => 'info', 'message'])
+<span class="php-code">&lt;?php
+    $classes = ['success' => 'bg-green-100...', /* ... */][$type];
+?&gt;</span>
+<span class="tag">&lt;div <span class="attr">class</span>="<span class="string">p-4 </span><span class="directive">{{</span> <span class="variable">$classes</span> <span class="directive">}}</span>"&gt;</span>
+    <span class="directive">{{</span> <span class="variable">$message</span> <span class="directive">}}</span>
+<span class="tag">&lt;/div&gt;</span></pre>
+                <h4 class="mt-4 font-semibold">Uso en una Vista</h4>
+                <pre class="code-block"><span class="tag">&lt;x-alert <span class="attr">type</span>="<span class="string">success</span>" <span class="attr">message</span>="<span class="string">¡Operación exitosa!</span>"/&gt;</span>
+<span class="tag">&lt;x-alert <span class="attr">type</span>="<span class="string">danger</span>" <span class="attr">:message</span>="<span class="variable">$errorMessage</span>"/&gt;</span></pre>
+            </section>
+            
+            <section id="slots">
+                <h2>5. Slots a Profundidad</h2>
+                <p>Si los props son para pasar datos, los **slots son para pasar bloques enteros de HTML**. Esto permite que tus componentes "envuelvan" otro contenido.</p>
+                <h3 class="mt-6 text-lg font-semibold">Slot por Defecto (<code>$slot</code>) y Slots con Nombre</h3>
+                <h4 class="font-semibold">Componente <code>components/card.blade.php</code>:</h4>
+                <pre class="code-block"><span class="tag">&lt;div <span class="attr">class</span>="<span class="string">card</span>"&gt;</span>
+    <span class="tag">&lt;div <span class="attr">class</span>="<span class="string">card-header</span>"&gt;</span><span class="directive">{{</span> <span class="variable">$title</span> <span class="directive">}}</span><span class="tag">&lt;/div&gt;</span>
+    <span class="tag">&lt;div <span class="attr">class</span>="<span class="string">card-body</span>"&gt;</span><span class="directive">{{</span> <span class="variable">$slot</span> <span class="directive">}}</span><span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;/div&gt;</span></pre>
+                <h4 class="mt-4 font-semibold">Uso en la Vista:</h4>
+                <pre class="code-block"><span class="tag">&lt;x-card&gt;</span>
+    <span class="tag">&lt;x-slot <span class="attr">name</span>="<span class="string">title</span>"&gt;</span> Título de la Tarjeta <span class="tag">&lt;/x-slot&gt;</span>
+    Este es el cuerpo de la tarjeta que va en el slot por defecto.
+<span class="tag">&lt;/x-card&gt;</span></pre>
+            </section>
+
+            <section id="modal-bootstrap">
+                <h2>6. Ejemplo Práctico: Componente Modal con Bootstrap</h2>
+                <p>Este ejemplo muestra cómo crear un componente modal reutilizable donde tú defines el contenido (la tabla) dentro de los slots en la vista.</p>
+                
+                <h3 class="mt-6 text-lg font-semibold">Paso 1: Crear el Componente del Modal</h3>
+                <p>Crea un nuevo archivo en <code>resources/views/components/bootstrap-modal.blade.php</code>. Este componente define la estructura del modal de Bootstrap y usa <code>props</code> para el ID y el título, y <code>slots</code> para el contenido y el pie de página.</p>
+                <pre class="code-block"><span class="comment">&lt;!-- resources/views/components/bootstrap-modal.blade.php --&gt;</span>
+<span class="directive">@props</span>(['id', 'title'])
+
+<span class="tag">&lt;div <span class="attr">class</span>="<span class="string">modal fade</span>" <span class="attr">id</span>="<span class="directive">{{</span> <span class="variable">$id</span> <span class="directive">}}</span>" <span class="attr">tabindex</span>="<span class="string">-1</span>" <span class="attr">aria-labelledby</span>="<span class="directive">{{</span> <span class="variable">$id</span> <span class="directive">}}</span>Label" <span class="attr">aria-hidden</span>="<span class="string">true</span>"&gt;</span>
+  <span class="tag">&lt;div <span class="attr">class</span>="<span class="string">modal-dialog modal-lg</span>"&gt;</span>
+    <span class="tag">&lt;div <span class="attr">class</span>="<span class="string">modal-content</span>"&gt;</span>
+      <span class="tag">&lt;div <span class="attr">class</span>="<span class="string">modal-header</span>"&gt;</span>
+        <span class="tag">&lt;h1 <span class="attr">class</span>="<span class="string">modal-title fs-5</span>" <span class="attr">id</span>="<span class="directive">{{</span> <span class="variable">$id</span> <span class="directive">}}</span>Label"&gt;</span><span class="directive">{{</span> <span class="variable">$title</span> <span class="directive">}}</span><span class="tag">&lt;/h1&gt;</span>
+        <span class="tag">&lt;button <span class="attr">type</span>="<span class="string">button</span>" <span class="attr">class</span>="<span class="string">btn-close</span>" <span class="attr">data-bs-dismiss</span>="<span class="string">modal</span>" <span class="attr">aria-label</span>="<span class="string">Close</span>"&gt;</span><span class="tag">&lt;/button&gt;</span>
+      <span class="tag">&lt;/div&gt;</span>
+      <span class="tag">&lt;div <span class="attr">class</span>="<span class="string">modal-body</span>"&gt;</span>
+        <span class="directive">{{</span> <span class="variable">$slot</span> <span class="directive">}}</span>
+      <span class="tag">&lt;/div&gt;</span>
+      <span class="tag">&lt;div <span class="attr">class</span>="<span class="string">modal-footer</span>"&gt;</span>
+        <span class="directive">@isset</span>(<span class="variable">$footer</span>)
+            <span class="directive">{{</span> <span class="variable">$footer</span> <span class="directive">}}</span>
+        <span class="directive">@else</span>
+            <span class="tag">&lt;button <span class="attr">type</span>="<span class="string">button</span>" <span class="attr">class</span>="<span class="string">btn btn-secondary</span>" <span class="attr">data-bs-dismiss</span>="<span class="string">modal</span>"&gt;</span>Cerrar<span class="tag">&lt;/button&gt;</span>
+        <span class="directive">@endisset</span>
+      <span class="tag">&lt;/div&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;/div&gt;</span></pre>
+
+                <h3 class="mt-6 text-lg font-semibold">Paso 2: Usar el Componente en la Vista</h3>
+                <p>En tu vista (<code>products/index.blade.php</code>), puedes poner un botón para activar el modal y luego llamar a tu componente, llenando los slots con el contenido deseado.</p>
+                <pre class="code-block"><span class="comment">&lt;!-- Botón que abre el modal --&gt;</span>
+<span class="tag">&lt;button <span class="attr">type</span>="<span class="string">button</span>" <span class="attr">class</span>="<span class="string">btn btn-primary</span>" <span class="attr">data-bs-toggle</span>="<span class="string">modal</span>" <span class="attr">data-bs-target</span>="<span class="string">#productsModal</span>"&gt;</span>
+  Ver Resumen de Productos
+<span class="tag">&lt;/button&gt;</span>
+
+<span class="comment">&lt;!-- Llamada al componente modal --&gt;</span>
+<span class="tag">&lt;x-bootstrap-modal <span class="attr">id</span>="<span class="string">productsModal</span>" <span class="attr">title</span>="<span class="string">Resumen de Productos</span>"&gt;</span>
+    <span class="tag">&lt;table <span class="attr">class</span>="<span class="string">table</span>"&gt;</span><span class="comment">&lt;!-- ... tu tabla aquí ... --&gt;</span><span class="tag">&lt;/table&gt;</span>
+<span class="tag">&lt;/x-bootstrap-modal&gt;</span></pre>
+
+                <h4 class="mt-4 font-semibold">Resultado Interactivo</h4>
+                <p>Haz clic en el botón para ver cómo se vería el modal renderizado con los datos de ejemplo.</p>
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#demoModal">
+                  Ver Demo del Modal (Manual)
+                </button>
+            </section>
+
+            <section id="modal-dinamico">
+                <h2>7. Variante: Modal con Tabla Dinámica y Genérica</h2>
+                <p>Este enfoque es más avanzado y poderoso. Creamos un componente que se encarga de renderizar la tabla por sí mismo. Lo único que necesita es el array de datos. Esto hace que tus vistas sean mucho más limpias.</p>
+
+                <h3 class="mt-6 text-lg font-semibold">Paso 1: Crear el Componente de Tabla-Modal</h3>
+                <p>Crea el archivo <code>resources/views/components/table-modal.blade.php</code>. Este componente no tendrá slots, ya que él mismo genera todo su contenido a partir de los datos.</p>
+                <pre class="code-block"><span class="comment">&lt;!-- resources/views/components/table-modal.blade.php --&gt;</span>
+<span class="directive">@props</span>(['id', 'title', 'data' => []])
+<span class="php-code">
+&lt;?php
+    $headers = !empty($data) ? array_keys((array) $data[0]) : [];
+?&gt;
+</span>
+<span class="comment">&lt;!-- ... Estructura del modal ... --&gt;</span>
+    <span class="tag">&lt;div <span class="attr">class</span>="<span class="string">modal-body</span>"&gt;</span>
+        <span class="directive">@if</span>(!empty($headers))
+            <span class="tag">&lt;table <span class="attr">class</span>="<span class="string">table</span>"&gt;</span>
+                <span class="tag">&lt;thead&gt;</span>
+                    <span class="tag">&lt;tr&gt;</span>
+                        <span class="directive">@foreach</span>(<span class="variable">$headers</span> as <span class="variable">$header</span>)
+                            <span class="tag">&lt;th&gt;</span><span class="directive">{{</span> $header <span class="directive">}}</span><span class="tag">&lt;/th&gt;</span>
+                        <span class="directive">@endforeach</span>
+                    <span class="tag">&lt;/tr&gt;</span>
+                <span class="tag">&lt;/thead&gt;</span>
+                <span class="tag">&lt;tbody&gt;</span>
+                    <span class="directive">@foreach</span>(<span class="variable">$data</span> as <span class="variable">$row</span>)
+                        <span class="tag">&lt;tr&gt;</span>
+                            <span class="directive">@foreach</span>(<span class="variable">$row</span> as <span class="variable">$cell</span>)
+                                <span class="tag">&lt;td&gt;</span><span class="directive">{{</span> $cell <span class="directive">}}</span><span class="tag">&lt;/td&gt;</span>
+                            <span class="directive">@endforeach</span>
+                        <span class="tag">&lt;/tr&gt;</span>
+                    <span class="directive">@endforeach</span>
+                <span class="tag">&lt;/tbody&gt;</span>
+            <span class="tag">&lt;/table&gt;</span>
+        <span class="directive">@endif</span>
+    <span class="tag">&lt;/div&gt;</span>
+<span class="comment">&lt;!-- ... Cierre del modal ... --&gt;</span></pre>
+
+                <h3 class="mt-6 text-lg font-semibold">Paso 2: Usar en la Vista</h3>
+                 <pre class="code-block"><span class="comment">&lt;!-- Componente para Productos --&gt;</span>
+<span class="tag">&lt;x-table-modal <span class="attr">id</span>="<span class="string">productsModal</span>" <span class="attr">title</span>="<span class="string">Inventario</span>" <span class="attr">:data</span>="<span class="variable">$products</span>" /&gt;</span>
+
+<span class="comment">&lt;!-- El MISMO componente reutilizado para Usuarios --&gt;</span>
+<span class="tag">&lt;x-table-modal <span class="attr">id</span>="<span class="string">usersModal</span>" <span class="attr">title</span>="<span class="string">Listado de Usuarios</span>" <span class="attr">:data</span>="<span class="variable">$users</span>" /&gt;</span></pre>
+
+                <h4 class="mt-4 font-semibold">Resultado Interactivo</h4>
+                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#demoDynamicUsers">
+                  Ver Demo Usuarios (Dinámico)
+                </button>
+            </section>
+
+            <section id="modal-transformado">
+                <h2>8. Avanzado: Modal Dinámico con Datos Transformados</h2>
+                <p>Estás en lo cierto. La mejor práctica es preparar y transformar los datos en el **controlador** antes de pasarlos a la vista. La vista debe ser lo más "tonta" posible, encargándose solo de mostrar los datos que recibe.</p>
+                <p>Aquí veremos cómo tomar datos de un modelo `User`, cambiar el nombre de las columnas, unir campos y luego pasarlo a nuestro componente `table-modal` sin modificarlo.</p>
+
+                <h3 class="mt-6 text-lg font-semibold">Paso 1: Transformar los Datos en el Controlador</h3>
+                <p>Imaginemos que tienes un modelo `User` con los campos `id`, `name`, `last_name` y `email`. Usaremos el método `map` de las colecciones de Laravel, que es perfecto para esto.</p>
+                <pre class="code-block"><span class="comment">// En tu UserController.php</span>
+<span class="php-code">
+use App\Models\User;
+
+public function index()
+{
+    $users = User::all();
+    $formattedUsers = $users->map(function ($user) {
+        return [
+            'ID' => $user->id,
+            'Nombre completo' => $user->name . ' ' . $user->last_name,
+            'Correo' => $user->email,
+        ];
+    });
+    return view('users.index', ['users' => $formattedUsers]);
+}
+</span></pre>
+
+                <h3 class="mt-6 text-lg font-semibold">Paso 2: Usar el Componente en la Vista (Sin Cambios)</h3>
+                <p>Tu vista `users/index.blade.php` sigue siendo extremadamente simple. Simplemente le pasas la colección ya formateada al mismo componente de antes.</p>
+                 <pre class="code-block"><span class="comment">&lt;!-- En users/index.blade.php --&gt;</span>
+<span class="tag">&lt;button ... <span class="attr">data-bs-target</span>="<span class="string">#formattedUsersModal</span>"&gt;</span>Ver Usuarios<span class="tag">&lt;/button&gt;</span>
+
+<span class="tag">&lt;x-table-modal <span class="attr">id</span>="<span class="string">formattedUsersModal</span>" <span class="attr">title</span>="<span class="string">Usuarios del Sistema</span>" <span class="attr">:data</span>="<span class="variable">$users</span>" /&gt;</span>
+</pre>
+                <h4 class="mt-4 font-semibold">Resultado Interactivo</h4>
+                <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#demoTransformedUsers">
+                  Ver Demo (Transformado)
+                </button>
+            </section>
+            
+            <section id="directivas">
+                <h2>9. Directivas de Control</h2>
+                <h3 class="mt-6 text-lg font-semibold"><code>@if, @elseif, @else, @endif</code></h3>
+                <pre class="code-block"><span class="directive">@if</span> (<span class="variable">$user</span>->isAdmin()) <span class="tag">&lt;p&gt;</span>Admin<span class="tag">&lt;/p&gt;</span> <span class="directive">@endif</span></pre>
+            </section>
+
+            <section id="bucles">
+                 <h2>10. Bucles</h2>
+                 <h3 class="mt-6 text-lg font-semibold"><code>@forelse</code> y la variable <code>$loop</code></h3>
+                 <pre class="code-block"><span class="directive">@forelse</span> (<span class="variable">$users</span> as <span class="variable">$user</span>)
+    <span class="tag">&lt;li&gt;</span><span class="directive">{{</span> <span class="variable">$loop</span>->iteration <span class="directive">}}</span>. <span class="directive">{{</span> <span class="variable">$user</span>->name <span class="directive">}}</span><span class="tag">&lt;/li&gt;</span>
+<span class="directive">@empty</span>
+    <span class="tag">&lt;p&gt;</span>No hay usuarios.<span class="tag">&lt;/p&gt;</span>
+<span class="directive">@endforelse</span></pre>
+            </section>
+            
+            <section id="formularios">
+                <h2>11. Formularios</h2>
+                <h3 class="mt-6 text-lg font-semibold"><code>@csrf</code> y <code>@method</code></h3>
+                <pre class="code-block"><span class="tag">&lt;form <span class="attr">method</span>="<span class="string">POST</span>" <span class="attr">action</span>="<span class="string">/posts/1</span>"&gt;</span>
+    <span class="directive">@csrf</span>
+    <span class="directive">@method</span>('DELETE')
+    <span class="tag">&lt;button <span class="attr">type</span>="<span class="string">submit</span>"&gt;</span>Eliminar<span class="tag">&lt;/button&gt;</span>
+<span class="tag">&lt;/form&gt;</span></pre>
+            </section>
+
+            <section id="otras">
+                <h2>12. Otras Directivas Útiles</h2>
+                <h3 class="mt-6 text-lg font-semibold"><code>@include</code> y <code>@push/@stack</code></h3>
+                <p><code>@include</code> es útil para parciales, aunque los componentes son preferibles. <code>@push</code> y <code>@stack</code> son ideales para añadir scripts o estilos específicos de una página al layout principal.</p>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- === MODALES PARA DEMOS === -->
+
+    <!-- Modal HTML para el Demo 1 (Manual) -->
+    <div class="modal fade" id="demoModal" tabindex="-1" aria-labelledby="demoModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header"><h1 class="modal-title fs-5" id="demoModalLabel">Resumen de Productos</h1><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+          <div class="modal-body">
+            <table class="table table-striped table-hover mt-3">
+                <thead><tr><th>ID</th><th>Nombre</th><th>Stock</th><th>Precio</th></tr></thead>
+                <tbody>
+                    <tr><td>1</td><td>Laptop Pro</td><td>15</td><td>$1,200.00</td></tr>
+                    <tr><td>2</td><td>Monitor 4K</td><td>22</td><td>$450.00</td></tr>
+                    <tr class="table-danger"><td>3</td><td>Teclado Mecánico</td><td>0</td><td>$95.00</td></tr>
+                </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Modal HTML para el Demo 2 (Dinámico con Usuarios) -->
+    <div class="modal fade" id="demoDynamicUsers" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+          <div class="modal-header"><h1 class="modal-title fs-5">Listado de Usuarios</h1><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+          <div class="modal-body">
+              <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead><tr><th>id</th><th>name</th><th>email</th><th>role</th></tr></thead>
+                    <tbody>
+                        <tr><td>101</td><td>Ana</td><td>ana@example.com</td><td>Admin</td></tr>
+                        <tr><td>102</td><td>Luis</td><td>luis@example.com</td><td>Editor</td></tr>
+                        <tr><td>103</td><td>Carla</td><td>carla@example.com</td><td>Visitante</td></tr>
+                    </tbody>
+                </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Modal HTML para el Demo 3 (Datos Transformados) -->
+    <div class="modal fade" id="demoTransformedUsers" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+          <div class="modal-header"><h1 class="modal-title fs-5">Usuarios del Sistema</h1><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+          <div class="modal-body">
+              <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre completo</th>
+                            <th>Correo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>Ana Torres</td>
+                            <td>ana.t@example.com</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>Luis Morales</td>
+                            <td>luis.m@example.com</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Bootstrap 5.3 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- Navegación Activa ---
+            const sections = document.querySelectorAll('main section');
+            const navLinks = document.querySelectorAll('#table-of-contents a');
+            
+            const makeActive = (link) => {
+                navLinks.forEach(l => l.classList.remove('active'));
+                if (link) {
+                   const navLink = document.querySelector(`#table-of-contents a[href="#${link}"]`);
+                   if(navLink) navLink.classList.add('active');
+                }
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                let intersectingSection = null;
+                 entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                       intersectingSection = entry.target.id;
+                    }
+                });
+                if(intersectingSection){
+                    makeActive(intersectingSection);
+                }
+            }, { rootMargin: "-40% 0px -60% 0px", threshold: 0 });
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía Interactiva de Spatie en Laravel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chosen Palette: Cool Blues & Grays -->
+    <!-- Application Structure Plan: Se utiliza un diseño de dos columnas con una barra de navegación lateral fija y un área de contenido principal. Esta estructura es ideal para documentación técnica, ya que permite al usuario ver siempre el esquema general de la guía y navegar rápidamente a cualquier sección sin perder el contexto. El contenido se divide en paneles que se muestran u ocultan al hacer clic en la navegación, convirtiendo una página de desplazamiento largo en una experiencia de aplicación más limpia y manejable. La interactividad se añade con botones para copiar código y un simulador de permisos, transformando la lectura pasiva en aprendizaje activo. Esta arquitectura fue elegida para mejorar la navegabilidad y la retención del conocimiento en comparación con un documento de texto plano. -->
+    <!-- Visualization & Content Choices: La guía es conceptual y basada en código, por lo que no se requieren gráficos de datos. En su lugar, se utilizan elementos de UI para organizar la información: 1) Conceptos Fundamentales: Se presentan en tarjetas interactivas (HTML/CSS) para aislar y explicar cada idea (Roles, Permisos, Guards). Objetivo: Organizar. 2) Código: Todos los fragmentos de código tienen un botón "Copiar" (JS). Objetivo: Utilidad. 3) Verificación de Permisos: Se crea un simulador interactivo simple (HTML/JS) para demostrar cómo funcionan las directivas. Objetivo: Comparar/Educar. 4) Temas Avanzados: Cada tema está en un contenedor colapsable (acordeón con HTML/JS) para reducir la carga cognitiva. Objetivo: Organizar. Estas elecciones se centran en la claridad y la interacción educativa, sin necesidad de librerías de gráficos. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6; /* gray-100 */
+        }
+        @import url('https://rsms.me/inter/inter.css');
+        .active-nav {
+            background-color: #3b82f6; /* blue-500 */
+            color: white;
+        }
+        .code-block {
+            background-color: #1f2937; /* gray-800 */
+            color: #d1d5db; /* gray-300 */
+            border-radius: 0.5rem;
+            padding: 1rem;
+            position: relative;
+            overflow-x: auto;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background-color: #4b5563; /* gray-600 */
+            color: white;
+            border: none;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: background-color 0.2s;
+        }
+        .copy-btn:hover {
+            background-color: #6b7280; /* gray-500 */
+        }
+        .content-section {
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+        }
+    </style>
+</head>
+<body class="flex min-h-screen">
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-1/5 bg-gray-800 text-white p-6 fixed h-full overflow-y-auto hidden md:block">
+        <h1 class="text-2xl font-bold mb-6">Spatie Guide</h1>
+        <nav>
+            <ul id="navigation" class="space-y-2">
+                <li><a href="#introduccion" class="nav-link block p-3 rounded-lg hover:bg-gray-700 transition-colors duration-200">Introducción</a></li>
+                <li><a href="#instalacion" class="nav-link block p-3 rounded-lg hover:bg-gray-700 transition-colors duration-200">Instalación</a></li>
+                <li><a href="#conceptos" class="nav-link block p-3 rounded-lg hover:bg-gray-700 transition-colors duration-200">Conceptos</a></li>
+                <li><a href="#uso-basico" class="nav-link block p-3 rounded-lg hover:bg-gray-700 transition-colors duration-200">Uso Básico</a></li>
+                <li><a href="#verificacion" class="nav-link block p-3 rounded-lg hover:bg-gray-700 transition-colors duration-200">Verificación</a></li>
+                <li><a href="#avanzado" class="nav-link block p-3 rounded-lg hover:bg-gray-700 transition-colors duration-200">Temas Avanzados</a></li>
+                <li><a href="#multi-roles" class="nav-link block p-3 rounded-lg hover:bg-gray-700 transition-colors duration-200">Roles Múltiples</a></li>
+                <li><a href="#cache" class="nav-link block p-3 rounded-lg hover:bg-gray-700 transition-colors duration-200">Caché</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- Mobile Header -->
+    <header class="md:hidden w-full bg-gray-800 text-white p-4 fixed top-0 z-20 flex justify-between items-center">
+        <h1 class="text-xl font-bold">Spatie Guide</h1>
+        <button id="mobile-menu-button" class="text-2xl">
+            <i class="fas fa-bars"></i>
+        </button>
+    </header>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="hidden md:hidden fixed inset-0 bg-gray-800 bg-opacity-95 z-30 p-6">
+        <button id="close-mobile-menu" class="absolute top-4 right-4 text-white text-3xl">&times;</button>
+        <nav class="mt-12">
+             <ul id="mobile-navigation" class="space-y-4 text-center">
+                <li><a href="#introduccion" class="nav-link-mobile block text-2xl p-3 rounded-lg hover:bg-gray-700">Introducción</a></li>
+                <li><a href="#instalacion" class="nav-link-mobile block text-2xl p-3 rounded-lg hover:bg-gray-700">Instalación</a></li>
+                <li><a href="#conceptos" class="nav-link-mobile block text-2xl p-3 rounded-lg hover:bg-gray-700">Conceptos</a></li>
+                <li><a href="#uso-basico" class="nav-link-mobile block text-2xl p-3 rounded-lg hover:bg-gray-700">Uso Básico</a></li>
+                <li><a href="#verificacion" class="nav-link-mobile block text-2xl p-3 rounded-lg hover:bg-gray-700">Verificación</a></li>
+                <li><a href="#avanzado" class="nav-link-mobile block text-2xl p-3 rounded-lg hover:bg-gray-700">Temas Avanzados</a></li>
+                <li><a href="#multi-roles" class="nav-link-mobile block text-2xl p-3 rounded-lg hover:bg-gray-700">Roles Múltiples</a></li>
+                <li><a href="#cache" class="nav-link-mobile block text-2xl p-3 rounded-lg hover:bg-gray-700">Caché</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <main class="w-full md:w-4/5 ml-auto p-6 md:p-10 mt-16 md:mt-0">
+        
+        <section id="introduccion" class="content-section space-y-6">
+            <h2 class="text-4xl font-bold border-b pb-2 text-gray-800">Dominando Roles y Permisos con Spatie</h2>
+            <p class="text-lg text-gray-600">El paquete `spatie/laravel-permission` es la solución más popular y robusta para gestionar roles y permisos en aplicaciones Laravel. Esta guía interactiva te permitirá dominarlo desde los conceptos fundamentales hasta los casos de uso más avanzados, implementando un sistema de control de acceso (ACL) de manera elegante y sencilla.</p>
+            <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 rounded-md" role="alert">
+                <p class="font-bold">¡Bienvenido!</p>
+                <p>Utiliza la navegación a la izquierda para explorar los diferentes temas. Cada sección está diseñada para ser un recurso práctico y autocontenido.</p>
+            </div>
+        </section>
+
+        <section id="instalacion" class="content-section space-y-6">
+            <h2 class="text-4xl font-bold border-b pb-2 text-gray-800">1. Instalación y Configuración</h2>
+            <p class="text-lg text-gray-600">Sigue estos pasos para integrar el paquete en tu proyecto de Laravel. Es un proceso rápido que sienta las bases para todo el sistema de permisos.</p>
+            
+            <div class="space-y-4">
+                <h3 class="text-2xl font-semibold">Paso 1: Instalar con Composer</h3>
+                <div class="code-block"><pre><code class="language-bash">composer require spatie/laravel-permission</code></pre></div>
+
+                <h3 class="text-2xl font-semibold">Paso 2: Publicar Archivos de Configuración</h3>
+                <p class="text-gray-600">Este comando genera el archivo `config/permission.php` y las migraciones necesarias.</p>
+                <div class="code-block"><pre><code class="language-bash">php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider"</code></pre></div>
+                
+                <h3 class="text-2xl font-semibold">Paso 3: Ejecutar Migraciones</h3>
+                <p class="text-gray-600">Crea las 5 tablas que el paquete necesita para funcionar.</p>
+                <div class="code-block"><pre><code class="language-bash">php artisan migrate</code></pre></div>
+                
+                <h3 class="text-2xl font-semibold">Paso 4: Integrar el Trait `HasRoles`</h3>
+                <p class="text-gray-600">Añade el trait `HasRoles` a tu modelo `User` para activarlo.</p>
+                <div class="code-block"><pre><code class="language-php">&lt;?php
+namespace App\Models;
+
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Spatie\Permission\Traits\HasRoles; // Importar
+
+class User extends Authenticatable
+{
+    use HasRoles; // Usar el trait
+
+    // ...
+}</code></pre></div>
+            </div>
+        </section>
+
+        <section id="conceptos" class="content-section space-y-6">
+            <h2 class="text-4xl font-bold border-b pb-2 text-gray-800">2. Conceptos Fundamentales</h2>
+            <p class="text-lg text-gray-600">Entender estos tres pilares es esencial para usar el paquete de manera efectiva. Son la base sobre la que se construye todo el sistema de control de acceso.</p>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <h3 class="text-2xl font-bold text-blue-600 mb-2"><i class="fas fa-users-cog mr-2"></i>Roles</h3>
+                    <p>Un rol es una etiqueta para agrupar permisos (ej. "Editor"). Asignas un rol a un usuario, y este hereda todos los permisos del rol. Simplifica enormemente la gestión.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <h3 class="text-2xl font-bold text-green-600 mb-2"><i class="fas fa-check-circle mr-2"></i>Permisos</h3>
+                    <p>Un permiso es una acción específica (ej. "editar posts"). Son la unidad más pequeña de autorización. Un usuario puede tener permisos a través de sus roles o directamente.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <h3 class="text-2xl font-bold text-purple-600 mb-2"><i class="fas fa-shield-alt mr-2"></i>Guards</h3>
+                    <p>Los guards permiten sistemas de autenticación separados (ej. `web` para usuarios, `api` para tokens, `admin` para administradores). Los roles y permisos pueden ser específicos para cada guard.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="uso-basico" class="content-section space-y-6">
+            <h2 class="text-4xl font-bold border-b pb-2 text-gray-800">3. Uso Básico</h2>
+            <p class="text-lg text-gray-600">Aquí aprenderás a crear, asignar y gestionar roles y permisos. La forma recomendada es usar *Seeders* para mantener la consistencia en tu aplicación.</p>
+            
+            <h3 class="text-2xl font-semibold">Crear Roles y Permisos con un Seeder</h3>
+            <div class="code-block"><pre><code class="language-php">// database/seeders/RolesAndPermissionsSeeder.php
+use Illuminate\Database\Seeder;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
+
+class RolesAndPermissionsSeeder extends Seeder
+{
+    public function run(): void
+    {
+        Permission::create(['name' => 'editar posts']);
+        Permission::create(['name' => 'eliminar posts']);
+
+        $role = Role::create(['name' => 'Editor'])
+            ->givePermissionTo(['editar posts']);
+    }
+}</code></pre></div>
+            
+            <h3 class="text-2xl font-semibold">Asignar Roles a un Usuario</h3>
+            <div class="code-block"><pre><code class="language-php">$user = User::find(1);
+
+$user->assignRole('Editor');
+
+// Sincronizar roles (elimina los anteriores)
+$user->syncRoles(['Editor', 'Moderador']);
+
+// Quitar un rol
+$user->removeRole('Moderador');</code></pre></div>
+        </section>
+
+        <section id="verificacion" class="content-section space-y-6">
+            <h2 class="text-4xl font-bold border-b pb-2 text-gray-800">4. Verificación de Permisos</h2>
+            <p class="text-lg text-gray-600">El corazón del paquete: cómo proteger tus funcionalidades. Puedes verificar permisos en el backend, en las rutas y directamente en tus vistas de Blade.</p>
+
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h3 class="text-xl font-bold mb-2">Backend (Modelo User)</h3>
+                    <div class="code-block text-sm"><pre><code class="language-php">$user->hasRole('Editor');
+$user->can('editar posts');</code></pre></div>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h3 class="text-xl font-bold mb-2">Rutas (Middleware)</h3>
+                    <div class="code-block text-sm"><pre><code class="language-php">Route::get('/dashboard')
+    ->middleware('role:Admin');</code></pre></div>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h3 class="text-xl font-bold mb-2">Vistas (Directivas Blade)</h3>
+                    <div class="code-block text-sm"><pre><code class="language-blade">@can('editar posts')
+    &lt;a href="..."&gt;Editar&lt;/a&gt;
+@endcan</code></pre></div>
+                </div>
+            </div>
+
+            <h3 class="text-2xl font-semibold mt-8">Simulador de Permisos en Blade</h3>
+            <p class="text-gray-600">Selecciona un rol y un permiso para ver cómo se comportarían las directivas `@can` y `@role`.</p>
+            <div class="bg-white p-6 rounded-lg shadow-lg mt-4">
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="sim-role" class="block font-medium text-gray-700">Rol del Usuario</label>
+                        <select id="sim-role" class="mt-1 block w-full p-2 border border-gray-300 rounded-md">
+                            <option value="Admin">Admin</option>
+                            <option value="Editor">Editor</option>
+                            <option value="Visitante">Visitante</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="sim-permission" class="block font-medium text-gray-700">Permiso a Verificar</label>
+                        <select id="sim-permission" class="mt-1 block w-full p-2 border border-gray-300 rounded-md">
+                            <option value="editar posts">editar posts</option>
+                            <option value="eliminar posts">eliminar posts</option>
+                            <option value="ver dashboard">ver dashboard</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="sim-result" class="mt-6 p-4 bg-gray-50 rounded-md space-y-2">
+                    <!-- Resultado se inyecta aquí -->
+                </div>
+            </div>
+        </section>
+
+        <section id="avanzado" class="content-section space-y-6">
+            <h2 class="text-4xl font-bold border-b pb-2 text-gray-800">5. Temas Avanzados</h2>
+            <p class="text-lg text-gray-600">Explora funcionalidades más potentes como permisos directos, el rol de Super-Admin y la personalización de las tablas y modelos del paquete.</p>
+
+            <div class="space-y-4">
+                <details class="bg-white p-4 rounded-lg shadow cursor-pointer">
+                    <summary class="font-semibold text-lg">Permisos Directos a Usuarios</summary>
+                    <p class="mt-2 text-gray-600">A veces necesitas dar un permiso específico a un usuario sin crear un rol. Esto es útil para excepciones o accesos temporales.</p>
+                    <div class="code-block mt-2"><pre><code class="language-php">$user->givePermissionTo('ver reportes especiales');
+$user->revokePermissionTo('ver reportes especiales');</code></pre></div>
+                </details>
+                <details class="bg-white p-4 rounded-lg shadow cursor-pointer">
+                    <summary class="font-semibold text-lg">Rol "Super-Admin"</summary>
+                    <p class="mt-2 text-gray-600">Para un rol que siempre tenga todos los permisos, sin necesidad de asignarlos, usa `Gate::before` en tu `AuthServiceProvider`.</p>
+                    <div class="code-block mt-2"><pre><code class="language-php">// app/Providers/AuthServiceProvider.php
+Gate::before(function ($user, $ability) {
+    return $user->hasRole('Super-Admin') ? true : null;
+});</code></pre></div>
+                </details>
+                <details class="bg-white p-4 rounded-lg shadow cursor-pointer">
+                    <summary class="font-semibold text-lg">Personalizar Tablas y Modelos</summary>
+                    <p class="mt-2 text-gray-600">Puedes extender los modelos `Role` y `Permission` del paquete para añadir tu propia lógica o campos, y luego actualizar `config/permission.php` para usarlos.</p>
+                </details>
+            </div>
+        </section>
+
+        <section id="multi-roles" class="content-section space-y-6">
+            <h2 class="text-4xl font-bold border-b pb-2 text-gray-800">6. Gestión de Múltiples Roles</h2>
+            <p class="text-lg text-gray-600">En sistemas complejos, es común que un usuario tenga múltiples roles (ej. "Profesor" y "Jefe de Departamento"). La clave es gestionar a qué funcionalidades accede según el contexto o la tarea que está realizando. Aquí exploramos dos estrategias principales.</p>
+        
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <h3 class="text-2xl font-semibold text-blue-700 mb-3">Estrategia 1: Rol Activo en Sesión</h3>
+                <p class="text-gray-600 mb-4">Esta estrategia permite al usuario "cambiar de sombrero". Al iniciar sesión, eligen con qué rol quieren actuar. La aplicación guarda este "rol activo" en la sesión y todas las verificaciones de permisos se hacen contra ese único rol, ignorando los demás que el usuario pueda tener.</p>
+                <h4 class="font-semibold text-lg mb-2">Implementación:</h4>
+                <ol class="list-decimal list-inside space-y-2 text-gray-600">
+                    <li>Al iniciar sesión, si el usuario tiene más de un rol, muéstrale una pantalla para que elija uno.</li>
+                    <li>Guarda el ID del rol elegido en la sesión: `session(['active_role_id' => $role->id]);`</li>
+                    <li>Define un Gate personalizado en `AuthServiceProvider` para verificar permisos contra el rol activo.</li>
+                </ol>
+                <div class="code-block mt-4"><pre><code class="language-php">// app/Providers/AuthServiceProvider.php
+use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\Gate;
+
+public function boot()
+{
+    $this->registerPolicies();
+
+    Gate::define('access-dashboard-with-active-role', function ($user) {
+        if (!session()->has('active_role_id')) return false;
+
+        $activeRole = Role::findById(session('active_role_id'));
+
+        if (!$user->hasRole($activeRole->name)) return false;
+
+        return $activeRole->hasPermissionTo('access dashboard');
+    });
+}
+</code></pre></div>
+            </div>
+        
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <h3 class="text-2xl font-semibold text-green-700 mb-3">Estrategia 2: Secciones por Rol (Recomendado)</h3>
+                <p class="text-gray-600 mb-4">Este es el enfoque más simple y común. En lugar de un rol activo para toda la aplicación, se crean secciones o "portales" distintos para cada rol. El acceso a cada sección se protege con el middleware de rol estándar de Spatie.</p>
+                <h4 class="font-semibold text-lg mb-2">Implementación:</h4>
+                <ol class="list-decimal list-inside space-y-2 text-gray-600">
+                    <li>Define grupos de rutas para cada rol.</li>
+                    <li>Aplica el middleware `role` a cada grupo.</li>
+                    <li>Al iniciar sesión, muestra al usuario un menú con enlaces a las secciones a las que tiene acceso.</li>
+                </ol>
+                <div class="code-block mt-4"><pre><code class="language-php">// routes/web.php
+
+Route::middleware(['auth', 'role:Profesor'])->prefix('profesor')->group(function () {
+    // Rutas solo para profesores: /profesor/cursos
+    Route::get('/dashboard', [ProfesorDashboardController::class, 'index']);
+});
+
+Route::middleware(['auth', 'role:Jefe de Departamento'])->prefix('departamento')->group(function () {
+    // Rutas solo para Jefes: /departamento/reportes
+    Route::get('/dashboard', [DepartamentoDashboardController::class, 'index']);
+});
+</code></pre></div>
+            </div>
+        
+            <h3 class="text-2xl font-semibold mt-8">Simulador de Acceso por Rol</h3>
+            <p class="text-gray-600">Imagina que eres un usuario con los roles "Profesor" y "Jefe de Departamento". Haz clic para intentar acceder a las diferentes secciones.</p>
+            <div class="bg-white p-6 rounded-lg shadow-lg mt-4 flex flex-wrap gap-4">
+                <button data-role="Profesor" class="access-btn bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">Acceder al Portal de Profesor</button>
+                <button data-role="Jefe de Departamento" class="access-btn bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">Acceder al Portal de Departamento</button>
+                <button data-role="Admin" class="access-btn bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">Acceder al Panel de Admin</button>
+            </div>
+            <div id="access-result" class="mt-4 p-4 bg-gray-50 rounded-md min-h-[3rem] flex items-center">
+            </div>
+        </section>
+
+        <section id="cache" class="content-section space-y-6">
+            <h2 class="text-4xl font-bold border-b pb-2 text-gray-800">7. Manejo de la Caché</h2>
+            <p class="text-lg text-gray-600">Para optimizar el rendimiento, el paquete cachea los roles y permisos. Si haces cambios directamente en la base de datos, necesitarás limpiar esta caché para que se apliquen.</p>
+            <p class="text-gray-600">Ejecuta el siguiente comando para limpiar la caché. Es una buena práctica incluirlo en tus scripts de despliegue.</p>
+            <div class="code-block"><pre><code class="language-bash">php artisan permission:cache-reset</code></pre></div>
+        </section>
+
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sections = document.querySelectorAll('.content-section');
+            const navLinks = document.querySelectorAll('.nav-link');
+            const mobileNavLinks = document.querySelectorAll('.nav-link-mobile');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const closeMobileMenuButton = document.getElementById('close-mobile-menu');
+
+            function updateContent(hash) {
+                if (!hash) {
+                    hash = '#introduccion';
+                }
+
+                sections.forEach(section => {
+                    if ('#' + section.id === hash) {
+                        section.classList.add('active');
+                    } else {
+                        section.classList.remove('active');
+                    }
+                });
+
+                const allLinks = [...navLinks, ...mobileNavLinks];
+                allLinks.forEach(link => {
+                    if (link.getAttribute('href') === hash) {
+                        link.classList.add('active-nav');
+                    } else {
+                        link.classList.remove('active-nav');
+                    }
+                });
+                
+                window.scrollTo(0, 0);
+            }
+
+            function handleNavClick(e) {
+                e.preventDefault();
+                const hash = e.currentTarget.getAttribute('href');
+                history.pushState(null, '', hash);
+                updateContent(hash);
+                if (mobileMenu.classList.contains('hidden') === false) {
+                    mobileMenu.classList.add('hidden');
+                }
+            }
+
+            navLinks.forEach(link => link.addEventListener('click', handleNavClick));
+            mobileNavLinks.forEach(link => link.addEventListener('click', handleNavClick));
+            
+            window.addEventListener('popstate', () => {
+                updateContent(window.location.hash);
+            });
+            
+            updateContent(window.location.hash || '#introduccion');
+            
+            // Code block copy functionality
+            document.querySelectorAll('.code-block').forEach(block => {
+                const code = block.querySelector('code');
+                const copyButton = document.createElement('button');
+                copyButton.innerHTML = '<i class="fas fa-copy"></i> Copiar';
+                copyButton.className = 'copy-btn';
+                block.appendChild(copyButton);
+
+                copyButton.addEventListener('click', () => {
+                    navigator.clipboard.writeText(code.innerText).then(() => {
+                        copyButton.innerHTML = '<i class="fas fa-check"></i> Copiado';
+                        setTimeout(() => {
+                            copyButton.innerHTML = '<i class="fas fa-copy"></i> Copiar';
+                        }, 2000);
+                    });
+                });
+            });
+
+            // Simulator logic
+            const simRole = document.getElementById('sim-role');
+            const simPermission = document.getElementById('sim-permission');
+            const simResult = document.getElementById('sim-result');
+
+            const permissionsByRole = {
+                'Admin': ['editar posts', 'eliminar posts', 'ver dashboard'],
+                'Editor': ['editar posts'],
+                'Visitante': []
+            };
+
+            function runSimulation() {
+                const selectedRole = simRole.value;
+                const selectedPermission = simPermission.value;
+                const userHasRole = (role) => selectedRole === role;
+                const userHasPermission = (permission) => permissionsByRole[selectedRole].includes(permission);
+
+                const canResult = userHasPermission(selectedPermission);
+                const roleResult = userHasRole(selectedRole) || (selectedRole === 'Admin' && (userHasRole('Editor') || userHasRole('Admin')));
+
+
+                simResult.innerHTML = `
+                    <div class="font-mono text-sm">
+                        <p class="mb-2"><span class="font-bold">@can('${selectedPermission}')</span></p>
+                        <p class="p-2 rounded ${canResult ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">Resultado: <strong>${canResult}</strong></p>
+                    </div>
+                    <div class="font-mono text-sm mt-4">
+                        <p class="mb-2"><span class="font-bold">@role('${selectedRole}')</span></p>
+                        <p class="p-2 rounded ${userHasRole(selectedRole) ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">Resultado: <strong>${userHasRole(selectedRole)}</strong></p>
+                    </div>
+                `;
+            }
+
+            if(simRole && simPermission) {
+                simRole.addEventListener('change', runSimulation);
+                simPermission.addEventListener('change', runSimulation);
+                runSimulation();
+            }
+            
+            // Multi-role access simulator
+            const accessButtons = document.querySelectorAll('.access-btn');
+            const accessResult = document.getElementById('access-result');
+            const userRoles = ['Profesor', 'Jefe de Departamento'];
+
+            if (accessButtons.length > 0 && accessResult) {
+                accessButtons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        const requiredRole = button.dataset.role;
+                        if (userRoles.includes(requiredRole)) {
+                            accessResult.innerHTML = `<p class="text-green-700 font-semibold">Acceso concedido a la sección de ${requiredRole}.</p>`;
+                            accessResult.className = 'mt-4 p-4 bg-green-100 rounded-md min-h-[3rem] flex items-center transition-all duration-300';
+                        } else {
+                            accessResult.innerHTML = `<p class="text-red-700 font-semibold">Acceso denegado. Se requiere el rol de ${requiredRole}.</p>`;
+                            accessResult.className = 'mt-4 p-4 bg-red-100 rounded-md min-h-[3rem] flex items-center transition-all duration-300';
+                        }
+                    });
+                });
+            }
+
+
+            // Mobile menu toggle
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.remove('hidden');
+            });
+
+            closeMobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.add('hidden');
+            });
+        });
+    </script>
+</body>
+</html>

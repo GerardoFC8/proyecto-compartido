@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía Interactiva de Laravel: DB y Providers</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chosen Palette: Calm Harmony -->
+    <!-- Application Structure Plan: A single-page application with a top-level tabbed navigation for the two main topics: 'Query Builder' and 'Service Providers'. Each topic has a dedicated view with a two-column layout: a vertical sub-navigation on the left for specific functions/concepts, and a main content area on the right that dynamically displays the selected information. This structure was chosen to break down a dense, technical document into a manageable, explorable interface, allowing users to quickly jump to relevant sections without excessive scrolling, which is superior for both learning and reference purposes compared to a linear document. -->
+    <!-- Visualization & Content Choices: The source material is entirely textual and code-based, so no data visualizations are required. The primary presentation method is structured HTML styled with Tailwind CSS. Information is organized into cards with clear headings, descriptive text, and styled code blocks. The key interaction is a JavaScript-powered navigation system where clicking a sub-topic on the left updates the content on the right. A 'Copy to Clipboard' button is added to code blocks to improve user utility. This approach focuses on clarity, readability, and ease of access to information. No Chart.js or Plotly needed. Confirmed NO SVG/Mermaid. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            background-color: #f8fafc;
+        }
+        .main-nav-link {
+            transition: color 0.3s, border-color 0.3s;
+        }
+        .main-nav-link.active {
+            color: #2563eb;
+            border-bottom-color: #2563eb;
+        }
+        .sub-nav-link {
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .sub-nav-link.active {
+            background-color: #e0f2fe;
+            color: #0c4a6e;
+            font-weight: 600;
+        }
+        .code-block {
+            background-color: #1e293b;
+            color: #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            position: relative;
+        }
+        .copy-button {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background-color: #334155;
+            color: #94a3b8;
+            border: none;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            font-size: 0.75rem;
+            transition: background-color 0.2s;
+        }
+        .copy-button:hover {
+            background-color: #475569;
+        }
+    </style>
+</head>
+<body class="font-sans text-slate-800">
+
+    <div class="container mx-auto px-4 py-8">
+        
+        <header class="text-center mb-10">
+            <h1 class="text-4xl md:text-5xl font-bold text-slate-900">Guía Interactiva de Laravel</h1>
+            <p class="mt-2 text-lg text-slate-600">Explora el Query Builder y los Service Providers</p>
+        </header>
+
+        <nav class="mb-8 border-b border-slate-200">
+            <ul class="flex justify-center space-x-8">
+                <li><button data-target="db" class="main-nav-link text-lg py-4 border-b-2 border-transparent active">Query Builder (DB)</button></li>
+                <li><button data-target="providers" class="main-nav-link text-lg py-4 border-b-2 border-transparent">Service Providers</button></li>
+            </ul>
+        </nav>
+
+        <main>
+            <!-- Seccion Query Builder (DB) -->
+            <section id="content-db" class="main-content">
+                <div class="text-center mb-12">
+                     <h2 class="text-3xl font-bold text-slate-900">Parte 1: El Query Builder (`DB` facade)</h2>
+                     <p class="mt-2 max-w-3xl mx-auto text-slate-600">En Laravel, tienes varias formas de interactuar con tu base de datos. La más básica es ejecutar consultas SQL "crudas", y la más avanzada es usar el ORM Eloquent. Justo en el medio se encuentra el Query Builder, al que accedes principalmente a través del facade `DB`.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                    <aside class="md:col-span-1">
+                        <ul class="sub-nav sticky top-8 space-y-1" data-section="db">
+                            <li><button data-target="db-intro" class="sub-nav-link w-full text-left px-4 py-2 rounded-md active">¿Qué es?</button></li>
+                            <li><button data-target="db-usage" class="sub-nav-link w-full text-left px-4 py-2 rounded-md">¿Para qué se usa?</button></li>
+                            <li><button data-target="db-select" class="sub-nav-link w-full text-left px-4 py-2 rounded-md">Obtener Datos (SELECT)</button></li>
+                            <li><button data-target="db-where" class="sub-nav-link w-full text-left px-4 py-2 rounded-md">Cláusulas WHERE</button></li>
+                            <li><button data-target="db-order" class="sub-nav-link w-full text-left px-4 py-2 rounded-md">Ordenar, Agrupar, Limitar</button></li>
+                            <li><button data-target="db-joins" class="sub-nav-link w-full text-left px-4 py-2 rounded-md">JOINs</button></li>
+                            <li><button data-target="db-aggregates" class="sub-nav-link w-full text-left px-4 py-2 rounded-md">Funciones de Agregación</button></li>
+                            <li><button data-target="db-insert" class="sub-nav-link w-full text-left px-4 py-2 rounded-md">Insertar Datos (INSERT)</button></li>
+                            <li><button data-target="db-update" class="sub-nav-link w-full text-left px-4 py-2 rounded-md">Actualizar Datos (UPDATE)</button></li>
+                            <li><button data-target="db-delete" class="sub-nav-link w-full text-left px-4 py-2 rounded-md">Eliminar Datos (DELETE)</button></li>
+                            <li><button data-target="db-transactions" class="sub-nav-link w-full text-left px-4 py-2 rounded-md">Transacciones</button></li>
+                            <li><button data-target="db-advanced" class="sub-nav-link w-full text-left px-4 py-2 rounded-md">Vistas y Procedures</button></li>
+                        </ul>
+                    </aside>
+                    <div class="md:col-span-3 space-y-8">
+                        <div id="sub-content-db-intro" class="sub-content bg-white p-6 rounded-lg shadow-sm">
+                            <h3 class="text-2xl font-semibold mb-4 text-slate-800">¿Qué es el `DB` facade (Query Builder)?</h3>
+                            <p class="mb-4">El Query Builder es una interfaz fluida y amigable que te permite construir y ejecutar consultas de base de datos de una manera programática, sin tener que escribir SQL directamente. Es como un constructor de consultas SQL con bloques de código.</p>
+                            <h4 class="font-semibold mb-2">Puntos Clave:</h4>
+                            <ul class="list-disc list-inside space-y-2 text-slate-600">
+                                <li><strong>Independiente del motor de BD:</strong> Puedes escribir tus consultas una vez, y Laravel las traducirá al dialecto SQL correcto para MySQL, PostgreSQL, SQL Server, etc.</li>
+                                <li><strong>Seguro:</strong> Por defecto, utiliza "parameter binding" para proteger tu aplicación contra ataques de inyección SQL.</li>
+                                <li><strong>Más rápido que Eloquent:</strong> Para consultas simples, suele ser más rápido porque no necesita "hidratar" los resultados en modelos completos de Eloquent. Simplemente devuelve arrays o objetos `stdClass`.</li>
+                            </ul>
+                        </div>
+                        <div id="sub-content-db-usage" class="sub-content bg-white p-6 rounded-lg shadow-sm hidden">
+                             <h3 class="text-2xl font-semibold mb-4 text-slate-800">¿Para qué se usa?</h3>
+                             <p class="mb-4">Deberías usar el Query Builder cuando:</p>
+                             <ol class="list-decimal list-inside space-y-2 text-slate-600">
+                                <li><strong>Necesitas hacer consultas complejas:</strong> Para reportes, estadísticas o consultas con múltiples `JOINs` y subconsultas que serían muy complicadas de escribir con Eloquent.</li>
+                                <li><strong>No necesitas un modelo Eloquent:</strong> Si solo quieres obtener algunos datos de una tabla para la que no tienes (ni necesitas) un modelo.</li>
+                                <li><strong>El rendimiento es crítico:</strong> Para operaciones de inserción masiva o consultas muy específicas donde la sobrecarga de Eloquent no es deseable.</li>
+                             </ol>
+                        </div>
+                        <div id="sub-content-db-select" class="sub-content bg-white p-6 rounded-lg shadow-sm hidden">
+                            <h3 class="text-2xl font-semibold mb-4 text-slate-800">Obtener Datos (`SELECT`)</h3>
+                            <p class="mb-4">La estructura básica siempre empieza con `DB::table('nombre_de_la_tabla')`. Para usarlo, primero importa el facade: `use Illuminate\Support\Facades\DB;`</p>
+                            <div class="space-y-4">
+                                <div>
+                                    <h4 class="font-semibold">Obtener todos los registros:</h4>
+                                    <div class="code-block mt-2"><pre><code class="language-php">// Devuelve un array de objetos stdClass
+$usuarios = DB::table('users')->get();
+
+foreach ($usuarios as $usuario) {
+    echo $usuario->name;
+}</code></pre></div>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold">Obtener un solo registro:</h4>
+                                    <div class="code-block mt-2"><pre><code class="language-php">// Obtiene el primer registro que coincida
+$usuario = DB::table('users')->where('name', 'Juan')->first();
+
+// Obtener un registro por su ID
+$usuario = DB::table('users')->find(1);</code></pre></div>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold">Obtener el valor de una sola columna:</h4>
+                                    <div class="code-block mt-2"><pre><code class="language-php">$email = DB::table('users')->where('name', 'Juan')->value('email');</code></pre></div>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold">Seleccionar columnas específicas:</h4>
+                                    <div class="code-block mt-2"><pre><code class="language-php">$usuarios = DB::table('users')->select('name', 'email as correo_electronico')->get();</code></pre></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="sub-content-db-where" class="sub-content bg-white p-6 rounded-lg shadow-sm hidden">
+                           <h3 class="text-2xl font-semibold mb-4 text-slate-800">Cláusulas `WHERE`</h3>
+                            <p class="mb-4">Puedes encadenar múltiples condiciones para filtrar tus resultados.</p>
+                            <div class="code-block"><pre><code class="language-php">$usuarios_activos = DB::table('users')
+    ->where('active', 1)
+    ->where('votes', '>', 100)
+    ->get();
+
+// Usando OR
+$usuarios = DB::table('users')
+    ->where('votes', '>', 100)
+    ->orWhere('name', 'Admin')
+    ->get();
+
+// Otras cláusulas útiles
+->whereBetween('votes', [1, 100])
+->whereIn('id', [1, 2, 3])
+->whereNull('updated_at')</code></pre></div>
+                        </div>
+                        <div id="sub-content-db-order" class="sub-content bg-white p-6 rounded-lg shadow-sm hidden">
+                           <h3 class="text-2xl font-semibold mb-4 text-slate-800">Ordenar, Agrupar y Limitar</h3>
+                            <div class="code-block"><pre><code class="language-php">$usuarios = DB::table('users')
+    ->orderBy('name', 'desc') // Ordena por nombre de forma descendente
+    ->groupBy('account_id')   // Agrupa por cuenta
+    ->having('account_id', '>', 100) // Similar a WHERE, pero para grupos
+    ->skip(10) // Salta los primeros 10 registros (offset)
+    ->take(5)  // Toma los siguientes 5 (limit)
+    ->get();</code></pre></div>
+                        </div>
+                        <div id="sub-content-db-joins" class="sub-content bg-white p-6 rounded-lg shadow-sm hidden">
+                            <h3 class="text-2xl font-semibold mb-4 text-slate-800">`JOINs` (Unir Tablas)</h3>
+                            <div class="code-block"><pre><code class="language-php">$usuarios = DB::table('users')
+    ->join('contacts', 'users.id', '=', 'contacts.user_id')
+    ->join('orders', 'users.id', '=', 'orders.user_id')
+    ->select('users.*', 'contacts.phone', 'orders.price')
+    ->get();
+
+// También existen leftJoin y rightJoin
+$usuarios = DB::table('users')
+    ->leftJoin('posts', 'users.id', '=', 'posts.user_id')
+    ->get();</code></pre></div>
+                        </div>
+                        <div id="sub-content-db-aggregates" class="sub-content bg-white p-6 rounded-lg shadow-sm hidden">
+                           <h3 class="text-2xl font-semibold mb-4 text-slate-800">Funciones de Agregación</h3>
+                            <p class="mb-4">Son funciones que operan sobre un conjunto de registros.</p>
+                            <div class="code-block"><pre><code class="language-php">$totalUsuarios = DB::table('users')->count();
+$precioMaximo = DB::table('orders')->max('price');
+$precioPromedio = DB::table('orders')->avg('price');</code></pre></div>
+                        </div>
+                        <div id="sub-content-db-insert" class="sub-content bg-white p-6 rounded-lg shadow-sm hidden">
+                           <h3 class="text-2xl font-semibold mb-4 text-slate-800">Insertar Datos (`INSERT`)</h3>
+                           <div class="space-y-4">
+                                <div>
+                                    <h4 class="font-semibold">Insertar un registro:</h4>
+                                    <div class="code-block mt-2"><pre><code class="language-php">DB::table('users')->insert([
+    'email' => 'juan@example.com',
+    'name' => 'Juan'
+]);</code></pre></div>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold">Insertar múltiples registros:</h4>
+                                    <div class="code-block mt-2"><pre><code class="language-php">DB::table('users')->insert([
+    ['email' => 'pedro@example.com', 'name' => 'Pedro'],
+    ['email' => 'maria@example.com', 'name' => 'Maria']
+]);</code></pre></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="sub-content-db-update" class="sub-content bg-white p-6 rounded-lg shadow-sm hidden">
+                            <h3 class="text-2xl font-semibold mb-4 text-slate-800">Actualizar Datos (`UPDATE`)</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <h4 class="font-semibold">Actualizar registros:</h4>
+                                    <div class="code-block mt-2"><pre><code class="language-php">// Actualiza los registros que coincidan con el WHERE
+DB::table('users')
+    ->where('id', 1)
+    ->update(['votes' => 10]);</code></pre></div>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold">Incrementar o decrementar valores:</h4>
+                                    <div class="code-block mt-2"><pre><code class="language-php">DB::table('users')->where('id', 1)->increment('votes'); // Aumenta en 1
+DB::table('users')->where('id', 1)->increment('votes', 5); // Aumenta en 5
+DB::table('users')->where('id', 1)->decrement('votes', 2); // Disminuye en 2</code></pre></div>
+                                </div>
+                            </div>
+                        </div>
+                         <div id="sub-content-db-delete" class="sub-content bg-white p-6 rounded-lg shadow-sm hidden">
+                            <h3 class="text-2xl font-semibold mb-4 text-slate-800">Eliminar Datos (`DELETE`)</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <h4 class="font-semibold">Eliminar registros específicos:</h4>
+                                    <div class="code-block mt-2"><pre><code class="language-php">// Elimina los registros que coincidan con el WHERE
+DB::table('users')->where('votes', '<', 100)->delete();</code></pre></div>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold">Eliminar todos los registros de una tabla:</h4>
+                                    <div class="code-block mt-2"><pre><code class="language-php">DB::table('users')->truncate(); // Reinicia también el auto-increment</code></pre></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="sub-content-db-transactions" class="sub-content bg-white p-6 rounded-lg shadow-sm hidden">
+                            <h3 class="text-2xl font-semibold mb-4 text-slate-800">Transacciones</h3>
+                            <p class="mb-4">Si un grupo de operaciones debe ejecutarse por completo o no ejecutarse en absoluto, usa una transacción. Si algo falla dentro del closure, todo se revierte automáticamente.</p>
+                            <div class="code-block"><pre><code class="language-php">DB::transaction(function () {
+    DB::table('users')->update(['votes' => 1]);
+    DB::table('posts')->delete();
+    // Si alguna de estas operaciones falla, la otra se revierte
+});</code></pre></div>
+                        </div>
+                        <div id="sub-content-db-advanced" class="sub-content bg-white p-6 rounded-lg shadow-sm hidden">
+                            <h3 class="text-2xl font-semibold mb-4 text-slate-800">Uso Avanzado: Vistas, Funciones y Procedures</h3>
+                            <p class="mb-4">Además de construir consultas, puedes interactuar con otras estructuras de tu base de datos como vistas, funciones y procedimientos almacenados (stored procedures), generalmente usando expresiones SQL crudas.</p>
+                            
+                            <div class="space-y-6">
+                                <div>
+                                    <h4 class="text-xl font-semibold text-slate-700">1. Usar Vistas (Views)</h4>
+                                    <p class="mt-2 text-slate-600">Laravel trata las vistas de la base de datos como si fueran tablas normales. Simplemente puedes usar el Query Builder apuntando al nombre de la vista.</p>
+                                    <div class="code-block mt-2"><pre><code class="language-php">// Suponiendo que tienes una vista llamada 'user_roles_view'
+$datos_vista = DB::table('user_roles_view')->where('role', 'admin')->get();</code></pre></div>
+                                </div>
+                        
+                                <div>
+                                    <h4 class="text-xl font-semibold text-slate-700">2. Ejecutar Consultas Crudas (Raw SQL)</h4>
+                                    <p class="mt-2 text-slate-600">Para funciones y procedimientos, la forma más directa es usar `DB::select` para consultas que devuelven resultados y `DB::statement` para las que no.</p>
+                                    <p class="mt-2 text-sm text-slate-500"><strong>Importante:</strong> Estos métodos utilizan "parameter binding" (los `?`) para proteger contra inyección SQL.</p>
+                        
+                                    <h5 class="font-semibold mt-4">Llamar a Funciones y Procedimientos con `DB::select`</h5>
+                                    <div class="code-block mt-2"><pre><code class="language-php">// Llamar a una función que devuelve un set de resultados
+$usuarios = DB::select('SELECT * FROM obtener_usuarios_activos()');
+
+// Llamar a un procedimiento almacenado que devuelve resultados
+$resultados = DB::select('CALL sp_reporte_ventas(?, ?)', ['2024-01-01', '2024-12-31']);</code></pre></div>
+                                    
+                                    <h5 class="font-semibold mt-4">Ejecutar Procedimientos con `DB::statement`</h5>
+                                     <p class="mt-2 text-slate-600">Usa `DB::statement` para operaciones que no devuelven filas, como un `UPDATE` o un procedimiento que solo modifica datos.</p>
+                                    <div class="code-block mt-2"><pre><code class="language-php">// Ejecutar un procedimiento que no devuelve nada
+DB::statement('CALL sp_actualizar_estado_usuarios(?)', ['inactivo']);</code></pre></div>
+                                </div>
+                                
+                                <div>
+                                    <h4 class="text-xl font-semibold text-slate-700">3. Inyectar SQL Crudo con `DB::raw()`</h4>
+                                    <p class="mt-2 text-slate-600">A veces necesitas insertar un fragmento de SQL dentro de una consulta del Query Builder. Para esto se usa `DB::raw()`. Es útil para llamar funciones de la BD dentro de un `select` o un `orderBy`.</p>
+                                    <p class="mt-2 text-sm text-red-600"><strong>¡Advertencia de Seguridad!</strong> `DB::raw()` inyecta el string directamente en la consulta. NUNCA pases input del usuario directamente a `DB::raw()` sin sanitizarlo para evitar inyección SQL.</p>
+                                    <div class="code-block mt-2"><pre><code class="language-php">$usuarios = DB::table('users')
+                     ->select(DB::raw('COUNT(*) as user_count, status'))
+                     ->where('status', '<>', 1)
+                     ->groupBy('status')
+                     ->get();
+                     
+// Usando una función de MySQL como CONCAT
+$usuarios = DB::table('users')
+          ->select('id', DB::raw("CONCAT(first_name, ' ', last_name) as full_name"))
+          ->get();
+</code></pre></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Seccion Service Providers -->
+            <section id="content-providers" class="main-content hidden">
+                <div class="text-center mb-12">
+                     <h2 class="text-3xl font-bold text-slate-900">Parte 2: Los Service Providers</h2>
+                     <p class="mt-2 max-w-3xl mx-auto text-slate-600">Los Service Providers son el corazón del arranque de una aplicación Laravel. Si imaginas tu aplicación como un gran auto, los Service Providers son los mecánicos que preparan y registran cada una de las piezas en el motor antes de que arranque.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                    <aside class="md:col-span-1">
+                        <ul class="sub-nav sticky top-8 space-y-1" data-section="providers">
+                            <li><button data-target="providers-intro" class="sub-nav-link w-full text-left px-4 py-2 rounded-md active">¿Qué son?</button></li>
+                            <li><button data-target="providers-usage" class="sub-nav-link w-full text-left px-4 py-2 rounded-md">¿Para qué se usan?</button></li>
+                            <li><button data-target="providers-methods" class="sub-nav-link w-full text-left px-4 py-2 rounded-md">Métodos `register` y `boot`</button></li>
+                            <li><button data-target="providers-create" class="sub-nav-link w-full text-left px-4 py-2 rounded-md">Crear y Registrar</button></li>
+                            <li><button data-target="providers-di" class="sub-nav-link w-full text-left px-4 py-2 rounded-md">Inyección de Dependencias</button></li>
+                        </ul>
+                    </aside>
+                    <div class="md:col-span-3 space-y-8">
+                        <div id="sub-content-providers-intro" class="sub-content bg-white p-6 rounded-lg shadow-sm">
+                            <h3 class="text-2xl font-semibold mb-4 text-slate-800">¿Qué son los Service Providers?</h3>
+                            <p class="mb-4">Son clases cuyo único propósito es <strong>registrar (o "bind")</strong> cosas en el <strong>Contenedor de Servicios (Service Container)</strong> de Laravel.</p>
+                            <div class="p-4 bg-sky-50 border-l-4 border-sky-500 text-sky-800 rounded-r-lg">
+                                <h4 class="font-bold">El Contenedor de Servicios (IoC)</h4>
+                                <p>Es una herramienta súper poderosa que gestiona las dependencias de clases. En lugar de crear objetos manualmente (`new MiClase();`), le pides al contenedor que te lo dé. El contenedor ya sabe cómo construir ese objeto, incluyendo todas sus dependencias.</p>
+                            </div>
+                            <p class="mt-4">Un Service Provider le dice al contenedor <strong>cómo construir</strong> un objeto o servicio.</p>
+                        </div>
+                        <div id="sub-content-providers-usage" class="sub-content bg-white p-6 rounded-lg shadow-sm hidden">
+                            <h3 class="text-2xl font-semibold mb-4 text-slate-800">¿Para qué se usan?</h3>
+                            <p class="mb-4">Su uso principal es para <strong>organizar el código de arranque de tu aplicación y registrar tus propias clases/servicios</strong>. Por ejemplo:</p>
+                             <ol class="list-decimal list-inside space-y-2 text-slate-600">
+                                <li><strong>Registrar tus propias clases:</strong> Si creas una clase `ReportGenerator`, la registras en un Service Provider para que Laravel sepa cómo crearla y puedas inyectarla en tus controladores.</li>
+                                <li><strong>Registrar View Composers:</strong> Para pasar datos a ciertas vistas cada vez que se renderizan.</li>
+                                <li><strong>Registrar comandos de Artisan personalizados.</strong></li>
+                                <li><strong>Configurar servicios de terceros:</strong> Por ejemplo, configurar un SDK para conectarse a una API externa.</li>
+                             </ol>
+                        </div>
+                        <div id="sub-content-providers-methods" class="sub-content bg-white p-6 rounded-lg shadow-sm hidden">
+                            <h3 class="text-2xl font-semibold mb-4 text-slate-800">Los Métodos `register` y `boot`</h3>
+                            <p class="mb-4">Cada Service Provider tiene dos métodos principales con responsabilidades muy claras.</p>
+                            <div class="space-y-6">
+                                <div>
+                                    <h4 class="text-xl font-semibold text-slate-700">1. El método `register()`</h4>
+                                    <ul class="list-disc list-inside space-y-2 mt-2 text-slate-600">
+                                        <li><strong>Propósito:</strong> Únicamente para registrar cosas en el contenedor de servicios.</li>
+                                        <li><strong>Regla de oro:</strong> Dentro de este método, <strong>NUNCA</strong> intentes usar un servicio que ya esté registrado. Laravel ejecuta el método `register()` de TODOS los providers primero.</li>
+                                    </ul>
+                                    <div class="code-block mt-2"><pre><code class="language-php">use App\Services\WeatherService;
+
+public function register()
+{
+    // Le decimos al contenedor: "Cuando alguien pida WeatherService,
+    // crea una nueva instancia pasándole la API key desde el config".
+    $this->app->singleton(WeatherService::class, function ($app) {
+        return new WeatherService(config('services.weather.key'));
+    });
+}</code></pre></div>
+                                    <p class="mt-2 text-sm text-slate-500">*`singleton` significa que se creará una sola instancia y se reutilizará. `bind` crearía una nueva instancia cada vez.*</p>
+                                </div>
+                                <div>
+                                    <h4 class="text-xl font-semibold text-slate-700">2. El método `boot()`</h4>
+                                    <ul class="list-disc list-inside space-y-2 mt-2 text-slate-600">
+                                        <li><strong>Propósito:</strong> Ejecutar código <strong>después de que todos los providers hayan sido registrados</strong>.</li>
+                                        <li><strong>Regla de oro:</strong> Aquí <strong>SÍ</strong> puedes acceder a cualquier otro servicio registrado. Es el lugar ideal para registrar View Composers, Gates de autorización, rutas, etc.</li>
+                                    </ul>
+                                    <div class="code-block mt-2"><pre><code class="language-php">use Illuminate\Support\Facades\View;
+
+public function boot()
+{
+    // Esto se ejecuta para cada vista que se renderiza.
+    View::composer('partials.navbar', function ($view) {
+        $view->with('unread_notifications', auth()->user()->unreadNotifications()->count());
+    });
+}</code></pre></div>
+                                </div>
+                            </div>
+                        </div>
+                         <div id="sub-content-providers-create" class="sub-content bg-white p-6 rounded-lg shadow-sm hidden">
+                             <h3 class="text-2xl font-semibold mb-4 text-slate-800">¿Cómo crear y registrar tu propio Provider?</h3>
+                            <div class="space-y-6">
+                                <div>
+                                    <h4 class="text-xl font-semibold text-slate-700">1. Crear el Provider</h4>
+                                    <p>Usa este comando de Artisan para generar el archivo en `app/Providers/`.</p>
+                                    <div class="code-block mt-2"><pre><code class="language-bash">php artisan make:provider ReportServiceProvider</code></pre></div>
+                                </div>
+                                <div>
+                                    <h4 class="text-xl font-semibold text-slate-700">2. Registrar el Provider</h4>
+                                    <p>Para que Laravel sepa que tu provider existe, debes añadirlo al array `providers` en `config/app.php`.</p>
+                                     <div class="code-block mt-2"><pre><code class="language-php">// config/app.php
+'providers' => [
+    // ... otros providers
+    App\Providers\ReportServiceProvider::class,
+],</code></pre></div>
+                                </div>
+                            </div>
+                        </div>
+                         <div id="sub-content-providers-di" class="sub-content bg-white p-6 rounded-lg shadow-sm hidden">
+                             <h3 class="text-2xl font-semibold mb-4 text-slate-800">Ejemplo final: Inyección de Dependencias</h3>
+                             <p class="mb-4">Después de registrar un servicio (como `WeatherService` del ejemplo anterior), puedes simplemente "pedirlo" en el constructor de un controlador. Laravel, gracias al contenedor y al provider, lo resolverá y creará automáticamente por ti.</p>
+                             <div class="code-block mt-2"><pre><code class="language-php">use App\Services\WeatherService;
+use App\Http\Controllers\Controller;
+
+class DashboardController extends Controller
+{
+    protected $weather;
+
+    // Laravel ve WeatherService aquí, va al contenedor, y lo inyecta.
+    public function __construct(WeatherService $weather)
+    {
+        $this->weather = $weather;
+    }
+
+    public function index()
+    {
+        $temperature = $this->weather->getTemperature('Madrid');
+        return view('dashboard', ['temperature' => $temperature]);
+    }
+}</code></pre></div>
+                            <p class="mt-4">Como puedes ver, el controlador no sabe (ni le importa) cómo se crea `WeatherService`. Solo lo pide. Esta es la magia de los Service Providers y el Contenedor de Servicios, y es clave para escribir código limpio, desacoplado y fácil de probar.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const mainNavLinks = document.querySelectorAll('.main-nav-link');
+            const mainContents = document.querySelectorAll('.main-content');
+            const subNavContainers = document.querySelectorAll('.sub-nav');
+            const codeBlocks = document.querySelectorAll('.code-block');
+
+            function switchMainTab(targetId) {
+                mainNavLinks.forEach(link => {
+                    link.classList.toggle('active', link.dataset.target === targetId);
+                });
+                mainContents.forEach(content => {
+                    content.classList.toggle('hidden', content.id !== `content-${targetId}`);
+                });
+            }
+
+            function switchSubTab(sectionId, targetId) {
+                const subNavLinks = document.querySelectorAll(`.sub-nav[data-section="${sectionId}"] .sub-nav-link`);
+                const subContents = document.querySelectorAll(`#content-${sectionId} .sub-content`);
+
+                subNavLinks.forEach(link => {
+                    link.classList.toggle('active', link.dataset.target === targetId);
+                });
+
+                subContents.forEach(content => {
+                    content.classList.toggle('hidden', content.id !== `sub-content-${targetId}`);
+                });
+            }
+
+            mainNavLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    switchMainTab(link.dataset.target);
+                });
+            });
+
+            subNavContainers.forEach(container => {
+                const section = container.dataset.section;
+                container.addEventListener('click', (e) => {
+                    if (e.target.matches('.sub-nav-link')) {
+                        switchSubTab(section, e.target.dataset.target);
+                    }
+                });
+            });
+            
+            codeBlocks.forEach(block => {
+                const button = document.createElement('button');
+                button.textContent = 'Copiar';
+                button.className = 'copy-button';
+                block.appendChild(button);
+
+                button.addEventListener('click', () => {
+                    const code = block.querySelector('code').innerText;
+                    navigator.clipboard.writeText(code).then(() => {
+                        button.textContent = '¡Copiado!';
+                        setTimeout(() => {
+                            button.textContent = 'Copiar';
+                        }, 2000);
+                    });
+                });
+            });
+            
+        });
+    </script>
+</body>
+</html>
