@@ -7,7 +7,7 @@
     <!-- Tailwind CSS (para la guía) -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Bootstrap 5.3 CSS (para el nuevo ejemplo de modal) -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" xintegrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" xintegrity="sha34-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -247,6 +247,17 @@
         <span class="directive">@endif</span>
     <span class="tag">&lt;/div&gt;</span>
 <span class="comment">&lt;!-- ... Cierre del modal ... --&gt;</span></pre>
+                
+                <div class="mt-6 bg-blue-50 border-l-4 border-blue-500 text-blue-800 p-4 rounded-r-lg">
+                    <h4 class="font-bold text-lg mb-2">Observación: La lógica de los bucles anidados</h4>
+                    <p>Te podrías preguntar por qué necesitamos dos <code>@foreach</code> uno dentro del otro. La razón es la estructura de los datos para una tabla:</p>
+                    <ol class="list-decimal list-inside mt-2 space-y-1">
+                        <li><strong>El primer bucle (<code>@foreach($data as $row)</code>):</strong> Recorre el array principal. Cada elemento de <code>$data</code> es una <strong>fila completa</strong>. Este bucle se encarga de crear las etiquetas <code>&lt;tr&gt;...&lt;/tr&gt;</code> (fila de tabla).</li>
+                        <li><strong>El segundo bucle (<code>@foreach($row as $cell)</code>):</strong> Se ejecuta por cada fila. Su trabajo es recorrer el array de la fila actual (<code>$row</code>) para extraer cada <strong>celda individual</strong>. Este bucle crea las etiquetas <code>&lt;td&gt;...&lt;/td&gt;</code> (celda de datos) que van dentro de la fila.</li>
+                    </ol>
+                    <p class="mt-2">En resumen: el primer bucle construye las filas y el segundo llena esas filas con sus celdas correspondientes. Es la forma estándar de convertir un array de arrays en una tabla HTML.</p>
+                </div>
+
 
                 <h3 class="mt-6 text-lg font-semibold">Paso 2: Usar en la Vista</h3>
                  <pre class="code-block"><span class="comment">&lt;!-- Componente para Productos --&gt;</span>
