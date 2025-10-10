@@ -7,9 +7,9 @@ https://ggfc.link/alpine
 https://ggfc.link/flux
 https://ggfc.link/lucide
 https://ggfc.link/git-exe
-
 https://ggfc.link/fontawesome
 https://ggfc.link/spatie
+
 
 
 
@@ -21,10 +21,12 @@ php artisan blueprint:build --skip=migrations
 
 
 
+
 INSTALACION DE SPATIE
 composer require spatie/laravel-permission
 php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider"
 php artisan migrate
+
 
 
 
@@ -49,13 +51,13 @@ php artisan storage:link
 
 
 MAIL_MAILER=smtp
-MAIL_HOST=correo.ormaquin...
+MAIL_SCHEME=null
+MAIL_HOST=smtp.gmail.com
 MAIL_PORT=587
-MAIL_USERNAME=siste...@ormaa....
-MAIL_PASSWORD='*******'
-MAIL_ENCRYPTION=tls
-MAIL_FROM_ADDRESS=siste...@ormaa....
-MAIL_FROM_NAME="${APP_NAME}"
+MAIL_USERNAME=user@gmail.com
+MAIL_PASSWORD=password
+MAIL_FROM_ADDRESS="user@gmail.com"
+MAIL_FROM_NAME="Nombre que vera el receptor"
 
 
 

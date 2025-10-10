@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía Completa: Envío de Correos en Laravel</title>
+    <!-- Dependencies -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://css.gg/css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Fira+Code&display=swap" rel="stylesheet">
+    <!-- Custom Styles -->
+    <style>
+        :root {
+            --primary-color: #FF2D20; /* Laravel Red */
+            --secondary-color: #f8f9fa;
+            --sidebar-width: 320px;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--secondary-color);
+        }
+        #sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: var(--sidebar-width);
+            background: #fff;
+            padding: 20px;
+            border-right: 1px solid #dee2e6;
+            transition: all 0.3s;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        #main-content {
+            margin-left: var(--sidebar-width);
+            padding: 40px;
+            transition: all 0.3s;
+        }
+        .sidebar-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .sidebar-header h3 {
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+        .sidebar-nav .nav-link {
+            color: #555;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        .sidebar-nav .nav-link.active,
+        .sidebar-nav .nav-link:hover {
+            background-color: #ffe8e6;
+            color: var(--primary-color);
+        }
+        .sidebar-nav .nav-link .fa-fw {
+            margin-right: 10px;
+        }
+        .content-section {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+        .content-section.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            margin-bottom: 2rem;
+        }
+        .code-block {
+            background-color: #282c34;
+            color: #abb2bf;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Fira Code', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            position: relative;
+        }
+        .code-block .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+        .code-block:hover .copy-btn {
+            opacity: 1;
+        }
+        .alert-custom {
+            background-color: #ffe8e6;
+            border-left: 5px solid var(--primary-color);
+            color: #333;
+        }
+        .text-primary {
+            color: var(--primary-color) !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <div id="sidebar">
+        <div class="sidebar-header">
+            <h3><i class="fas fa-envelope"></i> Laravel Mail</h3>
+            <p class="text-muted">Guía de Envío de Correos</p>
+        </div>
+        <ul class="nav flex-column sidebar-nav">
+            <li class="nav-item"><a class="nav-link active" href="#" data-target="intro"><i class="fas fa-fw fa-rocket"></i> Introducción</a></li>
+            <li class="nav-item"><a class="nav-link" href="#" data-target="env-config"><i class="fas fa-fw fa-cogs"></i> Paso 1: Configurar .env</a></li>
+            <li class="nav-item"><a class="nav-link" href="#" data-target="mailable"><i class="fas fa-fw fa-magic"></i> Paso 2: Crear Mailable</a></li>
+            <li class="nav-item"><a class="nav-link" href="#" data-target="view"><i class="fas fa-fw fa-palette"></i> Paso 3: Diseñar la Vista</a></li>
+            <li class="nav-item"><a class="nav-link" href="#" data-target="send"><i class="fas fa-fw fa-paper-plane"></i> Paso 4: Enviar al Registrar</a></li>
+            <li class="nav-item"><a class="nav-link" href="#" data-target="raw-send"><i class="fas fa-fw fa-bolt"></i> Paso 5: Envío Rápido</a></li>
+            <li class="nav-item"><a class="nav-link" href="#" data-target="attachments"><i class="fas fa-fw fa-paperclip"></i> Paso 6: Adjuntar Archivos</a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div id="main-content">
+        <!-- Introduction Section -->
+        <div id="intro" class="content-section active">
+            <div class="card p-5">
+                <h1 class="card-title text-primary">Envío de Correos con Laravel</h1>
+                <p class="lead">Esta guía te mostrará cómo configurar y enviar correos electrónicos desde tu aplicación Laravel de una manera sencilla y elegante.</p>
+                <p>Laravel proporciona una API limpia y simple sobre la popular biblioteca SwiftMailer. Cubriremos todo, desde la configuración de tu proveedor de correo hasta la creación de vistas personalizadas y el envío de archivos adjuntos.</p>
+            </div>
+        </div>
+        
+        <!-- .env Configuration Section -->
+        <div id="env-config" class="content-section">
+            <div class="card p-5">
+                <h2 class="card-title text-primary mb-4">Paso 1: Configuración del Archivo <code>.env</code></h2>
+                <p>Lo primero es decirle a Laravel cómo enviar los correos. Esto se hace en el archivo <code>.env</code>. Aquí configuraremos un servidor SMTP, que es el método más común. Usaremos las credenciales de Mailtrap para un entorno de desarrollo seguro.</p>
+                
+                <h4 class="mt-4">Ejemplo con Mailtrap (para desarrollo)</h4>
+                <p>Regístrate en <a href="https://mailtrap.io/" target="_blank">Mailtrap.io</a>, crea una bandeja de entrada y copia las credenciales SMTP que te proporcionan.</p>
+                <div class="code-block">
+<pre><code>
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.mailtrap.io
+MAIL_PORT=2525
+MAIL_USERNAME=tu_usuario_de_mailtrap
+MAIL_PASSWORD=tu_password_de_mailtrap
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS="no-reply@tuapp.com"
+MAIL_FROM_NAME="${APP_NAME}"
+</code></pre>
+                    <button class="copy-btn"><i class="fas fa-copy"></i></button>
+                </div>
+
+                <div class="alert alert-custom mt-3">
+                    <strong>¡Importante!</strong> Después de modificar tu archivo <code>.env</code>, no olvides limpiar la caché de configuración para que Laravel aplique los cambios.
+                    <br>
+                    <code>php artisan config:cache</code>
+                </div>
+            </div>
+        </div>
+
+        <!-- Create Mailable Section -->
+        <div id="mailable" class="content-section">
+            <div class="card p-5">
+                <h2 class="card-title text-primary mb-4">Paso 2: Crear una Clase Mailable</h2>
+                <p>Laravel organiza los correos en clases "Mailable". Cada clase representa un tipo de correo electrónico que tu aplicación puede enviar. Para generar una nueva clase Mailable, usa el comando de Artisan:</p>
+                <div class="code-block">
+                    <pre><code>php artisan make:mail WelcomeEmail</code></pre>
+                    <button class="copy-btn"><i class="fas fa-copy"></i></button>
+                </div>
+                <p>Este comando creará un nuevo archivo en <code>app/Mail/WelcomeEmail.php</code>. Abramos ese archivo y configurémoslo.</p>
+                <p>Podemos pasar datos a nuestro Mailable a través de su constructor. Estos datos estarán disponibles automáticamente como propiedades públicas en la vista del correo.</p>
+                <div class="code-block">
+<pre><code>&lt;?php
+
+namespace App\Mail;
+
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Content;
+use Illuminate\Mail\Mailables\Envelope;
+use Illuminate\Queue\SerializesModels;
+use App\Models\User; // Importamos el modelo User
+
+class WelcomeEmail extends Mailable
+{
+    use Queueable, SerializesModels;
+
+    public $user; // Hacemos la propiedad pública
+
+    public function __construct(User $user)
+    {
+        $this->user = $user;
+    }
+
+    public function envelope()
+    {
+        return new Envelope(
+            subject: '¡Bienvenido a Nuestra Aplicación!',
+        );
+    }
+
+    public function content()
+    {
+        return new Content(
+            view: 'emails.welcome',
+        );
+    }
+
+    public function attachments()
+    {
+        return [];
+    }
+}
+</code></pre>
+                    <button class="copy-btn"><i class="fas fa-copy"></i></button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Design View Section -->
+        <div id="view" class="content-section">
+            <div class="card p-5">
+                <h2 class="card-title text-primary mb-4">Paso 3: Diseñar la Vista del Correo</h2>
+                <p>Ahora, creemos la vista de Blade que definimos en el método <code>content()</code>. Crea un nuevo archivo en <code>resources/views/emails/welcome.blade.php</code>.</p>
+                <p>Dentro de esta vista, puedes usar la sintaxis de Blade y acceder a cualquier propiedad pública de tu clase Mailable, como la variable <code>$user</code> que definimos.</p>
+                <div class="code-block">
+<pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang="es"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;title&gt;Bienvenido&lt;/title&gt;
+    &lt;style&gt;
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .container { padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+        .button {
+            display: inline-block; padding: 10px 20px;
+            background-color: #FF2D20; color: #fff !important;
+            text-decoration: none; border-radius: 5px;
+        }
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;div class="container"&gt;
+        &lt;h1&gt;¡Hola, {{ $user->name }}!&lt;/h1&gt;
+        &lt;p&gt;Te damos la bienvenida a nuestra increíble aplicación.&lt;/p&gt;
+        &lt;a href="{{ url('/dashboard') }}" class="button"&gt;Ir al Dashboard&lt;/a&gt;
+        &lt;p style="margin-top: 20px;"&gt;Saludos,&lt;br&gt;El equipo de {{ config('app.name') }}&lt;/p&gt;
+    &lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+                    <button class="copy-btn"><i class="fas fa-copy"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Send Email Section -->
+        <div id="send" class="content-section">
+            <div class="card p-5">
+                <h2 class="card-title text-primary mb-4">Paso 4: Enviar el Correo al Registrarse</h2>
+                <p>El mejor momento para enviar un correo de bienvenida es inmediatamente después de crear la cuenta del usuario. El controlador que maneja el registro es <code>app/Http/Controllers/Auth/RegisteredUserController.php</code>.</p>
+                <p>Modificaremos el método <code>store</code> para que, justo después de crear el usuario, se envíe nuestro <code>WelcomeEmail</code>.</p>
+                <h4 class="mt-4">Código actualizado de <code>RegisteredUserController.php</code></h4>
+                <div class="code-block">
+<pre><code>&lt;?php
+namespace App\Http\Controllers\Auth;
+// ... (otros imports)
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules;
+use Illuminate\View\View;
+// --- IMPORTS AÑADIDOS ---
+use Illuminate\Support\Facades\Mail;
+use App\Mail\WelcomeEmail;
+
+class RegisteredUserController extends Controller
+{
+    // ... (método create)
+
+    public function store(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        ]);
+
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+        ]);
+
+        // --- ¡AQUÍ ENVIAMOS EL CORREO! ---
+        Mail::to($user->email)->send(new WelcomeEmail($user));
+
+        event(new Registered($user));
+        Auth::login($user);
+        return redirect(route('dashboard', absolute: false));
+    }
+}
+</code></pre>
+                    <button class="copy-btn"><i class="fas fa-copy"></i></button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Raw Send Section -->
+        <div id="raw-send" class="content-section">
+            <div class="card p-5">
+                <h2 class="card-title text-primary mb-4">Paso 5: Envío Rápido (sin Mailable)</h2>
+                <p>Si bien usar clases <code>Mailable</code> es la mejor práctica para mantener tu código limpio y reutilizable, a veces solo necesitas enviar un correo simple sin crear una clase para ello. Laravel lo permite usando el método <code>Mail::send()</code>.</p>
+                <p>Este método es útil para notificaciones rápidas o correos que no se repetirán en otras partes de tu aplicación.</p>
+
+                <h4 class="mt-4">Ejemplo en un Controlador</h4>
+                <p>El método <code>send</code> recibe tres argumentos: la vista, un array de datos para la vista, y una función (closure) donde configuras los detalles del mensaje (destinatario, asunto, adjuntos, etc.).</p>
+                <div class="code-block">
+<pre><code>
+use Illuminate\Support\Facades\Mail;
+use App\Models\User;
+
+// ... dentro de un método de un controlador
+
+public function sendCustomNotification()
+{
+    $user = User::find(1);
+    $reportPath = storage_path('app/public/reports/reporte-mensual.pdf');
+    $dataForView = ['userName' => $user->name, 'reportDate' => now()->format('F Y')];
+
+    Mail::send('emails.custom_notification', $dataForView, function ($message) use ($user, $reportPath) {
+        
+        $message->to($user->email, $user->name)
+                ->subject('Tu Reporte Mensual está listo');
+
+        // Opcional: añadir en copia
+        // $message->cc('manager@tuapp.com');
+
+        // Opcional: adjuntar un archivo
+        $message->attach($reportPath);
+    });
+
+    return 'Correo de notificación enviado.';
+}
+</code></pre>
+                    <button class="copy-btn"><i class="fas fa-copy"></i></button>
+                </div>
+                <div class="alert alert-custom mt-3">
+                    <strong>Análisis del código:</strong>
+                    <ol class="mb-0">
+                        <li><code>emails.custom_notification</code> es la vista de Blade que se usará.</li>
+                        <li><code>$dataForView</code> es un array asociativo. Cada clave (ej: 'userName') se convierte en una variable (<code>$userName</code>) dentro de la vista.</li>
+                        <li>La función <code>function ($message) ...</code> te da acceso al constructor del mensaje para definir destinatarios, asunto, copias (cc), copias ocultas (bcc) y adjuntos.</li>
+                        <li>Usamos <code>use ($user, $reportPath)</code> para poder acceder a variables externas dentro de la función.</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <!-- Attachments Section -->
+        <div id="attachments" class="content-section">
+            <div class="card p-5">
+                <h2 class="card-title text-primary mb-4">Paso 6: Adjuntar Archivos e Imágenes</h2>
+                <p>Ya sea usando Mailables o el envío rápido, adjuntar archivos es muy sencillo.</p>
+
+                <h4 class="mt-4">Adjuntar Archivos en un Mailable</h4>
+                <p>El método moderno es en la función <code>attachments()</code> de tu clase Mailable. Esto mantiene la lógica del correo encapsulada.</p>
+<div class="code-block"><pre><code>// En app/Mail/WelcomeEmail.php
+use Illuminate\Mail\Mailables\Attachment;
+
+public function attachments()
+{
+    return [
+        // Adjunta un archivo desde una ruta
+        Attachment::fromPath(storage_path('app/public/documentos/terminos.pdf')),
+        
+        // Adjunta desde el contenido en memoria
+        Attachment::fromData(fn () => $this->pdfContent, 'factura.pdf')
+            ->withMime('application/pdf'),
+    ];
+}
+</code></pre></div>
+
+                <h4 class="mt-4">Incrustar una Imagen en la Vista</h4>
+                <p>Para que una imagen (como un logo) aparezca directamente en el correo, puedes incrustarla desde tu vista de Blade. Esto funciona tanto para Mailables como para el método <code>Mail::send()</code>.</p>
+                <p>Guarda la imagen en tu carpeta <code>public</code> (ej: <code>public/images/logo.png</code>) y en la vista, usa la variable especial <code>$message->embed()</code>.</p>
+                <div class="code-block"><pre><code>&lt;!-- En tu vista de correo de Blade --&gt;
+&lt;img src="{{ $message->embed(public_path('images/logo.png')) }}" alt="Logo de la App"&gt;
+</code></pre></div>
+                <div class="alert alert-custom mt-3">
+                    La variable <code>$message</code> siempre está disponible en las vistas de correo. El método <code>embed()</code> adjuntará la imagen y devolverá un ID de contenido (CID) que funciona en todos los clientes de correo.
+                </div>
+            </div>
+        </div>
+
+        <!-- Conclusion Section -->
+        <div id="conclusion" class="content-section">
+            <div class="card p-5">
+                <h1 class="card-title text-primary"><i class="fas fa-check-circle"></i> ¡Ya Eres un Experto en Correos!</h1>
+                <p class="lead">¡Felicidades! Has completado la guía para enviar correos con Laravel.</p>
+                <p>Ahora sabes cómo configurar tu servicio de correo, generar Mailables, crear vistas personalizadas, y también cómo enviar correos rápidos directamente desde tus controladores. El sistema de correo de Laravel es potente y flexible, permitiéndote manejar todas las comunicaciones por correo electrónico de tu aplicación de forma profesional.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript for interactivity -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const navLinks = document.querySelectorAll('.sidebar-nav .nav-link');
+            const contentSections = document.querySelectorAll('.content-section');
+
+            function setActiveSection(targetId) {
+                navLinks.forEach(l => l.classList.remove('active'));
+                document.querySelector(`.nav-link[data-target="${targetId}"]`).classList.add('active');
+                
+                contentSections.forEach(section => {
+                    section.classList.remove('active');
+                    if (section.id === targetId) {
+                        section.classList.add('active');
+                    }
+                });
+
+                window.scrollTo(0, 0);
+            }
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('data-target');
+                    setActiveSection(targetId);
+                });
+            });
+
+            document.querySelectorAll('.copy-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const code = this.previousElementSibling.textContent;
+                    navigator.clipboard.writeText(code).then(() => {
+                        const originalHtml = this.innerHTML;
+                        this.innerHTML = '<i class="fas fa-check"></i> Copiado';
+                        this.disabled = true;
+                        setTimeout(() => {
+                            this.innerHTML = originalHtml;
+                            this.disabled = false;
+                        }, 2000);
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía Completa: Maatwebsite/Excel en Laravel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #1d6f42;
+            --secondary-color: #f8f9fa;
+            --sidebar-width: 300px;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--secondary-color);
+        }
+        #sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: var(--sidebar-width);
+            background: #fff;
+            padding: 20px;
+            border-right: 1px solid #dee2e6;
+            transition: all 0.3s;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        #main-content {
+            margin-left: var(--sidebar-width);
+            padding: 40px;
+            transition: all 0.3s;
+        }
+        .sidebar-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .sidebar-header h3 {
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+        .sidebar-nav .nav-link {
+            color: #555;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        .sidebar-nav .nav-link.active,
+        .sidebar-nav .nav-link:hover {
+            background-color: #e9f5ee;
+            color: var(--primary-color);
+        }
+        .sidebar-nav .nav-link .fa-fw {
+            margin-right: 10px;
+        }
+        .content-section {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+        .content-section.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            margin-bottom: 2rem;
+        }
+        .code-block {
+            background-color: #282c34;
+            color: #abb2bf;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Fira Code', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            position: relative;
+        }
+        .code-block .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+        .code-block:hover .copy-btn {
+            opacity: 1;
+        }
+        .alert-info {
+            background-color: #e9f5ee;
+            border-left: 5px solid var(--primary-color);
+            color: #333;
+        }
+        .text-primary {
+            color: var(--primary-color) !important;
+        }
+    </style>
+</head>
+<body>
+    <div id="sidebar">
+        <div class="sidebar-header">
+            <h3><i class="fas fa-file-excel"></i> Laravel Excel</h3>
+            <p class="text-muted">Guía Completa</p>
+        </div>
+        <ul class="nav flex-column sidebar-nav">
+            <li class="nav-item"><a class="nav-link active" href="#" data-target="intro"><i class="fas fa-fw fa-rocket"></i> Introducción</a></li>
+            <li class="nav-item"><a class="nav-link" href="#" data-target="install"><i class="fas fa-fw fa-download"></i> Instalación</a></li>
+            <li class="nav-item"><a class="nav-link" href="#" data-target="export-class"><i class="fas fa-fw fa-magic"></i> Clase de Exportación</a></li>
+            <li class="nav-item"><a class="nav-link" href="#" data-target="routes-controller"><i class="fas fa-fw fa-route"></i> Rutas y Controlador</a></li>
+            <li class="nav-item"><a class="nav-link" href="#" data-target="view-update"><i class="fas fa-fw fa-desktop"></i> Modificando la Vista</a></li>
+            <li class="nav-item"><a class="nav-link" href="#" data-target="deep-dive"><i class="fas fa-fw fa-cogs"></i> Guía a Fondo: Features</a></li>
+            <li class="nav-item"><a class="nav-link" href="#" data-target="advanced-customization"><i class="fas fa-fw fa-palette"></i> Personalización Avanzada</a></li>
+            <li class="nav-item"><a class="nav-link" href="#" data-target="conclusion"><i class="fas fa-fw fa-check-circle"></i> Conclusión</a></li>
+        </ul>
+    </div>
+
+    <div id="main-content">
+        <div id="intro" class="content-section active">
+            <div class="card p-5">
+                <h1 class="card-title text-primary">Exportar a Excel en Laravel con Maatwebsite/Excel</h1>
+                <p class="lead">Esta guía te enseñará a integrar `maatwebsite/excel`, el paquete por excelencia para manejar importaciones y exportaciones de Excel y CSV en Laravel.</p>
+                <p>Implementaremos la capacidad de exportar nuestra lista de posts a un archivo <code>.xlsx</code>, tanto el listado completo como un post individual. Veremos cómo personalizar los datos, añadir cabeceras, aplicar estilos y mucho más.</p>
+            </div>
+        </div>
+        
+        <div id="install" class="content-section">
+            <div class="card p-5">
+                <h2 class="card-title text-primary mb-4">Paso 1: Instalación y Configuración</h2>
+                <p>Primero, instalamos el paquete a través de Composer.</p>
+                <div class="code-block">
+                    <pre><code>composer require maatwebsite/excel</code></pre>
+                    <button class="copy-btn"><i class="fas fa-copy"></i></button>
+                </div>
+
+                <h4 class="mt-4">Publicar la Configuración (Opcional pero recomendado)</h4>
+                <p>Esto te dará un archivo <code>config/excel.php</code> para personalizar el comportamiento del paquete.</p>
+                <div class="code-block">
+                    <pre><code>php artisan vendor:publish --provider="Maatwebsite\Excel\ExcelServiceProvider" --tag=config</code></pre>
+                    <button class="copy-btn"><i class="fas fa-copy"></i></button>
+                </div>
+                <div class="alert alert-info mt-4">
+                    <strong>¡No se requiere más!</strong> Laravel detectará automáticamente el Service Provider y el Alias del Facade.
+                </div>
+            </div>
+        </div>
+
+        <div id="export-class" class="content-section">
+            <div class="card p-5">
+                <h2 class="card-title text-primary mb-4">Paso 2: Creando la Clase de Exportación</h2>
+                <p>La librería funciona con "objetos de exportación". Crearemos una clase que se encargará de definir qué datos se exportan y cómo. Usaremos un comando de Artisan para crear esta clase.</p>
+                <div class="code-block">
+                    <pre><code>php artisan make:export PostsExport --model=Post</code></pre>
+                    <button class="copy-btn"><i class="fas fa-copy"></i></button>
+                </div>
+                <p class="mt-2">Esto creará el archivo <code>app/Exports/PostsExport.php</code>. Ahora lo modificaremos para que se ajuste a nuestras necesidades (exportar todos los posts o solo uno, y añadir cabeceras y estilos).</p>
+            </div>
+        </div>
+        
+        <div id="routes-controller" class="content-section">
+            <div class="card p-5">
+                <h2 class="card-title text-primary mb-4">Paso 3: Rutas y Controlador</h2>
+                <p>Necesitamos nuevas rutas para activar las exportaciones y los métodos correspondientes en el <code>PostController</code> para manejar la lógica.</p>
+                <h4 class="mt-4">Añadir las rutas en <code>routes/web.php</code></h4>
+                <div class="code-block">
+<pre><code>
+// ...
+Route::get('/posts/reporte/excel', [PostController::class, 'exportExcel'])->name('posts.excel');
+Route::get('/posts/{post}/reporte/excel', [PostController::class, 'exportPostExcel'])->name('posts.single.excel');
+</code></pre>
+                    <button class="copy-btn"><i class="fas fa-copy"></i></button>
+                </div>
+
+                <h4 class="mt-4">Añadir los métodos en <code>app/Http/Controllers/PostController.php</code></h4>
+                <div class="code-block">
+<pre><code>
+use App\Exports\PostsExport;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Models\Post; // Asegúrate de importar el modelo
+
+// ... dentro de la clase PostController
+
+public function exportExcel() 
+{
+    return Excel::download(new PostsExport, 'posts.xlsx');
+}
+
+public function exportPostExcel(Post $post) 
+{
+    return Excel::download(new PostsExport($post->id), 'post-'.$post->id.'.xlsx');
+}
+</code></pre>
+                    <button class="copy-btn"><i class="fas fa-copy"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-update" class="content-section">
+            <div class="card p-5">
+                <h2 class="card-title text-primary mb-4">Paso 4: Modificando la Vista</h2>
+                <p>Finalmente, añadimos los botones en la vista <code>post/index.blade.php</code> para que los usuarios puedan descargar los reportes.</p>
+                <h4 class="mt-4">Botón de exportación general</h4>
+                <div class="code-block">
+<pre><code>
+&lt;a href="{{ route('posts.excel') }}" class="btn btn-success" target="_blank"&gt;
+    &lt;i class="fas fa-file-excel"&gt;&lt;/i&gt; Exportar a Excel
+&lt;/a&gt;
+</code></pre>
+                    <button class="copy-btn"><i class="fas fa-copy"></i></button>
+                </div>
+                <h4 class="mt-4">Botón de exportación individual</h4>
+                 <div class="code-block">
+<pre><code>
+&lt;!-- En la columna de acciones de la tabla --&gt;
+&lt;a href="{{ route('posts.single.excel', $post) }}" class="btn btn-sm btn-success" title="Exportar a Excel" target="_blank"&gt;
+    &lt;i class="fas fa-file-excel"&gt;&lt;/i&gt;
+&lt;/a&gt;
+</code></pre>
+                    <button class="copy-btn"><i class="fas fa-copy"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <div id="deep-dive" class="content-section">
+            <div class="card p-5">
+                <h2 class="card-title text-primary mb-4">Guía a Fondo: Interfaces (Concerns)</h2>
+                <p><code>Maatwebsite/Excel</code> es extremadamente potente. Aquí tienes un resumen de las interfaces más útiles que puedes implementar en tu clase <code>PostsExport</code>.</p>
+
+                <h4 class="mt-4">1. Personalizar Cabeceras - <code>WithHeadings</code></h4>
+                <p>Define los títulos de las columnas.</p>
+                <div class="code-block"><pre><code>use Maatwebsite\Excel\Concerns\WithHeadings;
+
+class PostsExport implements FromCollection, WithHeadings
+{
+    public function headings(): array
+    {
+        return ["ID", "Título", "Categoría", "Autor", "Estado", "Fecha de Creación"];
+    }
+    //...
+}</code></pre></div>
+                
+                <h4 class="mt-4">2. Mapear y Formatear Datos - <code>WithMapping</code></h4>
+                <p>Te da control total sobre los datos de cada fila. Ideal para formatear fechas, unir campos o hacer cálculos.</p>
+                 <div class="code-block"><pre><code>use Maatwebsite\Excel\Concerns\WithMapping;
+
+class PostsExport implements FromCollection, WithMapping
+{
+    public function map($post): array
+    {
+        return [
+            $post->id,
+            $post->title,
+            $post->category->name ?? 'N/A',
+            $post->user->name ?? 'N/A',
+            ucfirst($post->status),
+            $post->created_at->format('d/m/Y H:i'),
+        ];
+    }
+    //...
+}</code></pre></div>
+                <div class="alert alert-info mt-3">
+                    <strong><i class="fas fa-info-circle"></i> Aclaración importante sobre <code>map($post)</code></strong>
+                    <p class="mb-0 mt-2">La variable <code>$post</code> en el método <code>map($post)</code> es simplemente el <strong>nombre del parámetro</strong> que tú eliges. No está "mágicamente" conectada al nombre de la propiedad <code>$this->postsCollection</code>.</p>
+                    <p class="mb-0">El proceso es: la librería ejecuta el método <code>collection()</code> para obtener la lista de datos. Luego, itera sobre esa lista y, en cada vuelta, pasa un elemento a tu método <code>map()</code>. Podrías haberlo llamado <code>map($item)</code> o <code>map($publicacion)</code> y funcionaría igual. Se usa <code>$post</code> por convención y claridad.</p>
+                </div>
+
+                <h4 class="mt-4">3. Auto-ajustar Columnas - <code>ShouldAutoSize</code></h4>
+                <p>Ajusta automáticamente el ancho de las columnas según su contenido.</p>
+                 <div class="code-block"><pre><code>use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+
+class PostsExport implements FromCollection, ShouldAutoSize
+{
+    //... No necesita métodos adicionales
+}</code></pre></div>
+                
+                <hr class="my-5">
+
+                <h3 class="text-primary mb-4">Alternativa: Exportar desde una Vista Blade - <code>FromView</code></h3>
+                <p>Esta es una alternativa muy poderosa y a menudo más sencilla para la presentación. En lugar de construir arrays, puedes renderizar una tabla HTML en una vista de Blade y el paquete la convertirá en una hoja de Excel, ¡respetando incluso algunos estilos básicos!</p>
+                
+                <h5 class="mt-4">Paso A: Modificar la clase de exportación</h5>
+                <p>Cambiamos `FromCollection` por `FromView` y definimos el método `view()`.</p>
+                <div class="code-block"><pre><code>&lt;?php
+namespace App\Exports;
+
+use App\Models\Post;
+use Illuminate\Contracts\View\View;
+use Maatwebsite\Excel\Concerns\FromView;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+
+class PostsExport implements FromView, ShouldAutoSize
+{
+    protected $posts;
+
+    public function __construct($postId = null)
+    {
+        if ($postId) {
+            $this->posts = Post::where('id', $postId)->get();
+        } else {
+            $this->posts = Post::all();
+        }
+    }
+
+    public function view(): View
+    {
+        // Pasamos la colección de posts a la vista
+        return view('exports.posts', [
+            'posts' => $this->posts
+        ]);
+    }
+}
+</code></pre></div>
+                
+                <h5 class="mt-4">Paso B: Crear la Vista Blade</h5>
+                <p>Crea el archivo <code>resources/views/exports/posts.blade.php</code>. Aquí simplemente construyes una tabla HTML estándar.</p>
+                <div class="code-block"><pre><code>&lt;!-- No necesita layout, solo la tabla --&gt;
+&lt;table&gt;
+    &lt;thead&gt;
+        &lt;tr&gt;
+            &lt;th style="font-weight: bold;"&gt;ID&lt;/th&gt;
+            &lt;th style="font-weight: bold;"&gt;Título&lt;/th&gt;
+            &lt;th style="font-weight: bold;"&gt;Categoría&lt;/th&gt;
+            &lt;th style="font-weight: bold;"&gt;Autor&lt;/th&gt;
+            &lt;th style="font-weight: bold;"&gt;Estado&lt;/th&gt;
+            &lt;th style="font-weight: bold;"&gt;Fecha de Creación&lt;/th&gt;
+        &lt;/tr&gt;
+    &lt;/thead&gt;
+    &lt;tbody&gt;
+    @foreach($posts as $post)
+        &lt;tr&gt;
+            &lt;td&gt;{{ $post->id }}&lt;/td&gt;
+            &lt;td&gt;{{ $post->title }}&lt;/td&gt;
+            &lt;td&gt;{{ $post->category->name ?? 'N/A' }}&lt;/td&gt;
+            &lt;td&gt;{{ $post->user->name ?? 'N/A' }}&lt;/td&gt;
+            &lt;td&gt;{{ ucfirst($post->status) }}&lt;/td&gt;
+            &lt;td&gt;{{ $post->created_at->format('d/m/Y H:i') }}&lt;/td&gt;
+        &lt;/tr&gt;
+    @endforeach
+    &lt;/tbody&gt;
+&lt;/table&gt;
+</code></pre></div>
+                <div class="alert alert-info mt-3">
+                    <strong>Ventaja principal:</strong> Es mucho más intuitivo si estás familiarizado con HTML. Puedes usar etiquetas `<strong>`, `<em>` o incluso estilos inline (`style="..."`) para dar formato básico. Para estilos complejos, `WithEvents` sigue siendo la mejor opción.
+                </div>
+            </div>
+        </div>
+
+        <div id="advanced-customization" class="content-section">
+            <div class="card p-5">
+                <h2 class="card-title text-primary mb-4">Personalización Avanzada: Estilos e Imágenes</h2>
+                <p>Aquí es donde la librería realmente brilla. Puedes controlar casi todos los aspectos visuales de tu hoja de cálculo.</p>
+        
+                <h4 class="mt-4">1. Añadir Logo o Imagen - <code>WithDrawings</code></h4>
+                <p>Inserta imágenes en tu hoja. Es perfecto para el logo de tu empresa.</p>
+                <div class="code-block"><pre><code>use Maatwebsite\Excel\Concerns\WithDrawings;
+use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
+
+class PostsExport implements WithDrawings
+{
+    public function drawings()
+    {
+        $drawing = new Drawing();
+        $drawing->setName('Logo');
+        $drawing->setPath(public_path('/img/logo.png')); // Ruta a tu imagen
+        $drawing->setHeight(90);
+        $drawing->setCoordinates('B2'); // Celda donde iniciará
+
+        return $drawing;
+    }
+    //...
+}</code></pre></div>
+        
+                <h4 class="mt-4">2. Dejar Espacio Superior - <code>WithCustomStartCell</code></h4>
+                <p>Permite que tu tabla de datos comience más abajo, ideal si añadiste un logo o título.</p>
+                 <div class="code-block"><pre><code>use Maatwebsite\Excel\Concerns\WithCustomStartCell;
+
+class PostsExport implements WithCustomStartCell
+{
+    public function startCell(): string
+    {
+        return 'A7'; // Los datos empezarán en la celda A7
+    }
+    //...
+}</code></pre></div>
+        
+                <h4 class="mt-4">3. Estilizado Dinámico - <code>WithEvents</code> (Análisis a fondo)</h4>
+                <p>Este es el método más poderoso para aplicar estilos. Te permite "engancharte" a eventos del proceso de creación del Excel, como `AfterSheet` (después de que la hoja se ha creado).</p>
+                <p>Vamos a desglosar el código para entender cada parte:</p>
+                 <div class="code-block"><pre><code>use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Events\AfterSheet;
+use App\Models\Post; // Importante para el constructor
+
+class PostsExport implements WithEvents, FromCollection, ...
+{
+    private $postsCollection;
+
+    // 1. Guardamos la colección en el constructor para reutilizarla aquí
+    public function __construct($postId = null) {
+        if ($postId) {
+            $this->postsCollection = Post::where('id', $postId)->get();
+        } else {
+            $this->postsCollection = Post::all();
+        }
+    }
+    
+    public function collection() {
+        return $this->postsCollection;
+    }
+
+    public function registerEvents(): array
+    {
+        return [
+            // Escuchamos el evento AfterSheet
+            AfterSheet::class => function(AfterSheet $event) {
+                
+                // 2. Accedemos al objeto de la hoja (de la librería PhpSpreadsheet)
+                $sheet = $event->sheet->getDelegate();
+
+                // 3. Añadir un título principal, combinando celdas
+                $sheet->mergeCells('B5:F5');
+                $sheet->setCellValue('B5', 'REPORTE DE PUBLICACIONES');
+                $sheet->getStyle('B5')->getFont()->setBold(true)->setSize(16);
+                $sheet->getStyle('B5')->getAlignment()->setHorizontal('center');
+
+
+                // 4. Aplicar un array de estilos a la fila de cabecera
+                $sheet->getStyle('A7:G7')->applyFromArray([
+                    'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+                    'fill' => ['fillType' => 'solid', 'startColor' => ['rgb' => '4F81BD']]
+                ]);
+
+                // 5. Loop para aplicar estilos condicionales a las filas de datos
+                foreach ($this->postsCollection as $index => $post) {
+                    // Calculamos el número de fila actual en el Excel
+                    $rowNumber = $index + 8; // +7 del startCell + 1 de la cabecera
+                    $color = '';
+
+                    // Asignamos un color basado en el estado
+                    switch ($post->status) {
+                        case 'published': $color = 'C6EFCE'; break; // Verde
+                        case 'draft': $color = 'FFEB9C'; break;     // Amarillo
+                        case 'archived': $color = 'FFC7CE'; break;   // Rojo
+                    }
+
+                    // Si hay un color, lo aplicamos al fondo de toda la fila
+                    if ($color) {
+                        $sheet->getStyle("A{$rowNumber}:G{$rowNumber}")->getFill()
+                              ->setFillType('solid')->getStartColor()->setRGB($color);
+                    }
+                }
+            },
+        ];
+    }
+    //...
+}</code></pre></div>
+                <div class="alert alert-info mt-3">
+                    <strong>Desglose de <code>registerEvents</code>:</strong>
+                    <ol class="mb-0">
+                        <li><strong>Cachear la colección:</strong> Guardamos los datos en <code>$this->postsCollection</code> en el constructor. Esto evita hacer una segunda consulta a la base de datos dentro del evento, optimizando el rendimiento.</li>
+                        <li><strong><code>$event->sheet</code>:</strong> Este objeto es nuestra puerta de entrada a la API de <code>PhpSpreadsheet</code> (la librería que `maatwebsite/excel` usa por debajo). Nos da control total sobre celdas, estilos, tamaños, etc.</li>
+                        <li><strong>Título y combinación:</strong> Usamos <code>mergeCells</code> para unir varias celdas en una y <code>setCellValue</code> para escribir en ella. Luego, aplicamos estilos de fuente y alineación.</li>
+                        <li><strong>Estilos de cabecera:</strong> El método <code>applyFromArray</code> es una forma limpia de definir múltiples estilos (fuente, fondo, bordes, etc.) para un rango de celdas.</li>
+                        <li><strong>Estilos condicionales:</strong> Iteramos sobre la colección que ya teníamos. Calculamos la fila correcta en el Excel y, según una condición (el estado del post), aplicamos un color de fondo a todo el rango de celdas de esa fila.</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <div id="conclusion" class="content-section">
+            <div class="card p-5">
+                <h1 class="card-title text-primary"><i class="fas fa-check-circle"></i> ¡Implementación Completa!</h1>
+                <p class="lead">¡Felicidades! Ahora tu aplicación tiene un sistema de exportación a Excel robusto y profesional.</p>
+                <p>Con los cambios realizados, ahora tienes botones para exportar tanto el listado completo de posts como cada post de forma individual. La clase <code>PostsExport</code> centraliza toda la lógica, haciéndola fácil de mantener y extender con las funciones avanzadas que exploramos.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const navLinks = document.querySelectorAll('.sidebar-nav .nav-link');
+            const contentSections = document.querySelectorAll('.content-section');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                    const targetId = this.getAttribute('data-target');
+                    contentSections.forEach(section => {
+                        section.classList.remove('active');
+                        if (section.id === targetId) section.classList.add('active');
+                    });
+                });
+            });
+            document.querySelectorAll('.copy-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const code = this.previousElementSibling.textContent;
+                    navigator.clipboard.writeText(code).then(() => {
+                        const originalHtml = this.innerHTML;
+                        this.innerHTML = '<i class="fas fa-check"></i> Copiado';
+                        this.disabled = true;
+                        setTimeout(() => {
+                            this.innerHTML = originalHtml;
+                            this.disabled = false;
+                        }, 2000);
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

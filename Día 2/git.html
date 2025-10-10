@@ -53,7 +53,7 @@
                     <li><a href="#flujo-basico" class="block font-medium text-slate-600 hover:text-amber-600 transition">3. Flujo de Trabajo Básico</a></li>
                     <li><a href="#colaboracion" class="block font-medium text-slate-600 hover:text-amber-600 transition">4. Colaboración con GitHub</a></li>
                     <li><a href="#flujo-equipo" class="block font-medium text-slate-600 hover:text-amber-600 transition">5. Flujo de Trabajo en Equipo</a></li>
-                    <li><a href="#comandos-avanzados" class="block font-medium text-slate-600 hover:text-amber-600 transition">6. Comandos Avanzados</a></li>
+                    <li><a href="#comandos-utiles" class="block font-medium text-slate-600 hover:text-amber-600 transition">6. Comandos Útiles</a></li>
                     <li><a href="#consejos" class="block font-medium text-slate-600 hover:text-amber-600 transition">7. Consejos Clave</a></li>
                 </ul>
             </nav>
@@ -221,25 +221,63 @@ git commit -m "Resolución de conflicto de color"</code></pre>
                 </div>
             </section>
             
-            <section id="comandos-avanzados" class="mb-12 scroll-mt-20">
-                <h2 class="text-3xl font-bold text-slate-900 border-b-2 border-amber-500 pb-2 mb-6">6. Comandos Avanzados</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <section id="comandos-utiles" class="mb-12 scroll-mt-20">
+                <h2 class="text-3xl font-bold text-slate-900 border-b-2 border-amber-500 pb-2 mb-6">6. Comandos Útiles</h2>
+                <div class="space-y-8">
+
                     <div>
-                        <h4 class="font-bold">Clonar un repositorio</h4>
-                        <div class="code-block bg-slate-800 rounded-lg text-white p-4 font-mono text-sm mt-2"><button class="copy-btn">Copiar</button><pre><code>git clone https://...</code></pre></div>
+                        <h4 class="text-xl font-bold">git cherry-pick &lt;hash-del-commit&gt;</h4>
+                        <p class="mt-1"><strong>¿Para qué sirve?</strong> Para aplicar un commit específico de una rama a otra, sin traer el resto de los commits de la rama de origen. Es como seleccionar una "cereza" (un commit) de un árbol (una rama) y ponerla en tu canasta (tu rama actual).</p>
+                        <p class="mt-2"><strong>Caso de uso:</strong> Se implementa una corrección urgente (hotfix) en la rama `main`. Necesitas esa misma corrección en tu rama `develop` para seguir trabajando, pero no quieres fusionar todos los demás cambios de `main` todavía. Con `cherry-pick`, aplicas únicamente el commit del hotfix.</p>
+                        <div class="code-block bg-slate-800 rounded-lg text-white p-4 font-mono text-sm mt-2"><button class="copy-btn">Copiar</button><pre><code># Estando en la rama 'develop', aplicas el commit de la corrección
+git cherry-pick f78a27c</code></pre></div>
                     </div>
-                     <div>
-                        <h4 class="font-bold">Ver el estado</h4>
-                        <div class="code-block bg-slate-800 rounded-lg text-white p-4 font-mono text-sm mt-2"><button class="copy-btn">Copiar</button><pre><code>git status</code></pre></div>
+
+                    <div>
+                        <h4 class="text-xl font-bold">git stash</h4>
+                        <p class="mt-1"><strong>¿Para qué sirve?</strong> Guarda temporalmente tus cambios no confirmados (del directorio de trabajo y del área de preparación) en una "pila", dejando tu directorio de trabajo limpio. Esto te permite cambiar de rama sin tener que hacer un commit de un trabajo a medio terminar.</p>
+                        <p class="mt-2"><strong>Caso de uso:</strong> Estás a mitad de una funcionalidad y te piden un cambio urgente. No quieres hacer un commit incompleto. Usas `git stash` para guardar tu trabajo, cambias de rama, haces el cambio urgente, y luego vuelves a tu rama original y usas `git stash pop` para recuperar tus cambios y continuar donde lo dejaste.</p>
+                        <div class="code-block bg-slate-800 rounded-lg text-white p-4 font-mono text-sm mt-2"><button class="copy-btn">Copiar</button><pre><code># Guarda los cambios actuales
+git stash
+
+# ...cambias de rama y haces otro trabajo...
+
+# Vuelves a tu rama y aplicas los cambios guardados
+git stash pop</code></pre></div>
                     </div>
-                     <div>
-                        <h4 class="font-bold">Ver historial de commits</h4>
-                        <div class="code-block bg-slate-800 rounded-lg text-white p-4 font-mono text-sm mt-2"><button class="copy-btn">Copiar</button><pre><code>git log --oneline</code></pre></div>
+
+                    <div>
+                        <h4 class="text-xl font-bold">git rebase -i &lt;hash-base&gt;</h4>
+                        <p class="mt-1"><strong>¿Para qué sirve?</strong> Permite reescribir el historial de commits de forma interactiva. Puedes unir varios commits en uno solo (squash), cambiar mensajes, reordenarlos o eliminarlos. Es una herramienta poderosa para limpiar el historial antes de compartirlo.</p>
+                        <p class="mt-2"><strong>Caso de uso:</strong> En tu rama de funcionalidad has hecho muchos commits pequeños ("arreglado typo", "wip", "ajuste css"). Antes de hacer un Pull Request, quieres que tu historial sea limpio y profesional. Usas `git rebase -i` para unir todos esos pequeños cambios en un solo commit con un mensaje claro y descriptivo.</p>
+                        <div class="code-block bg-slate-800 rounded-lg text-white p-4 font-mono text-sm mt-2"><button class="copy-btn">Copiar</button><pre><code># Inicia el rebase interactivo de los últimos 3 commits
+git rebase -i HEAD~3</code></pre></div>
                     </div>
-                     <div>
-                        <h4 class="font-bold">Revertir un commit (seguro)</h4>
-                        <div class="code-block bg-slate-800 rounded-lg text-white p-4 font-mono text-sm mt-2"><button class="copy-btn">Copiar</button><pre><code>git revert &lt;hash-commit&gt;</code></pre></div>
+                    
+                    <div>
+                        <h4 class="text-xl font-bold">git reflog</h4>
+                        <p class="mt-1"><strong>¿Para qué sirve?</strong> Muestra un registro de todas las acciones donde el `HEAD` ha cambiado (commits, resets, cambios de rama). Es una red de seguridad que te permite encontrar y recuperar commits que creías perdidos, incluso si no están en ninguna rama.</p>
+                        <p class="mt-2"><strong>Caso de uso:</strong> Usaste `git reset --hard` por error y eliminaste tus últimos commits. `git log` ya no los muestra. Con `git reflog`, puedes ver el historial de tus acciones, encontrar el hash del commit que quieres restaurar y volver a él con `git checkout` o `git reset`.</p>
+                        <div class="code-block bg-slate-800 rounded-lg text-white p-4 font-mono text-sm mt-2"><button class="copy-btn">Copiar</button><pre><code># Muestra el registro de todas las operaciones
+git reflog</code></pre></div>
                     </div>
+
+                    <div>
+                        <h4 class="text-xl font-bold">git blame &lt;archivo&gt;</h4>
+                        <p class="mt-1"><strong>¿Para qué sirve?</strong> Muestra, línea por línea, quién fue la última persona en modificar un archivo, junto con el hash del commit y la fecha. Es extremadamente útil para entender el contexto de un cambio.</p>
+                        <p class="mt-2"><strong>Caso de uso:</strong> Te encuentras con una función compleja y no entiendes por qué una línea específica está escrita de esa manera. Usas `git blame` sobre ese archivo para ver quién y cuándo se hizo ese cambio. Esto te permite saber a quién preguntarle para obtener más detalles.</p>
+                        <div class="code-block bg-slate-800 rounded-lg text-white p-4 font-mono text-sm mt-2"><button class="copy-btn">Copiar</button><pre><code># Investiga quién modificó cada línea del archivo
+git blame src/components/Login.js</code></pre></div>
+                    </div>
+
+                    <div>
+                        <h4 class="text-xl font-bold">git log --oneline --graph --decorate</h4>
+                        <p class="mt-1"><strong>¿Para qué sirve?</strong> Proporciona una vista compacta y visual del historial de commits, mostrando las ramas y las fusiones como un gráfico de árbol. Ayuda a entender cómo ha evolucionado el proyecto.</p>
+                        <p class="mt-2"><strong>Caso de uso:</strong> Antes de realizar una fusión compleja, quieres entender cómo se han desviado dos ramas (`main` y `develop`, por ejemplo). Este comando te da una imagen clara del historial y de los puntos de divergencia y fusión.</p>
+                        <div class="code-block bg-slate-800 rounded-lg text-white p-4 font-mono text-sm mt-2"><button class="copy-btn">Copiar</button><pre><code># Muestra un historial visual y compacto
+git log --oneline --graph --decorate</code></pre></div>
+                    </div>
+
                 </div>
             </section>
             
@@ -266,14 +304,23 @@ git commit -m "Resolución de conflicto de color"</code></pre>
                     const codeBlock = button.nextElementSibling;
                     const code = codeBlock.innerText;
                     
-                    navigator.clipboard.writeText(code).then(() => {
-                        button.textContent = 'Copiado!';
-                        setTimeout(() => {
-                            button.textContent = 'Copiar';
-                        }, 2000);
-                    }).catch(err => {
-                        console.error('Error al copiar texto: ', err);
-                    });
+                    // Fallback for older browsers
+                    const textArea = document.createElement('textarea');
+                    textArea.value = code;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    try {
+                        document.execCommand('copy');
+                        button.textContent = '¡Copiado!';
+                    } catch (err) {
+                        console.error('Fallback: Error al copiar texto', err);
+                        button.textContent = 'Error';
+                    }
+                    document.body.removeChild(textArea);
+
+                    setTimeout(() => {
+                        button.textContent = 'Copiar';
+                    }, 2000);
                 });
             });
 

@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía Completa: Google Drive en Laravel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Fira+Code&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4285F4; /* Google Blue */
+            --secondary-color: #f8f9fa;
+            --sidebar-width: 320px;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--secondary-color);
+        }
+        #sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: var(--sidebar-width);
+            background: #fff;
+            padding: 20px;
+            border-right: 1px solid #dee2e6;
+            transition: all 0.3s;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        #main-content {
+            margin-left: var(--sidebar-width);
+            padding: 40px;
+            transition: all 0.3s;
+        }
+        .sidebar-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .sidebar-header h3 {
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+        .sidebar-nav .nav-link {
+            color: #555;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        .sidebar-nav .nav-link.active,
+        .sidebar-nav .nav-link:hover {
+            background-color: #e8f0fe;
+            color: var(--primary-color);
+        }
+        .sidebar-nav .nav-link .fa-fw {
+            margin-right: 10px;
+        }
+        .content-section {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+        .content-section.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            margin-bottom: 2rem;
+        }
+        .code-block {
+            background-color: #282c34;
+            color: #abb2bf;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Fira Code', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            position: relative;
+        }
+        .code-block .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+        .code-block:hover .copy-btn {
+            opacity: 1;
+        }
+        .alert-custom {
+            background-color: #e8f0fe;
+            border-left: 5px solid var(--primary-color);
+            color: #333;
+        }
+        .text-primary {
+            color: var(--primary-color) !important;
+        }
+    </style>
+</head>
+<body>
+    <div id="sidebar">
+        <div class="sidebar-header">
+            <h3><i class="fab fa-google-drive"></i> Laravel + Drive</h3>
+            <p class="text-muted">Guía de Integración</p>
+        </div>
+        <ul class="nav flex-column sidebar-nav">
+            <li class="nav-item"><a class="nav-link active" href="#" data-target="intro"><i class="fas fa-fw fa-rocket"></i> Introducción</a></li>
+            <li class="nav-item"><a class="nav-link" href="#" data-target="install"><i class="fas fa-fw fa-download"></i> Paso 1: Instalación</a></li>
+            <li class="nav-item"><a class="nav-link" href="#" data-target="credentials"><i class="fas fa-fw fa-key"></i> Paso 2: Credenciales de Google</a></li>
+            <li class="nav-item"><a class="nav-link" href="#" data-target="config"><i class="fas fa-fw fa-cogs"></i> Paso 3: Configuración en Laravel</a></li>
+            <li class="nav-item"><a class="nav-link" href="#" data-target="controller"><i class="fas fa-fw fa-code"></i> Paso 4: Actualizar Controlador</a></li>
+            <li class="nav-item"><a class="nav-link" href="#" data-target="conclusion"><i class="fas fa-fw fa-check-circle"></i> Conclusión</a></li>
+        </ul>
+    </div>
+
+    <div id="main-content">
+        <div id="intro" class="content-section active">
+            <div class="card p-5">
+                <h1 class="card-title text-primary">Guardar Archivos en Google Drive desde Laravel</h1>
+                <p class="lead">Esta guía te enseñará a configurar el `Storage` de Laravel para usar Google Drive como un disco más, de la misma forma que usas 'public' o 's3'.</p>
+                <p>Integraremos un paquete que actúa como puente entre Laravel y la API de Google Drive. Al final, podrás cambiar una sola línea en tu controlador para que tus PDFs se guarden directamente en la nube de Google.</p>
+            </div>
+        </div>
+        
+        <div id="install" class="content-section">
+            <div class="card p-5">
+                <h2 class="card-title text-primary mb-4">Paso 1: Instalación del Paquete</h2>
+                <p>Primero, necesitamos instalar el adaptador de Flysystem para Google Drive. Usaremos el paquete <code>masbug/laravel-google-drive-storage</code> que simplifica mucho la integración.</p>
+                <div class="code-block">
+                    <pre><code>composer require masbug/laravel-google-drive-storage</code></pre>
+                    <button class="copy-btn"><i class="fas fa-copy"></i></button>
+                </div>
+
+                <h4 class="mt-4">Publicar el Service Provider</h4>
+                <p>El siguiente comando registrará el proveedor de servicios necesario para que Laravel reconozca el nuevo driver 'google'.</p>
+                <div class="code-block">
+                    <pre><code>php artisan vendor:publish --provider="Masbug\Flysystem\GoogleDriveServiceProvider"</code></pre>
+                    <button class="copy-btn"><i class="fas fa-copy"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <div id="credentials" class="content-section">
+            <div class="card p-5">
+                <h2 class="card-title text-primary mb-4">Paso 2: Obtener Credenciales de Google</h2>
+                <p>Esta es la parte más detallada. Sigue los pasos con atención para configurar tu proyecto en la Google Cloud Platform y obtener las claves necesarias.</p>
+
+                <h4 class="mt-4">2.1. Crear Proyecto y Habilitar API</h4>
+                <ol>
+                    <li>Ve a la <a href="https://console.cloud.google.com/" target="_blank">Google Cloud Console</a> y crea un nuevo proyecto (o selecciona uno existente).</li>
+                    <li>En el buscador de la consola, busca "Google Drive API" y haz clic en <strong>Habilitar</strong>.</li>
+                </ol>
+
+                <h4 class="mt-4">2.2. Configurar Pantalla de Consentimiento</h4>
+                <ol>
+                    <li>En el menú lateral, ve a <strong>APIs y servicios > Pantalla de consentimiento de OAuth</strong>.</li>
+                    <li>Elige tipo de usuario <strong>Externo</strong> y haz clic en Crear.</li>
+                    <li>Rellena los campos obligatorios: <strong>Nombre de la aplicación</strong>, <strong>Correo electrónico de asistencia al usuario</strong> y tu <strong>email de contacto</strong>. Guarda y continúa en las demás pestañas hasta terminar.</li>
+                     <li>En la pestaña "Usuarios de prueba", agrega tu propia cuenta de Google.</li>
+                </ol>
+
+                <h4 class="mt-4">2.3. Crear Credenciales (Client ID y Secret)</h4>
+                <ol>
+                    <li>Ve a <strong>APIs y servicios > Credenciales</strong>.</li>
+                    <li>Haz clic en <strong>+ Crear Credenciales</strong> y selecciona <strong>ID de cliente de OAuth</strong>.</li>
+                    <li>En tipo de aplicación, selecciona <strong>Aplicación web</strong>.</li>
+                    <li>En <strong>URIs de redireccionamiento autorizados</strong>, añade esta URL: <code>https://developers.google.com/oauthplayground</code>. Esto es crucial para el siguiente paso.</li>
+                    <li>Haz clic en <strong>Crear</strong>. Se te mostrará tu <strong>ID de Cliente</strong> y tu <strong>Secreto de Cliente</strong>. ¡Cópialos y guárdalos en un lugar seguro!</li>
+                </ol>
+                
+                <h4 class="mt-4">2.4. Obtener Refresh Token</h4>
+                <ol>
+                    <li>Ve a <a href="https://developers.google.com/oauthplayground" target="_blank">OAuth 2.0 Playground</a>.</li>
+                    <li>Arriba a la derecha, haz clic en el engranaje <i class="fas fa-cog"></i>, marca la casilla "Use your own OAuth credentials" y pega tu <strong>ID de Cliente</strong> y <strong>Secreto de Cliente</strong>.</li>
+                    <li>En el paso 1, busca y autoriza la API <strong>Drive API v3</strong>. Selecciona la opción <code>https://www.googleapis.com/auth/drive</code>. Haz clic en <strong>Authorize APIs</strong>.</li>
+                    <li>Te pedirá iniciar sesión y dar permisos. Concede los permisos.</li>
+                    <li>En el paso 2, haz clic en <strong>Exchange authorization code for tokens</strong>. A la derecha, aparecerá tu <strong>Refresh token</strong>. ¡Cópialo y guárdalo!</li>
+                </ol>
+
+                <h4 class="mt-4">2.5. Obtener ID de la Carpeta</h4>
+                <ol>
+                    <li>Ve a tu Google Drive y crea una nueva carpeta donde quieras que se guarden los archivos de tu app (ej: "Laravel PDFs").</li>
+                    <li>Abre la carpeta. La URL se verá así: <code>https://drive.google.com/drive/folders/1a2b3c4d5e6f7g8h9i0j...</code></li>
+                    <li>El string de texto y números al final es el <strong>ID de la Carpeta</strong>. Cópialo.</li>
+                </ol>
+            </div>
+        </div>
+        
+        <div id="config" class="content-section">
+            <div class="card p-5">
+                <h2 class="card-title text-primary mb-4">Paso 3: Configuración en Laravel</h2>
+                
+                <h4 class="mt-4">3.1. Actualizar el archivo <code>.env</code></h4>
+                <p>Abre tu archivo <code>.env</code> y añade las credenciales que acabas de obtener.</p>
+                <div class="code-block">
+<pre><code>
+GOOGLE_DRIVE_CLIENT_ID=TU_ID_DE_CLIENTE
+GOOGLE_DRIVE_CLIENT_SECRET=TU_SECRETO_DE_CLIENTE
+GOOGLE_DRIVE_REFRESH_TOKEN=TU_REFRESH_TOKEN
+GOOGLE_DRIVE_FOLDER_ID=ID_DE_TU_CARPETA
+</code></pre>
+                    <button class="copy-btn"><i class="fas fa-copy"></i></button>
+                </div>
+
+                <h4 class="mt-4">3.2. Configurar el nuevo disco</h4>
+                <p>Abre <code>config/filesystems.php</code> y, dentro del array <code>disks</code>, añade la configuración para Google Drive.</p>
+                 <div class="code-block">
+<pre><code>'disks' => [
+    // ... otros discos como local, public, s3
+
+    'google' => [
+        'driver' => 'google',
+        'clientId' => env('GOOGLE_DRIVE_CLIENT_ID'),
+        'clientSecret' => env('GOOGLE_DRIVE_CLIENT_SECRET'),
+        'refreshToken' => env('GOOGLE_DRIVE_REFRESH_TOKEN'),
+        'folderId' => env('GOOGLE_DRIVE_FOLDER_ID'),
+        'throw' => false, // Opcional: `true` para lanzar excepciones en fallos
+    ],
+],
+</code></pre>
+                    <button class="copy-btn"><i class="fas fa-copy"></i></button>
+                </div>
+                 <div class="alert alert-custom mt-3">
+                    <strong>¡Importante!</strong> Después de cambiar el <code>.env</code> y la configuración, limpia la caché de configuración para que Laravel cargue los nuevos valores:
+                    <br>
+                    <code>php artisan config:cache</code>
+                </div>
+            </div>
+        </div>
+
+        <div id="controller" class="content-section">
+            <div class="card p-5">
+                <h2 class="card-title text-primary mb-4">Paso 4: Actualizar tu Controlador</h2>
+                <p>Ahora viene la parte fácil y gratificante. Vamos a modificar tu función <code>generatePostPDF</code> para que use el disco 'google' en lugar de 'public'.</p>
+
+                <h4 class="mt-4">Lógica Original en <code>PostController.php</code></h4>
+                <p>Esta es tu función actual. Fíjate en la línea <code>$disk = Storage::disk('public');</code>.</p>
+                <div class="code-block"><pre><code>public function generatePostPDF(Post $post)
+{
+    // ...
+    $pdfPath = "posts_pdf/post-{$post->id}.pdf";
+    $disk = Storage::disk('public'); // <-- Esto es lo que cambiaremos
+
+    // ... Lógica de caché ...
+    if ($shouldRegenerate) {
+        // ...
+        $pdf = Pdf::loadView('post.post-detail-pdf', $data);
+        $disk->put($pdfPath, $pdf->output());
+    }
+
+    $fullPath = storage_path("app/public/{$pdfPath}");
+    return response()->file($fullPath); // <-- Y esto también
+}</code></pre></div>
+
+                <h4 class="mt-4">Lógica Actualizada para Google Drive</h4>
+                <p>Cambiamos 'public' por 'google'. Además, como el archivo ya no está en el servidor local, no podemos usar <code>response()->file()</code>. En su lugar, obtenemos el contenido desde Drive y lo servimos directamente como una descarga.</p>
+                <div class="code-block"><pre><code>public function generatePostPDF(Post $post)
+{
+    // Definimos la ruta donde se guardarán los PDFs en Google Drive
+    $pdfPath = "post-{$post->id}.pdf"; // En Drive, la ruta puede ser más simple
+    $disk = Storage::disk('google'); // ¡Cambiado a Google Drive!
+
+    // Lógica de caché
+    $postTimestamp = $post->updated_at->timestamp;
+    $shouldRegenerate = true;
+
+    if ($disk->exists($pdfPath)) {
+        $pdfTimestamp = $disk->lastModified($pdfPath);
+        if ($pdfTimestamp >= $postTimestamp) {
+            $shouldRegenerate = false;
+        }
+    }
+
+    if ($shouldRegenerate) {
+        $post->load('user', 'category');
+        $data = ['post' => $post];
+        $pdf = Pdf::loadView('post.post-detail-pdf', $data);
+        
+        // Guardamos el contenido del PDF en el disco de Google Drive
+        $disk->put($pdfPath, $pdf->output());
+    }
+
+    // Obtenemos el contenido del archivo desde Google Drive
+    $fileContent = $disk->get($pdfPath);
+
+    // Servimos el archivo para que se descargue en el navegador
+    return response($fileContent, 200, [
+        'Content-Type' => 'application/pdf',
+        'Content-Disposition' => 'inline; filename="'.$pdfPath.'"',
+    ]);
+}
+</code></pre></div>
+                <div class="alert alert-custom mt-3">
+                    <strong>Análisis del cambio:</strong>
+                    <ol class="mb-0">
+                        <li>Cambiamos <code>Storage::disk('public')</code> por <code>Storage::disk('google')</code>. ¡Eso es todo lo que Laravel necesita para cambiar de destino!</li>
+                        <li>El método <code>$disk->put()</code> ahora sube el archivo a la carpeta que especificaste en tu Drive.</li>
+                        <li>Como el archivo ya no existe localmente, <code>response()->file()</code> no funciona. Lo reemplazamos por <code>$disk->get($pdfPath)</code> para traer el contenido del PDF desde Drive y lo retornamos con un <code>response()</code> manual, especificando las cabeceras correctas para que el navegador lo reconozca como un PDF.</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <div id="conclusion" class="content-section">
+            <div class="card p-5">
+                <h1 class="card-title text-primary"><i class="fas fa-check-circle"></i> ¡Integración Completa!</h1>
+                <p class="lead">¡Felicidades! Tu aplicación Laravel ahora puede guardar y servir archivos directamente desde Google Drive.</p>
+                <p>Has aprendido a extender el sistema de archivos de Laravel, a navegar por la consola de Google Cloud para obtener credenciales y a adaptar tu código para trabajar con almacenamiento en la nube. Ahora puedes aplicar este conocimiento para guardar cualquier tipo de archivo (imágenes, reportes, etc.) de forma segura y escalable.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const navLinks = document.querySelectorAll('.sidebar-nav .nav-link');
+            const contentSections = document.querySelectorAll('.content-section');
+            function setActiveSection(targetId) {
+                navLinks.forEach(l => l.classList.remove('active'));
+                document.querySelector(`.nav-link[data-target="${targetId}"]`).classList.add('active');
+                
+                contentSections.forEach(section => {
+                    section.classList.remove('active');
+                    if (section.id === targetId) {
+                        section.classList.add('active');
+                    }
+                });
+                window.scrollTo(0, 0);
+            }
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('data-target');
+                    setActiveSection(targetId);
+                });
+            });
+            document.querySelectorAll('.copy-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const code = this.previousElementSibling.textContent;
+                    navigator.clipboard.writeText(code).then(() => {
+                        const originalHtml = this.innerHTML;
+                        this.innerHTML = '<i class="fas fa-check"></i> Copiado';
+                        this.disabled = true;
+                        setTimeout(() => {
+                            this.innerHTML = originalHtml;
+                            this.disabled = false;
+                        }, 2000);
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>
