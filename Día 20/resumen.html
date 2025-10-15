@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía Definitiva de Laravel para Clases</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --background-color: #F9FAFB;
+            --text-color: #111827;
+            --primary-color: #FF2D20;
+            --primary-hover-bg: #ffe8e6;
+            --sidebar-bg: #ffffff;
+            --border-color: #e5e7eb;
+            --code-bg: #1f2937;
+            --code-text: #d1d5db;
+        }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+        aside {
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+        }
+        .nav-link {
+            transition: all 0.2s ease-in-out;
+        }
+        .nav-link.active,
+        .nav-link:hover {
+            background-color: var(--primary-hover-bg);
+            color: var(--primary-color);
+            transform: translateX(4px);
+        }
+        .content-section {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        .content-section.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .code-block {
+            background-color: var(--code-bg);
+            color: var(--code-text);
+            font-family: 'Fira Code', monospace;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            position: relative;
+            border-radius: 0.5rem;
+            padding: 1.25rem;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+            overflow-x: auto;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            background-color: #4b5563;
+            color: white;
+            border: none;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            font-size: 0.75rem;
+            transition: background-color 0.2s;
+        }
+        .copy-btn:hover {
+            background-color: var(--primary-color);
+        }
+        .prose h2, .prose h3, .prose h4 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-hover-bg);
+            padding-bottom: 0.5rem;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            scroll-margin-top: 80px;
+        }
+        .prose p, .prose li {
+            line-height: 1.75;
+            color: #374151;
+        }
+        .prose ul {
+            list-style-type: disc;
+            padding-left: 1.5rem;
+        }
+        .prose a {
+            color: #3b82f6;
+        }
+        .prose code {
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.9em;
+            font-family: 'Fira Code', monospace;
+        }
+        .alert {
+            background-color: var(--primary-hover-bg);
+            border-left: 4px solid var(--primary-color);
+            padding: 1rem;
+            border-radius: 0.25rem;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body class="flex">
+
+    <aside class="w-80 h-screen fixed top-0 left-0 overflow-y-auto p-6 hidden lg:block">
+        <div class="mb-8 text-center">
+             <h1 class="text-xl font-bold text-gray-800">Curso Completo de</h1>
+            <h2 class="text-2xl font-bold" style="color: var(--primary-color);">Laravel</h2>
+        </div>
+        <nav id="sidebar-nav">
+            <ul class="space-y-1 text-sm font-medium">
+                <li><a href="#fundamentos" class="nav-link active flex items-center p-3 rounded-lg" data-target="fundamentos"><i class="fas fa-layer-group fa-fw mr-3"></i>Fundamentos</a></li>
+                <li><a href="#artisan" class="nav-link flex items-center p-3 rounded-lg" data-target="artisan"><i class="fas fa-terminal fa-fw mr-3"></i>Comandos Artisan</a></li>
+                <li><a href="#git" class="nav-link flex items-center p-3 rounded-lg" data-target="git"><i class="fab fa-git-alt fa-fw mr-3"></i>Git y GitHub</a></li>
+                <li><a href="#eloquent" class="nav-link flex items-center p-3 rounded-lg" data-target="eloquent"><i class="fas fa-database fa-fw mr-3"></i>Eloquent ORM</a></li>
+                <li><a href="#blade" class="nav-link flex items-center p-3 rounded-lg" data-target="blade"><i class="fab fa-laravel fa-fw mr-3"></i>Blade y UI</a></li>
+                <li><a href="#spatie-permissions" class="nav-link flex items-center p-3 rounded-lg" data-target="spatie-permissions"><i class="fas fa-user-shield fa-fw mr-3"></i>Roles y Permisos</a></li>
+                <li><a href="#autenticacion" class="nav-link flex items-center p-3 rounded-lg" data-target="autenticacion"><i class="fas fa-users-cog fa-fw mr-3"></i>Autenticación Múltiple</a></li>
+                <li><a href="#archivos" class="nav-link flex items-center p-3 rounded-lg" data-target="archivos"><i class="fas fa-hdd fa-fw mr-3"></i>Manejo de Archivos</a></li>
+                <li><a href="#sesiones-cache" class="nav-link flex items-center p-3 rounded-lg" data-target="sesiones-cache"><i class="fas fa-memory fa-fw mr-3"></i>Sesiones y Caché</a></li>
+                <li><a href="#paquetes" class="nav-link flex items-center p-3 rounded-lg" data-target="paquetes"><i class="fas fa-box-open fa-fw mr-3"></i>Paquetes Externos</a></li>
+                <li><a href="#buenas-practicas" class="nav-link flex items-center p-3 rounded-lg" data-target="buenas-practicas"><i class="fas fa-star fa-fw mr-3"></i>Buenas Prácticas</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <main class="ml-0 lg:ml-80 p-6 md:p-12 w-full overflow-y-auto">
+        <div class="prose max-w-4xl mx-auto">
+            
+            <section id="fundamentos" class="content-section active">
+                <h2><i class="fas fa-layer-group text-indigo-500"></i> Fundamentos del Ecosistema</h2>
+                
+                <h3>Composer: El Gestor de Dependencias</h3>
+                <p>Composer es la herramienta que gestiona las bibliotecas (paquetes) de las que depende tu proyecto. En lugar de descargar archivos manualmente, declaras lo que necesitas en el archivo <code>composer.json</code>, y Composer se encarga de instalarlas.</p>
+                <ul>
+                    <li><strong><code>composer.json</code>:</strong> El manifiesto de tu proyecto. Declara las dependencias y sus versiones requeridas (ej. <code>"laravel/framework": "^11.0"</code>).</li>
+                    <li><strong><code>composer.lock</code>:</strong> Un registro exacto de las versiones instaladas para asegurar que todo el equipo trabaje con las mismas dependencias. <strong>Nunca debes editar este archivo manualmente.</strong></li>
+                    <li><strong>Autoloading:</strong> Composer genera el archivo <code>vendor/autoload.php</code>, que permite a Laravel cargar automáticamente las clases que necesitas sin requerir sentencias <code>include</code> o <code>require</code>. Esto es posible gracias al estándar PSR-4, que mapea los namespaces a directorios.</li>
+                </ul>
+
+                <h3>Estructura de Carpetas de Laravel</h3>
+                <p>Entender la estructura de directorios es clave para saber dónde colocar tu código.</p>
+                <ul>
+                    <li><strong><code>app/</code>:</strong> El corazón de tu aplicación. Aquí viven los Modelos (<code>app/Models</code>), Controladores (<code>app/Http/Controllers</code>), Service Providers (<code>app/Providers</code>) y toda tu lógica de negocio.</li>
+                    <li><strong><code>routes/</code>:</strong> Define todas las URLs de tu aplicación. <code>web.php</code> para las rutas del navegador y <code>api.php</code> para tu API.</li>
+                    <li><strong><code>resources/views/</code>:</strong> Contiene tus plantillas de Blade.</li>
+                    <li><strong><code>database/</code>:</strong> Alberga las migraciones (<code>migrations</code>), seeders (<code>seeders</code>) y factories (<code>factories</code>).</li>
+                    <li><strong><code>public/</code>:</strong> El único directorio accesible públicamente. Contiene el <code>index.php</code> y tus assets compilados (CSS, JS).</li>
+                    <li><strong><code>config/</code>:</strong> Todos los archivos de configuración de la aplicación.</li>
+                </ul>
+            </section>
+            
+            <section id="artisan" class="content-section">
+                <h2><i class="fas fa-terminal text-indigo-500"></i> Comandos Artisan Esenciales</h2>
+                <p>Artisan es la interfaz de línea de comandos de Laravel. Te permite acelerar el desarrollo generando código repetitivo y ejecutando tareas de mantenimiento.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h4>Generación de archivos:</h4>
+                        <ul class="list-disc list-inside">
+                            <li><code>php artisan make:model Product -a</code> (Crea modelo, migración, seeder, factory y controlador)</li>
+                            <li><code>php artisan make:controller PostController -r</code> (Crea un controlador de recursos con métodos CRUD)</li>
+                            <li><code>php artisan make:request StorePostRequest</code> (Crea una clase para validación de formularios)</li>
+                            <li><code>php artisan make:migration add_published_at_to_posts_table</code></li>
+                            <li><code>php artisan make:component Alert</code></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4>Base de datos:</h4>
+                        <ul class="list-disc list-inside">
+                            <li><code>php artisan migrate</code> (Ejecuta migraciones pendientes)</li>
+                            <li><code>php artisan migrate:fresh --seed</code> (Borra la BD, migra y siembra datos)</li>
+                            <li><code>php artisan db:seed</code> (Ejecuta los seeders)</li>
+                            <li><code>php artisan migrate:rollback --step=1</code> (Revierte el último lote de migraciones)</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4>Servidor y Caché:</h4>
+                        <ul class="list-disc list-inside">
+                            <li><code>php artisan serve</code> (Inicia el servidor de desarrollo)</li>
+                            <li><code>php artisan config:cache</code> (Cachea la configuración para mejor rendimiento)</li>
+                            <li><code>php artisan config:clear</code> (Limpia la caché de configuración)</li>
+                            <li><code>php artisan route:cache</code> (Cachea las rutas)</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4>Otros:</h4>
+                        <ul class="list-disc list-inside">
+                            <li><code>php artisan tinker</code> (Consola interactiva para ejecutar código PHP en el contexto de tu app)</li>
+                            <li><code>php artisan storage:link</code> (Crea el enlace simbólico para archivos públicos)</li>
+                            <li><code>php artisan down</code> / <code>up</code> (Modo mantenimiento)</li>
+                            <li><code>php artisan route:list</code> (Muestra todas las rutas registradas)</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section id="git" class="content-section">
+                <h2><i class="fab fa-git-alt text-indigo-500"></i> Control de Versiones con Git y GitHub</h2>
+                <p>Git es el sistema que rastrea los cambios en tu código, y GitHub es la plataforma donde alojas tus repositorios para colaborar.</p>
+                <h3>Flujo Básico</h3>
+                <ol>
+                    <li><strong><code>git add .</code></strong>: Prepara todos los archivos modificados para ser guardados (staging).</li>
+                    <li><strong><code>git commit -m "Mensaje descriptivo"</code></strong>: Guarda una "instantánea" de los cambios en tu historial local.</li>
+                    <li><strong><code>git push origin main</code></strong>: Sube tus commits a la rama `main` en GitHub.</li>
+                    <li><strong><code>git pull origin main</code></strong>: Descarga los cambios más recientes desde GitHub.</li>
+                </ol>
+                 <h3>Trabajo en Equipo (Ramas)</h3>
+                <ol>
+                    <li><strong><code>git checkout -b feature/nueva-funcionalidad</code></strong>: Crea una nueva rama para trabajar de forma aislada sin afectar la rama principal.</li>
+                    <li>Trabaja y haz commits en tu nueva rama.</li>
+                    <li><strong><code>git push -u origin feature/nueva-funcionalidad</code></strong>: Sube tu rama a GitHub por primera vez.</li>
+                    <li><strong>Pull Request (PR):</strong> En GitHub, abre un Pull Request para solicitar que tus cambios sean revisados y fusionados en la rama principal. Es el momento de la revisión de código.</li>
+                </ol>
+            </section>
+
+            <section id="eloquent" class="content-section">
+                <h2><i class="fas fa-database text-indigo-500"></i> Eloquent ORM: Hablando con tu Base de Datos</h2>
+                <p>Eloquent es el Mapeador Objeto-Relacional (ORM) de Laravel. Te permite interactuar con tus tablas de base de datos como si fueran objetos de PHP, con una sintaxis expresiva y legible.</p>
+                
+                <h3>CRUD Básico</h3>
+                <div class="code-block">
+                    <pre><code>// Leer todos los registros
+$posts = Post::all();
+
+// Encontrar un registro por ID o fallar con una excepción 404
+$post = Post::findOrFail($id);
+
+// Crear un nuevo registro (requiere la propiedad $fillable en el modelo)
+$post = Post::create($request->validated());
+
+// Actualizar un registro
+$post->update($request->validated());
+
+// Eliminar un registro
+$post->delete();
+</code></pre>
+                </div>
+
+                <h3>Relaciones</h3>
+                <p>Eloquent define las relaciones entre tus modelos a través de métodos.</p>
+                <ul>
+                    <li><strong>Uno a Muchos (<code>hasMany</code> / <code>belongsTo</code>):</strong> Un <code>User</code> tiene muchos <code>Post</code>. Un <code>Post</code> pertenece a un <code>User</code>.</li>
+                    <li><strong>Muchos a Muchos (<code>belongsToMany</code>):</strong> Un <code>Post</code> tiene muchas <code>Tag</code>, y una <code>Tag</code> puede estar en muchos <code>Post</code>. Requiere una tabla pivote.</li>
+                </ul>
+
+                <h3>Eager Loading: El Problema N+1 y `with()`</h3>
+                <p>Cuando recorres una lista de modelos y accedes a una relación (ej. <code>$post->user->name</code>), Laravel hace una consulta por cada post para obtener su usuario. Esto se conoce como el "problema N+1".</p>
+                <p>La solución es <strong>Eager Loading</strong> con el método <code>with()</code>, que precarga las relaciones en solo dos consultas.</p>
+                
+                <div class="code-block">
+                    <pre><code>// MALO ❌ (N+1 consultas)
+$posts = Post::all();
+foreach ($posts as $post) {
+  echo $post->user->name;
+}
+
+// BUENO ✅ (Solo 2 consultas)
+$posts = Post::with('user')->get();
+foreach ($posts as $post) {
+  echo $post->user->name;
+}</code></pre>
+                </div>
+
+                <h3><code>with()</code> vs <code>join()</code></h3>
+                <ul>
+                    <li>Usa <strong><code>with()</code></strong> por defecto para cargar y mostrar datos de relaciones. Mantiene la estructura de objetos y es más limpio.</li>
+                    <li>Usa <strong><code>join()</code></strong> (o preferiblemente <code>whereHas()</code>) cuando necesites <strong>filtrar, ordenar o agrupar</strong> el modelo principal basándote en columnas de una tabla relacionada.</li>
+                </ul>
+            </section>
+            
+            <section id="blade" class="content-section">
+                <h2><i class="fab fa-laravel text-indigo-500"></i> Blade y Componentes de UI</h2>
+                <p>Blade es el motor de plantillas de Laravel. El enfoque moderno se centra en construir interfaces reutilizables a través de <strong>Componentes</strong>.</p>
+                
+                <h3>Layouts como Componentes</h3>
+                <p>Tu layout principal (<code>resources/views/layouts/app.blade.php</code>) es un componente que define la estructura HTML y utiliza la variable <code>$slot</code> para inyectar el contenido de la página.</p>
+                <div class="code-block">
+                    <pre><code>&lt;!-- resources/views/dashboard.blade.php --&gt;
+&lt;x-app-layout&gt;
+    &lt;h1&gt;Mi Dashboard&lt;/h1&gt;
+    &lt;p&gt;Este contenido se inyectará en el $slot del layout.&lt;/p&gt;
+&lt;/x-app-layout&gt;
+</code></pre>
+                </div>
+
+                <h3>Componentes con Props y Slots</h3>
+                <p>Puedes crear tus propios componentes (ej. una alerta) y pasarles datos a través de "props" (atributos) y contenido HTML a través de "slots".</p>
+                <div class="code-block">
+                    <pre><code>&lt;!-- Uso de un componente de alerta --&gt;
+&lt;x-alert type="success" message="¡Operación completada!" /&gt;
+
+&lt;!-- Uso de un componente de tarjeta con slots --&gt;
+&lt;x-card&gt;
+    &lt;x-slot name="title"&gt;
+        Título de la Tarjeta
+    &lt;/x-slot&gt;
+    
+    Cuerpo de la tarjeta.
+&lt;/x-card&gt;
+</code></pre>
+                </div>
+                <h3>Integración con AdminLTE</h3>
+                <p>El paquete <code>jeroennoten/laravel-adminlte</code> integra la popular plantilla AdminLTE en tu proyecto. Se configura en <code>config/adminlte.php</code>, donde puedes definir el menú de navegación, habilitar plugins (como Chart.js, DataTables) y personalizar la apariencia.</p>
+            </section>
+
+            <section id="spatie-permissions" class="content-section">
+                <h2><i class="fas fa-user-shield text-indigo-500"></i> Roles y Permisos (Spatie)</h2>
+                <p>El paquete <code>spatie/laravel-permission</code> es la solución estándar para implementar un control de acceso basado en roles.</p>
+                <h3>Conceptos Clave</h3>
+                <ul>
+                    <li><strong>Permisos:</strong> Acciones específicas (ej. <code>'editar posts'</code>).</li>
+                    <li><strong>Roles:</strong> Agrupaciones de permisos (ej. <code>'Editor'</code>).</li>
+                    <li><strong>Guards:</strong> Permiten separar sistemas de permisos para diferentes tipos de usuarios (ej. <code>web</code> y <code>admin</code>).</li>
+                </ul>
+                <h3>Uso y Verificación</h3>
+                <div class="code-block">
+                    <pre><code>// Asignar un rol a un usuario
+$user->assignRole('Editor');
+
+// Asignar un permiso a un rol
+$role->givePermissionTo('editar posts');
+
+// Verificar permisos en el backend (la mejor práctica)
+if ($user->can('editar posts')) {
+    // ...
+}
+
+// Proteger rutas con middleware
+Route::get('/posts/create', ...)->middleware('permission:crear posts');
+
+// Mostrar/ocultar elementos en Blade
+@can('editar posts')
+    &lt;a href="..."&gt;Editar&lt;/a&gt;
+@endcan
+</code></pre>
+                </div>
+            </section>
+
+            <section id="autenticacion" class="content-section">
+                <h2><i class="fas fa-users-cog text-indigo-500"></i> Autenticación Múltiple</h2>
+                <p>Laravel permite autenticar diferentes tipos de usuarios (ej. <code>User</code>, <code>Admin</code>, <code>Professor</code>) contra diferentes tablas. La configuración se realiza en <code>config/auth.php</code>.</p>
+                <ol>
+                    <li><strong>Definir Guards y Providers:</strong> Se crea un "guard" (el sistema de autenticación) y un "provider" (que apunta al modelo y la tabla) para cada tipo de usuario.</li>
+                    <li><strong>Modificar el Controlador de Login:</strong> Se adapta el <code>AuthenticatedSessionController</code> para que acepte un campo extra del formulario (ej. <code>user_type</code>) y utilice el guard correspondiente (<code>Auth::guard($guard)->attempt(...)</code>).</li>
+                    <li><strong>Rate Limiting:</strong> Es crucial adaptar el limitador de intentos para que funcione por separado para cada guard, evitando que un ataque a un tipo de usuario bloquee a los demás.</li>
+                </ol>
+            </section>
+
+            <section id="archivos" class="content-section">
+                <h2><i class="fas fa-hdd text-indigo-500"></i> Manejo de Archivos (Filesystem)</h2>
+                <p>Laravel abstrae el sistema de archivos, permitiéndote interactuar con el disco local, Amazon S3 o Google Drive usando la misma API a través del facade <code>Storage</code>.</p>
+                <h3>Discos Comunes</h3>
+                <ul>
+                    <li><strong><code>local</code>:</strong> Almacena archivos privados en <code>storage/app/</code>. No son accesibles desde la web.</li>
+                    <li><strong><code>public</code>:</strong> Almacena archivos públicos en <code>storage/app/public/</code>. Requiere ejecutar <code>php artisan storage:link</code> para hacerlos accesibles desde la web.</li>
+                </ul>
+                <h3>Uso Básico</h3>
+                <div class="code-block">
+                    <pre><code>use Illuminate\Support\Facades\Storage;
+
+// Guardar un archivo subido
+$path = $request->file('avatar')->store('avatars', 'public');
+
+// Obtener la URL de un archivo público
+$url = Storage::disk('public')->url($path);
+
+// Verificar si un archivo existe
+$exists = Storage::disk('local')->exists('file.jpg');
+
+// Eliminar un archivo
+Storage::disk('public')->delete($path);
+</code></pre>
+                </div>
+            </section>
+
+            <section id="sesiones-cache" class="content-section">
+                <h2><i class="fas fa-memory text-indigo-500"></i> Sesiones y Caché</h2>
+                <h3>Sesiones</h3>
+                <p>Las sesiones se usan para almacenar información sobre un usuario a través de múltiples peticiones (ej. el contenido de un carrito de compras). Se accede a ellas con el helper <code>session()</code>.</p>
+                <div class="code-block">
+                    <pre><code>// Guardar un dato en la sesión
+session(['cart_id' => 123]);
+
+// Obtener un dato de la sesión
+$cartId = session('cart_id');
+</code></pre>
+                </div>
+                <h3>Caché</h3>
+                <p>La caché se utiliza para almacenar temporalmente resultados de operaciones costosas (como consultas complejas a la base de datos) para acelerar la aplicación.</p>
+                <div class="code-block">
+                    <pre><code>use Illuminate\Support\Facades\Cache;
+
+// El método remember es el más útil
+$posts = Cache::remember('all_posts', now()->addMinutes(60), function () {
+    // Este código solo se ejecuta si 'all_posts' no está en la caché.
+    return Post::all();
+});
+</code></pre>
+                </div>
+            </section>
+
+            <section id="paquetes" class="content-section">
+                 <h2><i class="fas fa-box-open text-indigo-500"></i> Integración con Paquetes Externos</h2>
+                 <p>El ecosistema de Laravel es vasto. Aquí hay un resumen de los paquetes que has explorado.</p>
+                 
+                 <h3>DomPDF: Generación de PDFs</h3>
+                 <p>El paquete <code>barryvdh/laravel-dompdf</code> permite convertir una vista de Blade en un archivo PDF.</p>
+                <div class="code-block">
+                    <pre><code>use Barryvdh\DomPDF\Facade\Pdf;
+
+// En un controlador
+$posts = Post::all();
+$pdf = Pdf::loadView('reports.posts-pdf', ['posts' => $posts]);
+return $pdf->download('reporte-posts.pdf');
+</code></pre>
+                </div>
+
+                 <h3>Maatwebsite/Excel: Exportación a Excel</h3>
+                 <p>Con <code>maatwebsite/excel</code>, puedes exportar colecciones de Eloquent a archivos Excel o CSV de forma sencilla, creando una clase de exportación.</p>
+                <div class="code-block">
+                    <pre><code>// Comando para crear la clase
+php artisan make:export PostsExport --model=Post
+
+// En un controlador
+use App\Exports\PostsExport;
+use Maatwebsite\Excel\Facades\Excel;
+
+return Excel::download(new PostsExport, 'posts.xlsx');
+</code></pre>
+                </div>
+
+                 <h3>Envío de Correos</h3>
+                 <p>Laravel proporciona una API fluida para enviar correos. Se crean clases "Mailable" que representan cada tipo de correo y se asocian a una vista de Blade.</p>
+                <div class="code-block">
+                    <pre><code>// Comando para crear la clase
+php artisan make:mail WelcomeEmail
+
+// En un controlador
+use App\Mail\WelcomeEmail;
+use Illuminate\Support\Facades\Mail;
+
+Mail::to($user->email)->send(new WelcomeEmail($user));
+</code></pre>
+                </div>
+
+                 <h3>Google Drive como Filesystem</h3>
+                 <p>Puedes configurar Google Drive como un disco más en <code>config/filesystems.php</code>. Después de obtener las credenciales de la API de Google, puedes guardar archivos directamente en Drive.</p>
+                <div class="code-block">
+                    <pre><code>// Simplemente cambia el disco que usas
+Storage::disk('google')->put('reporte.pdf', $pdfContent);
+</code></pre>
+                </div>
+            </section>
+            
+            <section id="buenas-practicas" class="content-section">
+                <h2><i class="fas fa-star text-indigo-500"></i> Buenas Prácticas y Convenciones</h2>
+                <p>Seguir las convenciones de Laravel hace que tu código sea más limpio, legible y fácil de mantener.</p>
+                
+                <h4>Controladores "Delgados" (Thin Controllers)</h4>
+                <p>La responsabilidad de un controlador es ser un intermediario. La lógica de negocio compleja no debe vivir en los controladores. Extráela a <strong>Clases de Servicio</strong> (para lógica reutilizable) o <strong>Acciones</strong> (para tareas específicas de un solo uso).</p>
+                
+                <h4>Form Requests para Validación</h4>
+                <p>Encapsula la lógica de validación y autorización en clases <code>Form Request</code>. Esto limpia tu controlador y hace que tus reglas de validación sean reutilizables.</p>
+                <div class="code-block">
+                    <pre><code>// BlogPostController.php
+public function store(StoreBlogPostRequest $request)
+{
+    // Si la validación falla, Laravel redirige automáticamente.
+    // Los datos ya están validados y son seguros.
+    BlogPost::create($request->validated());
+    return redirect()->route('blog_posts.index');
+}</code></pre>
+                </div>
+
+                <h4>Nombra tus Rutas</h4>
+                <p>Siempre asigna un nombre a tus rutas (<code>->name('posts.show')</code>). Esto te permite cambiar la URL en el futuro sin romper tu código, ya que siempre te referirás a ella con el helper <code>route('posts.show')</code>.</p>
+
+                <h4>Convenciones de Nomenclatura</h4>
+                <ul>
+                    <li><strong>Modelos:</strong> Singular, <code>PascalCase</code> (<code>BlogPost</code>).</li>
+                    <li><strong>Tablas de BD:</strong> Plural, <code>snake_case</code> (<code>blog_posts</code>).</li>
+                    <li><strong>Controladores:</strong> Modelo en Singular + <code>Controller</code> (<code>BlogPostController</code>).</li>
+                    <li><strong>Variables/Métodos PHP:</strong> <code>camelCase</code> (<code>$userList</code>, <code>getPosts()</code>).</li>
+                    <li><strong>Rutas/URLs:</strong> <code>kebab-case</code> (<code>/blog-posts/{id}</code>).</li>
+                </ul>
+            </section>
+
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const navLinks = document.querySelectorAll('#sidebar-nav .nav-link');
+            const contentSections = document.querySelectorAll('.content-section');
+
+            function setActiveSection(targetId) {
+                // Remove '#' from targetId if present
+                const cleanTargetId = targetId.startsWith('#') ? targetId.substring(1) : targetId;
+
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('data-target') === cleanTargetId) {
+                        link.classList.add('active');
+                    }
+                });
+                
+                contentSections.forEach(section => {
+                    section.classList.remove('active');
+                    if (section.id === cleanTargetId) {
+                        section.classList.add('active');
+                    }
+                });
+            }
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('data-target');
+                    setActiveSection(targetId);
+                    // Update URL hash without jumping
+                    history.pushState(null, null, '#' + targetId);
+                });
+            });
+
+            // Handle initial page load with hash
+            if (window.location.hash) {
+                setActiveSection(window.location.hash);
+            } else {
+                setActiveSection('fundamentos');
+            }
+            
+            // Handle back/forward browser buttons
+            window.addEventListener('popstate', function() {
+                if (window.location.hash) {
+                    setActiveSection(window.location.hash);
+                } else {
+                     setActiveSection('fundamentos');
+                }
+            });
+
+            // --- Copy Buttons ---
+            document.querySelectorAll('.code-block').forEach(block => {
+                const pre = block.querySelector('pre');
+                if (!pre) return;
+
+                const button = document.createElement('button');
+                button.className = 'copy-btn';
+                button.innerHTML = '<i class="fas fa-copy"></i> Copiar';
+                
+                button.addEventListener('click', () => {
+                    const code = pre.innerText;
+                    navigator.clipboard.writeText(code).then(() => {
+                        button.innerHTML = '<i class="fas fa-check"></i> Copiado';
+                        setTimeout(() => {
+                            button.innerHTML = '<i class="fas fa-copy"></i> Copiar';
+                        }, 2000);
+                    });
+                });
+                block.appendChild(button);
+            });
+        });
+    </script>
+</body>
+</html>
+

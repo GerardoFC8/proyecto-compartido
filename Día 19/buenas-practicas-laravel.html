@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía Interactiva: Buenas Prácticas en Laravel</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --background-color: #F9F6F2;
+            --text-color: #2c3e50;
+            --primary-color: #FF2D20;
+            --primary-hover-bg: #ffe8e6;
+            --sidebar-bg: #ffffff;
+            --border-color: #e5e7eb;
+            --code-bg: #282c34;
+            --code-text: #abb2bf;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+        .sidebar {
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+        }
+        .nav-link {
+            transition: all 0.2s ease-in-out;
+        }
+        .nav-link.active,
+        .nav-link:hover {
+            background-color: var(--primary-hover-bg);
+            color: var(--primary-color);
+            transform: translateX(4px);
+        }
+        .nav-link .icon {
+            transition: transform 0.2s ease-in-out;
+        }
+        .nav-link.active .icon {
+            transform: rotate(90deg);
+        }
+        .content-section {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        .content-section.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .code-block {
+            background-color: var(--code-bg);
+            color: var(--code-text);
+            font-family: 'Fira Code', monospace;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .copy-btn {
+            background-color: #4a5568;
+            transition: background-color 0.2s;
+        }
+        .copy-btn:hover {
+            background-color: var(--primary-color);
+        }
+        h2, h3, h4 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-hover-bg);
+            padding-bottom: 0.5rem;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+        .prose p {
+            line-height: 1.75;
+        }
+        .prose ul {
+            list-style-type: disc;
+            padding-left: 1.5rem;
+        }
+        .prose li {
+            margin-bottom: 0.5rem;
+        }
+        .prose code {
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.9em;
+            font-family: 'Fira Code', monospace;
+        }
+        .alert {
+            background-color: var(--primary-hover-bg);
+            border-left: 4px solid var(--primary-color);
+            padding: 1rem;
+            border-radius: 0.25rem;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body class="flex h-screen">
+
+    <aside class="sidebar w-80 h-full fixed top-0 left-0 overflow-y-auto p-6 hidden md:block">
+        <div class="mb-8 text-center">
+            <h1 class="text-xl font-bold text-gray-800">Buenas Prácticas en</h1>
+            <h2 class="text-2xl font-bold" style="color: var(--primary-color);">Laravel</h2>
+        </div>
+        <nav id="sidebar-nav">
+            <ul class="space-y-2">
+                <li><a href="#" class="nav-link active flex items-center p-3 rounded-lg font-medium" data-target="intro"><i class="fas fa-rocket fa-fw mr-3 icon"></i>Introducción</a></li>
+                <li><a href="#" class="nav-link flex items-center p-3 rounded-lg font-medium" data-target="naming"><i class="fas fa-tags fa-fw mr-3 icon"></i>Nomenclatura</a></li>
+                <li><a href="#" class="nav-link flex items-center p-3 rounded-lg font-medium" data-target="eloquent"><i class="fas fa-database fa-fw mr-3 icon"></i>Eloquent ORM</a></li>
+                <li><a href="#" class="nav-link flex items-center p-3 rounded-lg font-medium" data-target="coding-standards"><i class="fas fa-code fa-fw mr-3 icon"></i>Estándares de Código</a></li>
+                <li><a href="#" class="nav-link flex items-center p-3 rounded-lg font-medium" data-target="architecture"><i class="fas fa-sitemap fa-fw mr-3 icon"></i>Arquitectura</a></li>
+                <li><a href="#" class="nav-link flex items-center p-3 rounded-lg font-medium" data-target="routes-views"><i class="fas fa-route fa-fw mr-3 icon"></i>Rutas y Vistas</a></li>
+                <li><a href="#" class="nav-link flex items-center p-3 rounded-lg font-medium" data-target="conclusion"><i class="fas fa-check-circle fa-fw mr-3 icon"></i>Conclusión</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <main class="ml-0 md:ml-80 p-6 md:p-12 w-full overflow-y-auto">
+        <div class="prose max-w-4xl mx-auto">
+
+            <section id="intro" class="content-section active">
+                <div class="bg-white p-8 rounded-xl shadow-md">
+                    <h2>Guía Avanzada de Buenas Prácticas y Convenciones</h2>
+                    <p>Laravel se construyó sobre el principio de <strong>"convención sobre configuración"</strong>. Esto significa que el framework toma decisiones inteligentes por ti, permitiéndote desarrollar más rápido sin tener que configurar cada pequeño detalle. Entender y seguir estas convenciones no solo acelera tu trabajo, sino que también hace que tu código sea más limpio, legible y fácil de mantener para ti y para otros desarrolladores.</p>
+                </div>
+            </section>
+            
+            <section id="naming" class="content-section">
+                <h2>1. Convenciones de Nomenclatura: La Base de Todo</h2>
+                <p>La forma en que nombras tus clases, tablas y variables es la convención más fundamental en Laravel.</p>
+                
+                <h4>Modelos y Tablas de Base de Datos</h4>
+                <p>Esta es la duda más común y la convención más importante de Eloquent.</p>
+                <ul>
+                    <li><strong>Modelo:</strong> Se nombra en <strong>Singular</strong> y usando <code>PascalCase</code>. Representa una única entidad o registro. Ejemplos: <code>User</code>, <code>BlogPost</code>.</li>
+                    <li><strong>Tabla de Base de Datos:</strong> Se nombra en <strong>plural</strong> y usando <code>snake_case</code>. Representa la colección de todas esas entidades. Ejemplos: <code>users</code>, <code>blog_posts</code>.</li>
+                </ul>
+                <div class="alert">
+                    <p class="font-bold">Situación Común:</p>
+                    <p>Te piden trabajar con una base de datos antigua que tiene una tabla llamada <code>TBL_USUARIOS</code>. Tu modelo se llama <code>User</code>. Por convención, Laravel buscará la tabla <code>users</code> y fallará. ¿La solución? Especificar el nombre de la tabla en el modelo.</p>
+                </div>
+                <div class="code-block rounded-lg mt-4 mb-6 relative">
+                    <button class="copy-btn absolute top-2 right-2 text-white px-2 py-1 text-xs rounded">Copiar</button>
+                    <pre class="p-4 overflow-x-auto"><code class="language-php">// Modelo: app/Models/User.php
+class User extends Model
+{
+    // Así le dices a Laravel que ignore la convención
+    // y use esta tabla en su lugar.
+    protected $table = 'TBL_USUARIOS';
+}</code></pre>
+                </div>
+                
+                <h4>Controladores (Controllers)</h4>
+                <p>Se nombran usando el nombre del <strong>Modelo en singular</strong>, seguido del sufijo <code>Controller</code>, en <code>PascalCase</code>. Ejemplo: <code>BlogPostController</code>.</p>
+                <div class="code-block rounded-lg mt-4 mb-6 relative">
+                    <button class="copy-btn absolute top-2 right-2 text-white px-2 py-1 text-xs rounded">Copiar</button>
+                    <pre class="p-4 overflow-x-auto"><code class="language-bash"># Comando para crear un controlador de recursos para el modelo BlogPost
+php artisan make:controller BlogPostController --resource</code></pre>
+                </div>
+
+                <h4>Migraciones (Migrations)</h4>
+                <p>Se nombran en <code>snake_case</code>, describiendo la acción que realizan. Laravel antepone la fecha y hora para ejecutar las migraciones en orden.</p>
+                <div class="alert">
+                     <p class="font-bold">¡Un truco!</p>
+                     <p>Si nombras tu migración siguiendo la convención <code>create_nombre_tabla_table</code>, Laravel será lo suficientemente inteligente para rellenar el método <code>up()</code> con el esquema para crear esa tabla.</p>
+                </div>
+                 <div class="code-block rounded-lg mt-4 mb-6 relative">
+                    <button class="copy-btn absolute top-2 right-2 text-white px-2 py-1 text-xs rounded">Copiar</button>
+                    <pre class="p-4 overflow-x-auto"><code class="language-bash"># Al ejecutar esto:
+php artisan make:migration create_blog_posts_table
+
+# El archivo generado ya contendrá:
+Schema::create('blog_posts', function (Blueprint $table) {
+    $table->id();
+    $table->timestamps();
+});</code></pre>
+                </div>
+            </section>
+
+            <section id="eloquent" class="content-section">
+                <h2>2. Eloquent ORM: Magia y Convenciones</h2>
+                <p>Eloquent es el ORM de Laravel y está lleno de convenciones inteligentes para agilizar tu interacción con la base de datos.</p>
+
+                <h4>Clave Primaria (Primary Key)</h4>
+                <div class="alert">
+                    <p class="font-bold">Situación Común:</p>
+                    <p>Estás creando un e-commerce y la tabla de productos no usa un <code>id</code> numérico, sino un <code>sku</code> (un código de texto) como clave primaria. Eloquent asumirá que es un <code>id</code> auto-incremental y fallará al intentar guardar productos.</p>
+                </div>
+                <div class="code-block rounded-lg mt-4 mb-6 relative">
+                    <button class="copy-btn absolute top-2 right-2 text-white px-2 py-1 text-xs rounded">Copiar</button>
+                    <pre class="p-4 overflow-x-auto"><code class="language-php">class Product extends Model
+{
+    // 1. Le decimos el nombre de nuestra clave primaria
+    protected $primaryKey = 'sku';
+
+    // 2. Le decimos que NO es auto-incremental
+    public $incrementing = false;
+
+    // 3. Le decimos que es de tipo string
+    protected $keyType = 'string';
+}</code></pre>
+                </div>
+                
+                <h4>Timestamps (Marcas de Tiempo)</h4>
+                <p>Eloquent espera las columnas <code>created_at</code> y <code>updated_at</code> y las gestiona automáticamente. Es muy útil, pero a veces no es necesario.</p>
+                <div class="alert">
+                    <p class="font-bold">Situación Común:</p>
+                    <p>Tienes una tabla de "países" (<code>countries</code>) que cargas una vez y nunca más modificas. Tener las columnas <code>created_at</code> y <code>updated_at</code> es innecesario. Para evitar errores y ahorrar espacio, puedes desactivarlas.</p>
+                </div>
+                <div class="code-block rounded-lg mt-4 mb-6 relative">
+                    <button class="copy-btn absolute top-2 right-2 text-white px-2 py-1 text-xs rounded">Copiar</button>
+                    <pre class="p-4 overflow-x-auto"><code class="language-php">class Country extends Model
+{
+    public $timestamps = false; // Desactiva la gestión automática
+}</code></pre>
+                </div>
+
+                <h4>Relaciones Eloquent y Claves Foráneas</h4>
+                <p>Aquí es donde las convenciones ahorran más tiempo. La clave foránea se deduce del nombre del modelo: <code>User</code> -> <code>user_id</code>.</p>
+                <div class="alert">
+                    <p class="font-bold">Situación Común:</p>
+                    <p>Un <code>Post</code> pertenece a un <code>User</code>. Pero en la tabla <code>posts</code>, la columna que los une se llama <code>author_id</code> en lugar de <code>user_id</code>. Laravel no la encontrará por sí solo.</p>
+                </div>
+                <div class="code-block rounded-lg mt-4 mb-6 relative">
+                    <button class="copy-btn absolute top-2 right-2 text-white px-2 py-1 text-xs rounded">Copiar</button>
+                    <pre class="p-4 overflow-x-auto"><code class="language-php">// En el modelo Post (post.php)
+public function author()
+{
+    // Le indicamos explícitamente la clave foránea a usar.
+    return $this->belongsTo(User::class, 'author_id');
+}
+
+// En el modelo User (user.php)
+public function posts()
+{
+    // También debemos indicarlo en la relación inversa.
+    return $this->hasMany(Post::class, 'author_id');
+}</code></pre>
+                </div>
+            </section>
+            
+            <section id="coding-standards" class="content-section">
+                <h2>3. Estándares de Codificación: camelCase vs. snake_case</h2>
+                <p>Laravel combina diferentes estándares para lograr la máxima claridad en cada contexto.</p>
+                <ul>
+                    <li><strong><code>PascalCase</code></strong>: Para nombres de clases (<code>BlogPost</code>, <code>UserService</code>).</li>
+                    <li><strong><code>camelCase</code></strong>: Para nombres de métodos y variables en PHP (<code>$blogPosts</code>, <code>getPublishedPosts()</code>).</li>
+                    <li><strong><code>snake_case</code></strong>: Para nombres de tablas y columnas de BBDD, claves en archivos de configuración y respuestas JSON de una API.</li>
+                    <li><strong><code>kebab-case</code></strong>: Para URLs / Rutas (<code>/blog-posts/{post}</code>) y nombres de vistas.</li>
+                </ul>
+                <p><strong>Resumen Práctico:</strong> Dentro de tu código PHP, usa <code>PascalCase</code> y <code>camelCase</code>. Cuando interactúas con sistemas externos (Base de Datos, APIs JSON) o con el navegador (URLs), prefiere <code>snake_case</code> y <code>kebab-case</code>.</p>
+            </section>
+
+            <section id="architecture" class="content-section">
+                <h2>4. Mejores Prácticas en la Arquitectura</h2>
+                <p>Más allá de la sintaxis, las buenas prácticas definen cómo estructurar la lógica de tu aplicación para que sea escalable y mantenible.</p>
+                
+                <h4>Controladores "Delgados" y Clases de Servicio</h4>
+                <p>La responsabilidad de un controlador es ser un intermediario: recibir una Petición (Request), llamar a la lógica de negocio y devolver una Respuesta (Response). <strong>Toda la lógica "pesada" debería vivir en otro lugar.</strong></p>
+                
+                <h4>Form Requests para Validación</h4>
+                <p>Encapsula la lógica de validación y autorización en clases <code>Form Request</code>. Esto limpia tu controlador y hace que tus reglas de validación sean reutilizables.</p>
+                 <div class="alert">
+                    <p class="font-bold">¿Por qué es mejor?</p>
+                    <ul>
+                        <li><strong>Separación de Responsabilidades:</strong> El controlador no debería saber cómo se valida un post, solo que debe ser validado.</li>
+                        <li><strong>Reutilizable:</strong> Puedes usar el mismo <code>StoreBlogPostRequest</code> en tu API y en tu controlador web.</li>
+                        <li><strong>Más limpio:</strong> Tu método del controlador se reduce a unas pocas líneas, como se ve abajo.</li>
+                    </ul>
+                </div>
+                <div class="code-block rounded-lg mt-4 mb-6 relative">
+                    <button class="copy-btn absolute top-2 right-2 text-white px-2 py-1 text-xs rounded">Copiar</button>
+                    <pre class="p-4 overflow-x-auto"><code class="language-bash">php artisan make:request StoreBlogPostRequest</code></pre>
+                </div>
+                <p>Luego, simplemente usa la inyección de dependencias en tu método del controlador:</p>
+                <div class="code-block rounded-lg mt-4 mb-6 relative">
+                    <button class="copy-btn absolute top-2 right-2 text-white px-2 py-1 text-xs rounded">Copiar</button>
+                    <pre class="p-4 overflow-x-auto"><code class="language-php">// BlogPostController.php
+public function store(StoreBlogPostRequest $request)
+{
+    // Si la validación falla, Laravel redirige automáticamente.
+    // Los datos ya están validados y son seguros.
+    BlogPost::create($request->validated());
+
+    return redirect()->route('blog_posts.index');
+}</code></pre>
+                </div>
+            </section>
+            
+            <section id="routes-views" class="content-section">
+                <h2>5. Rutas y Vistas: Organización y Claridad</h2>
+                
+                <h4>Rutas (Routes)</h4>
+                <p><strong>Nombra tus rutas:</strong> Es una práctica fundamental que desacopla tus URLs de tu código. Si necesitas cambiar una URL, solo lo haces en un sitio.</p>
+                 <div class="alert">
+                    <p class="font-bold">Situación Común:</p>
+                    <p>Decides cambiar la URL de tu blog de <code>/posts/{post}</code> a <code>/articulos/{post}</code> por motivos de SEO. Si has usado <code>redirect('/posts/...')</code> en 10 sitios diferentes de tu código, tendrás que cambiarlo en 10 sitios. Si usaste <code>redirect()->route('posts.show', ...)</code>, solo cambias la definición de la ruta en <code>web.php</code> y todo seguirá funcionando.</p>
+                </div>
+                <div class="code-block rounded-lg mt-4 mb-6 relative">
+                    <button class="copy-btn absolute top-2 right-2 text-white px-2 py-1 text-xs rounded">Copiar</button>
+                    <pre class="p-4 overflow-x-auto"><code class="language-php">// En routes/web.php
+Route::get('/articulos/{post}', [PostController::class, 'show'])->name('posts.show');
+
+// En cualquier controlador, esto sigue funcionando perfectamente.
+return redirect()->route('posts.show', ['post' => 1]);</code></pre>
+                </div>
+
+                <h4>Vistas (Views)</h4>
+                <p>Organiza tus vistas en subdirectorios que coincidan con el recurso que las usa. Para elementos de UI reutilizables (botones, alertas), usa <strong>Componentes de Blade</strong>.</p>
+                <div class="code-block rounded-lg mt-4 mb-6 relative">
+                    <button class="copy-btn absolute top-2 right-2 text-white px-2 py-1 text-xs rounded">Copiar</button>
+                    <pre class="p-4 overflow-x-auto"><code class="language-bash">php artisan make:component Alert</code></pre>
+                </div>
+                <p>Y úsalo en tus vistas de forma sencilla:</p>
+                <div class="code-block rounded-lg mt-4 mb-6 relative">
+                    <button class="copy-btn absolute top-2 right-2 text-white px-2 py-1 text-xs rounded">Copiar</button>
+                    <pre class="p-4 overflow-x-auto"><code class="language-blade">&lt;x-alert type="success" message="¡El post se ha guardado!" /&gt;</code></pre>
+                </div>
+            </section>
+            
+            <section id="conclusion" class="content-section">
+                 <div class="bg-white p-8 rounded-xl shadow-md">
+                    <h2>Conclusión: De Desarrollador a Artesano</h2>
+                    <p>Las convenciones de Laravel no son reglas arbitrarias; son un conjunto de decisiones de diseño probadas que guían hacia un código más limpio, mantenible y escalable. Al principio pueden parecer una "magia" inexplicable, pero una vez que entiendes el "porqué" detrás de ellas, te permiten concentrarte en lo que realmente importa: construir funcionalidades increíbles para tu aplicación.</p>
+                    <p class="font-bold text-lg" style="color: var(--primary-color);">Dominar estas prácticas es el paso clave para pasar de ser un desarrollador que *usa* Laravel a ser un *artesano* de Laravel.</p>
+                 </div>
+            </section>
+
+        </div>
+    </main>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const navLinks = document.querySelectorAll('#sidebar-nav .nav-link');
+            const contentSections = document.querySelectorAll('.content-section');
+
+            function setActiveSection(targetId) {
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('data-target') === targetId) {
+                        link.classList.add('active');
+                    }
+                });
+                
+                contentSections.forEach(section => {
+                    section.classList.remove('active');
+                    if (section.id === targetId) {
+                        section.classList.add('active');
+                    }
+                });
+            }
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('data-target');
+                    setActiveSection(targetId);
+                });
+            });
+
+            document.querySelectorAll('.copy-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const codeElement = this.nextElementSibling.querySelector('code');
+                    const code = codeElement.innerText;
+                    navigator.clipboard.writeText(code).then(() => {
+                        const originalText = this.textContent;
+                        this.textContent = '¡Copiado!';
+                        this.style.backgroundColor = '#38a169'; // a green color
+                        setTimeout(() => {
+                            this.textContent = originalText;
+                            this.style.backgroundColor = '#4a5568';
+                        }, 2000);
+                    }).catch(err => {
+                        console.error('Error al copiar el texto: ', err);
+                    });
+                });
+            });
+            
+            // Set initial active state
+            setActiveSection('intro');
+        });
+    </script>
+</body>
+</html>
